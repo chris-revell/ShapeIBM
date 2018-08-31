@@ -1,0 +1,632 @@
+//C++ adaptation of CellGrowth.m from Katarzyna Rejniak
+
+#include <iostream>
+//#include "mkl_dfti.h"
+#include "array"
+using std::array;
+using namespace std;
+
+
+
+void main() {
+
+  const int Ng=64;                  // fluid grid size
+  const int Nb=64;                  // number of boundary points
+//  int Ngg=32;                 // grid size for pictures only
+  int xmin=-1;
+  int xmax=1;
+  int cen=(xmax+xmin)/2;      // fluid domain (square)
+  float hg=(xmax-xmin)/Ng;    // fluid mesh width
+  float Src=1;                // source strength
+  float Spr=100;              // spring stiffness
+  float rho=1;                // fluid density
+  float mu=1;                 // fluid viscosity
+  float dt=0.05;              // time step
+  float len=0.2;              // body radius/half length
+  int connect=3;              // spring connections:
+                              // 0-adjacent only, 1-adjacent and secondary
+                              // 2-adjacent and center, 3-adjcent and opposite
+  float scaleF=1.0;           // scaling parameter for forces
+  float scaleV=1.0;           // scaling parameter for velocities
+  int NumLoop=40;             // number of steps
+  int mod_num=5;              // frequency
+  int Nbs=2;
+  float sb[2][2];
+  float xb[2][Nb] = {0};      // Position of all boundary elements
+  float ub[2][Nb] = {0};      // Velocity of all boundary elements
+  float hb;                   // Spacing between boundary elements?
+  float fb[2][Nb] = {0};      // Boundary forces
+  float fadj[2][Nb]={0};      // Adjacent forces array
+  float fsec[2][Nb]={0};      // Secondary forces array
+  float fcen[2][Nb]={0};      // Centre forces array
+  float fopp[2][Nb]={0};      // Opposite forces array
+  float xg[Ng][Ng] = {0};     // Fluid grid array
+  float sg[Ng+1][Ng+1][2]={0};// Fluid grid
+  float fg[Ng+1][Ng+1][2]={0};// Grid forces
+  float vg[Ng+1][Ng+1][2]={0};// Grid velocities
+  float ug[Ng+1][Ng+1][2]={0};// Previous grid velocities
+
+  //-- define fluid grid --//
+  for (int ii=0;ii<Ng;ii++) {
+    for (int jj=0;jj<Ng;jj++) {
+      xg[ii][jj][1]=xmin+(ii-1)*hg;
+      xg[ii][jj][2]=xmin+(jj-1)*hg;
+    }
+  }
+
+  //-- cell shape --//
+  for (int ii=0;ii<Nb;ii++) {
+    xb[1][ii] = DefineCellShape(Nb,len,1,ii);
+    xb[2][ii] = DefineCellShape(Nb,len,2,ii);
+  }
+  hb=sqrt((xb[1][1]-xb[1][2])^2+(xb[2][1]-xb[2][2])^2);
+
+  //-- distributed sources and sinks --//
+  sb[0][0]=cen;
+  sb[1][0]=cen;
+  sb[0][1]=xmin;
+  sb[1][1]=xmin;
+  sbb[0][0]= Src;     // a source at the center
+  sbb[0][1]=-Src;     // a sink in the corner
+
+  for (int loop_num=0; loop_num<NumLoop; loop_num++) {
+    //-- new position of boundary points --//
+    xb=xb+ub*dt;
+    //-- boundary forces --//
+    AdjacentForces(fadj,xb,Nb,hb,Spr);            // adjacent
+    SecondaryForces(fsec,xb,Nb,hb,Spr,connect);   // secondary
+    CenterForces(fcen,xb,Nb,cen,len,Spr,connect); // center
+    OppositeForces(fopp,xb,Nb,len,Spr,connect);   // opposite
+    fb=fadj+fsec+fcen+fopp;    // add all forces
+    //-- grid sources --//
+    BoundToGrid1(sg,sb,sbb,Nbs,Ng,hg,hg,0.5*hg,xmin,xmax);
+    //-- grid forces --//
+
+    BoundToGrid2(fg,xb,fb,Nb,Ng,hg,hg,0.5*hg,xmin,xmax);
+    //-- compute grid velocity from NavierStokes --//
+    NavierStokes(vg,ug,fg,sg,Ng,rho,mu,dt,hg);
+    ug=vg;
+    //-- boundary velocities --//
+    ub=GridToBound(xb,Nb,vg,Ng,hg,hg,xmin,xmax);
+  }   // for loop_num
+}
+
+//--------------------------------------------------------------------//
+// Define cell shape. Nb defines
+// the number of boundary points; len defines a radius for a circular //
+// cell; or a length of a side of the square                          //
+//--------------------------------------------------------------------//
+int DefineCellShape(int Nb, float len, int x, int y) {
+  float pi = 3.1415;
+  float hb=2*pi/Nb;
+  if (x==1) {
+    return (len*cos((y-1)*hb));
+  }
+  else {
+    return (len*sin((y-1)*hb));
+  }
+}    // function DefineCellShape
+//-----------------------------------------------------------------//
+
+
+//--------------------------------------------------------------------//
+// define adjacent forces between adjacent boundary points:           //
+// (n-th to n-1 and n+1)                                              //
+//--------------------------------------------------------------------//
+void AdjacentForces(float fbb[][],float xb[][],int Nb,float hb, float Spr) {
+  float Lrest;
+  float dl1;
+  float dl2;
+  float dr1;
+  float dr2;
+  float ndl;
+  float ndr;
+  for (int ii=0; ii<Nb; ii++) {
+    Lrest=hb;
+    if (ii==0) {
+      dl1=xb(0,Nb-1)-xb(0,ii);
+      dl2=xb(1,Nb-1)-xb(1,ii);
+      dr1=xb(0,ii+1)-xb(0,ii);
+      dr2=xb(1,ii+1)-xb(1,ii);
+    } else if (ii==Nb-1) {
+      dl1=xb(0,ii-1)-xb(0,ii);
+      dl2=xb(1,ii-1)-xb(1,ii);
+      dr1=xb(0,0)   -xb(0,ii);
+      dr2=xb(1,0)   -xb(1,ii);
+    } else {
+      dl1=xb(0,ii-1)-xb(0,ii);
+      dl2=xb(1,ii-1)-xb(1,ii);
+      dr1=xb(0,ii+1)-xb(0,ii);
+      dr2=xb(1,ii+1)-xb(1,ii);
+    }
+    ndl=sqrt(dl1^2+dl2^2);
+    ndr=sqrt(dr1^2+dr2^2);
+    fbb(0,ii)=fbb(0,ii)+(Spr*(ndl-Lrest)*dl1/ndl)+(Spr*(ndr-Lrest)*dr1/ndr);
+    fbb(1,ii)=fbb(1,ii)+(Spr*(ndl-Lrest)*dl2/ndl)+(Spr*(ndr-Lrest)*dr2/ndr);
+  }
+  return;
+}// function AdjacentForces
+//----------------------------------------------------------------------//
+
+//----------------------------------------------------------------------//
+// define secondary adjacent forces between second to adjacent boundary //
+// points: (n-th to n-2 and n+2)                                        //
+//----------------------------------------------------------------------//
+void SecondaryForces(float fbb[][],float xb[][],int Nb,float Lrest,float Spr,int connect) {
+  float dl1;
+  float dl2;
+  float dr1;
+  float dr2;
+  float ndl;
+  float ndr;
+  for (int ii=0; ii<Nb; ii++) {
+    if (connect==1) {
+      Lrest=2*hb;
+      if (ii==0) {
+        dl1=xb(0,Nb-2)-xb(0,ii);
+        dl2=xb(1,Nb-2)-xb(1,ii);
+        dr1=xb(0,ii+2)-xb(0,ii);
+        dr2=xb(1,ii+2)-xb(1,ii);
+      } else if (ii==1) {
+        dl1=xb(0,Nb-1)-xb(0,ii);
+        dl2=xb(1,Nb-1)-xb(1,ii);
+        dr1=xb(0,ii+2)-xb(0,ii);
+        dr2=xb(1,ii+2)-xb(1,ii);
+      } else if (ii==Nb-2) {
+        dl1=xb(0,ii-2)-xb(0,ii);
+        dl2=xb(1,ii-2)-xb(1,ii);
+        dr1=xb(0,0)-xb(0,ii);
+        dr2=xb(1,0)-xb(1,ii);
+      } else if (ii==Nb-1) {
+        dl1=xb(0,ii-2)-xb(0,ii);
+        dl2=xb(1,ii-2)-xb(1,ii);
+        dr1=xb(0,1)-xb(0,ii);
+        dr2=xb(1,1)-xb(1,ii);
+      } else {
+        dl1=xb(0,ii-2)-xb(0,ii);
+        dl2=xb(1,ii-2)-xb(1,ii);
+        dr1=xb(0,ii+2)-xb(0,ii);
+        dr2=xb(1,ii+2)-xb(1,ii);
+      }
+      ndl=sqrt(dl1^2+dl2^2);
+      ndr=sqrt(dr1^2+dr2^2);
+      fbb(0,ii)=fbb(0,ii)+(Spr*(ndl-Lrest)*dl1/ndl)+(Spr*(ndr-Lrest)*dr1/ndr);
+      fbb(1,ii)=fbb(1,ii)+(Spr*(ndl-Lrest)*dl2/ndl)+(Spr*(ndr-Lrest)*dr2/ndr);
+    }
+  }
+  return;
+} // SecondaryForces
+//--------------------------------------------------------------------//
+
+//----------------------------------------------------------------------//
+// define central forces between boundary points and the cell nucleus   //
+// only holf of all boundary points are connected to cell nucleus to    //
+// allow the whole cell to grow                                         //
+//----------------------------------------------------------------------//
+void CenterForces(float fbb[][],float xb[][],int Nb,float cen,float len,float Spr,int connect){
+  float dl1;
+  float dl2
+  float ndl;
+
+  for (int ii=0; ii<Nb/2; i++){
+    if (connect==2){
+      Lrest=len;
+
+      dl1=cen-xb(0,ii);
+      dl2=cen-xb(1,ii);
+      ndl=sqrt(dl1^2+dl2^2);
+
+      fbb(0,ii)=fbb(0,ii)+(Spr*(ndl-Lrest)*dl1/ndl);
+      fbb(1,ii)=fbb(1,ii)+(Spr*(ndl-Lrest)*dl2/ndl);
+    }
+  }
+  return;
+} // function CenterForces
+//--------------------------------------------------------------------//
+
+//--------------------------------------------------------------------//
+// define opposite forces between opposite boundary points            //
+//--------------------------------------------------------------------//
+void OppositeForces(float fbb[][],float xb[][],int Nb,float len,float Spr,int connect){
+  float Lrest;
+  float dl1;
+  float dl2;
+  float dr1;
+  float dr2
+  float ndl;
+  float ndr;
+
+  for (int ii=0; ii<Nb; ii++){
+    if (connect==3){
+      Lrest=2*len;
+      Nb2=Nb/4;
+      if (ii <= (Nb2+1)){
+        dl1=xb[0][3*Nb2+2-ii]-xb[0][ii];
+        dl2=xb[1][3*Nb2+2-ii]-xb[1][ii];
+        dr1=-dl1;
+        dr2=-dl2;
+        ndl=sqrt(dl1^2+dl2^2);
+        ndr=sqrt(dr1^2+dr2^2);
+        fbb[0][ii]=fbb[0][ii]+(Spr*(ndl-Lrest)*dl1/ndl);
+        fbb[1][ii]=fbb[1][ii]+(Spr*(ndl-Lrest)*dl2/ndl);
+        fbb[0][3*Nb2+2-ii]=fbb[0][3*Nb2+2-ii]+(Spr*(ndr-Lrest)*dr1/ndr);
+        fbb[1][3*Nb2+2-ii]=fbb[1][3*Nb2+2-ii]+(Spr*(ndr-Lrest)*dr2/ndr);
+      }
+    }
+  }
+  return;
+}// function OppositeForces
+//--------------------------------------------------------------------//
+
+
+//-----------------------------------------------------------------//
+// spreads the material values sb(Nb) (forces, sources) defined at //
+// material points xb(1,Nb) to the fluid grid sg(Ng+1,Ng+1) in the //
+// square domain [xmin,xmax]^2 with mesh width hg, material points //
+// separation hb and a radius of the discrete delta function hdl.  //
+//-----------------------------------------------------------------//
+void BoundToGrid1(float sg[][],float xb[][],float sb[][],int Nb,int Ng,float hdl,float hg,float hb,int xmin,int xmax){
+  int pas=-100; // passive value - do nothing
+  float llx,rr,dx,lly,dy;
+  int x1=0;
+  int x2=0;
+  int y1=0;
+  int y2=0;
+
+
+  for (int n3=0;n3<Nb;n3++){
+    // move points into the domain
+    xbb1=IntoDom(xb[0][n3],xmin,xmax);
+    xbb2=IntoDom(xb[1][n3],xmin,xmax);
+
+    // determine indices of the nearest lower-down grid point
+    Nx=1+floor((xbb1-xmin)/hg);
+    Ny=1+floor((xbb2-xmin)/hg);
+
+    // tests all 16 possible grid points
+    for (int ii=-1; ii<2; ii++){
+      for (int jj=-1; jj<2; jj++){
+        // compute the interpolation Delta function
+        llx=xmin+(Nx-1)*hg+ii*hg;
+        rr=abs(xbb1-llx);
+        dx=DeltaFun(rr,hdl);
+        lly=xmin+(Ny-1)*hg+jj*hg;
+        rr=abs(xbb2-lly);
+        dy=DeltaFun(rr,hdl);
+
+        // determine indices of the grid points to update
+        IndDel(x1,x2,llx,ii,Nx,Ng,xmin,xmax);
+        IndDel(y1,y2,lly,jj,Ny,Ng,xmin,xmax);
+
+        // update the values if poits are not pasive
+        if (dx*dy > 0){
+          sg[x1][y1]  =sg[x1][y1)  +sb[0][n3]*dx*dy*hb;
+          if (x2 != pas){
+            sg[x2][y1] =sg[x2][y1] +sb[0][n3]*dx*dy*hb;
+          }
+          if (y2 != pas){
+            sg[x1][y2] =sg[x1][y2] +sb[0][n3]*dx*dy*hb;
+          }
+          if ((x2 != pas) & (y2 != pas)){
+            sg[x2][y2] =sg[x2][y2] +sb[0][n3]*dx*dy*hb;
+          }
+        }
+      }  // for jj
+    } // for ii
+  } // for n3
+  return;
+} // function BoundToGrid1
+//-------------------------------------------------------------------//
+
+//-------------------------------------------------------------------//
+// spreads the material values sb(1,Nb) (forces, sources) defined at //
+// material points xb(1,Nb) to the fluid grid sg(Ng+1,Ng+1,2) in the //
+// square domain [xmin,xmax]^2 with mesh width hg, material points   //
+// separation hb and a radius of the discrete delta function hdl.    //
+//-------------------------------------------------------------------//
+void BoundToGrid2(float sg[][][],float xb[][],float sb[][],int Nb,int Ng,float hdl,float hg,float hb,int xmin,int xmax){
+
+  // passive value - do nothing
+  int pas=-100;
+  int Nx,Ny;
+  int x1=0;
+  int x2=0;
+  int y1=0;
+  int y2=0;
+  float llx,rr,dx,lly,dy;
+
+  for (int n3=0; n3<Nb; n3++){
+    // move points into the domain
+    xbb1=IntoDom(xb[0][n3],xmin,xmax);
+    xbb2=IntoDom(xb[1][n3],xmin,xmax);
+
+    // determine indeces of the nearest lower-down grid point
+    Nx=1+floor((xbb1-xmin)/hg);
+    Ny=1+floor((xbb2-xmin)/hg);
+
+    // tests all 16 possible grid points
+    for (int ii=-1; ii<2;ii++){
+      for (int jj=-1;jj<2;jj++){
+        // compute the interpolation Delta function
+        llx=xmin+(Nx-1)*hg+ii*hg;
+        rr=abs(xbb1-llx);
+        dx=DeltaFun(rr,hdl);
+        lly=xmin+(Ny-1)*hg+jj*hg;
+        rr=abs(xbb2-lly);
+        dy=DeltaFun(rr,hdl);
+
+        // determine indices of the grid points to update
+        IndDel(x1,x2,llx,ii,Nx,Ng,xmin,xmax);
+        IndDel(y1,y2,lly,jj,Ny,Ng,xmin,xmax);
+
+        // update the values if poits are not pasive
+        if (dx*dy > 0){
+          sg[x1][y1][1]=sg[x1][y1][1]+sb[0][n3]*dx*dy*hb;
+          sg[x1][y1][2]=sg[x1][y1][2]+sb[1][n3]*dx*dy*hb;
+
+          if (x2 != pas){
+            sg[x2][y1][1]=sg[x2][y1][1]+sb[0][n3]*dx*dy*hb;
+            sg[x2][y1][2]=sg[x2][y1][2]+sb[1][n3]*dx*dy*hb;
+          }
+          if (y2 != pas){
+            sg[x1][y2][1]=sg[x1][y2][1]+sb[0][n3]*dx*dy*hb;
+            sg[x1][y2][2]=sg[x1][y2][2]+sb[1][n3]*dx*dy*hb;
+          }
+          if ((x2 != pas) && (y2 != pas)){
+            sg[x2][y2][1]=sg[x2][y2][1]+sb[0][n3]*dx*dy*hb;
+            sg[x2][y2][2]=sg[x2][y2][2]+sb[1][n3]*dx*dy*hb;
+          }
+        }
+
+      } // jj
+    } // ii
+  } // for n3
+  return;
+} // function BoundToGride
+//---------------------------------------------------------------------//
+
+//---------------------------------------------------------------------//
+// Uses the Fast Fourier Method to solve the Navier-Stokes equations   //
+// for updating grid velocity ug due to grid forces fg and grid source //
+// distribution sg, rho and mu are fluid constants, dt is a time step, //
+// hg is a mesh width.                                                 //
+//---------------------------------------------------------------------//
+void NavierStokes(float vg[][],float ug[][],float fg[][],float sg[][],int Ng,float rho,float mu,float dt,float hg){
+
+  float pom;
+  int in1,in2;
+
+  // stage n terms: force density fg, source distribution sg and current
+  // velocity ug
+  for (int n1=0; n1<Ng+1; n1++){
+    for (int n2=0; n2<Ng+1; n2++){
+      for (int ik=0; ik<2; ik++){
+        // upwind scheme for the advection term
+        if (ug[n1][n2][1]) < 0){
+          in1=PeriodInd(n1,Ng,1);
+          pom=ug[in1][n2][ik]-ug[n1][n2][ik];
+        }else{
+          in1=PeriodInd(n1,Ng,-1);
+          pom=ug[n1][n2][ik]-ug[in1][n2][ik];
+        }
+        vg(n1,n2,ik)=ug(n1,n2,1)*pom;
+
+        if (ug[n1][n2][2] < 0){
+          in2=PeriodInd(n2,Ng,1);
+          pom=ug[n1][in2][ik]-ug[n1][n2][ik];
+        }else{
+          in2=PeriodInd(n2,Ng,-1);
+          pom=ug[n1][n2][ik]-ug[n1][in2][ik];
+        }
+        vg[n1][n2][ik]=vg[n1][n2][ik]+ug[n1][n2][2]*pom;
+        vg[n1][n2][ik]=-dt*vg[n1][n2][ik]/hg;
+
+        // central difference for the grad of source term
+        if (ik == 1){
+          in1=PeriodInd(n1,Ng,1);
+          in2=PeriodInd(n1,Ng,-1);
+          pom=sg[in1][n2]-sg[in2][n2];
+        }else if (ik == 2){
+          in1=PeriodInd(n2,Ng,1);
+          in2=PeriodInd(n2,Ng,-1);
+          pom=sg[n1][in1]-sg[n1][in2];
+        }
+        vg[n1][n2][ik]=vg[n1][n2][ik]+dt*mu*pom/(6*hg*rho*rho);
+
+        // current vlocity and force terms
+        vg[n1][n2][ik]=vg[n1][n2][ik]+ug[n1][n2][ik]+dt*fg[n1][n2][ik]/rho;
+      } // for ik
+    } // for n2
+  } // for n1
+
+  // the Fast Fourier transforms of source distribution sg and stage n term vg
+  fsg =fft2(sg[1:Ng,1:Ng));
+  fug1=fft2(vg(1:Ng,1:Ng,1));
+  fug2=fft2(vg(1:Ng,1:Ng,2));
+
+  // determines fug - the Fourier Transform of the velocity field at the stage n+1
+  Eps=0.0000001;
+  for n1=0:Ng-1
+    for n2=0:Ng-1
+      B1=sin(2*pi*n1/Ng);
+      B2=sin(2*pi*n2/Ng);
+      Bb=B1^2+B2^2;
+      Aa=1+4*mu*dt*(sin(pi*n1/Ng)^2+sin(pi*n2/Ng)^2)/(rho*hg*hg);
+
+      if (Bb < Eps)
+        fvg1(n1+1,n2+1,1)=real(fug1(n1+1,n2+1))/Aa;
+        fvg1(n1+1,n2+1,2)=imag(fug1(n1+1,n2+1))/Aa;
+        fvg2(n1+1,n2+1,1)=real(fug2(n1+1,n2+1))/Aa;
+        fvg2(n1+1,n2+1,2)=imag(fug2(n1+1,n2+1))/Aa;
+      else
+        Bv=B1*real(fug1(n1+1,n2+1))+B2*real(fug2(n1+1,n2+1));
+        fvg1(n1+1,n2+1,1)=(Bb*real(fug1(n1+1,n2+1))-B1*Bv)/(Aa*Bb);
+        fvg2(n1+1,n2+1,1)=(Bb*real(fug2(n1+1,n2+1))-B2*Bv)/(Aa*Bb);
+
+        Bv=B1*imag(fug1(n1+1,n2+1))+B2*imag(fug2(n1+1,n2+1));
+        fvg1(n1+1,n2+1,2)=(Bb*imag(fug1(n1+1,n2+1))-B1*Bv)/(Aa*Bb);
+        fvg2(n1+1,n2+1,2)=(Bb*imag(fug2(n1+1,n2+1))-B2*Bv)/(Aa*Bb);
+
+        fvg1(n1+1,n2+1,1)=fvg1(n1+1,n2+1,1)+hg*B1*imag(fsg(n1+1,n2+1))/(Bb*rho);
+        fvg1(n1+1,n2+1,2)=fvg1(n1+1,n2+1,2)-hg*B1*real(fsg(n1+1,n2+1))/(Bb*rho);
+        fvg2(n1+1,n2+1,1)=fvg2(n1+1,n2+1,1)+hg*B2*imag(fsg(n1+1,n2+1))/(Bb*rho);
+        fvg2(n1+1,n2+1,2)=fvg2(n1+1,n2+1,2)-hg*B2*real(fsg(n1+1,n2+1))/(Bb*rho);
+      end
+    end // for n2
+  end // for n1
+
+  // the inverse Fast Fourier Method of fvg
+  fvgg=fvg1(1:Ng,1:Ng,1)+i*fvg1(1:Ng,1:Ng,2);
+  vg1=ifft2(fvgg);
+  fvgg=fvg2(1:Ng,1:Ng,1)+i*fvg2(1:Ng,1:Ng,2);
+  vg2=ifft2(fvgg);
+  for (int ii=0; ii<Ng; ii++){
+    for (int jj=0; jj<Ng; jj++){
+      vg(ii,jj,1)=real(vg1(ii,jj));
+      vg(ii,jj,2)=real(vg2(ii,jj));
+    }
+  }
+  vg(Ng,:,:)=vg(0,:,:);
+  vg(:,Ng,:)=vg(:,0,:);
+
+} // function NavierStokes
+//-----------------------------------------------------------------------//
+
+//-----------------------------------------------------------------------//
+// interpolates the grid values fg(Ng,Ng,2) (velocities) to the material //
+// values fb(1,Nb) defined at the material points xb(1,Nb) in the square //
+// domain [xmn,xmx]^2 with mesh width hg and a radius of the discrete    //
+// Dirac delta hdl.                                                      //
+//-----------------------------------------------------------------------//
+void GridToBound(float fb[][],float xb[][],int Nb,float fg[][],int Ng,float hdl,float hg,int xmn,int xmx){
+
+  float xbb1,xbb2,llx,rr,dx,lly,dy;
+  int Nx,Ny,x1,x2,y1,y2;
+
+  for (int n3=0; n3<Nb; n3++){
+    // moves points into the domain
+    xbb1=IntoDom(xb(0,n3),xmn,xmx);
+    xbb2=IntoDom(xb(1,n3),xmn,xmx);
+
+    //computes the indices of the nearest down-left grid point
+    Nx=1+floor((xbb1-xmn)/hg);
+    Ny=1+floor((xbb2-xmn)/hg);
+
+    // test all 16 neighboring points
+    for ii=-1:2{
+      for jj=-1:2{
+        // determine the value of the interpolation Delta-function
+        llx=xmn+(Nx-1)*hg+ii*hg;
+        rr=abs(xbb1-llx);
+        dx=DeltaFun(rr,hdl);
+        lly=xmn+(Ny-1)*hg+jj*hg;
+        rr=abs(xbb2-lly);
+        dy=DeltaFun(rr,hdl);
+
+        // determine the indices of grid points gaining positive impact
+        IndDel(x1,x2,llx,ii,Nx,Ng,xmn,xmx);
+        IndDel(y1,y2,lly,jj,Ny,Ng,xmn,xmx);
+
+        // update the values if inside the impact domain
+        if (dx*dy > 0){
+          fb(0,n3)=fb(0,n3)+fg(x1,y1,1)*dx*dy*hg*hg;
+          fb(1,n3)=fb(1,n3)+fg(x1,y1,2)*dx*dy*hg*hg;
+        }
+      } // for jj
+    } // for ii
+  }// for n3
+} // function GridToBound
+//-------------------------------------------------------------------//
+
+//-------------------------------------------------------------------//
+// determines value of the unitary bellshaped discrete approximation //
+// to the Dirac delta function of radius h for a point located at    //
+// distance r from the center.                                       //
+//-------------------------------------------------------------------//
+float DeltaFun(float r,float h){
+  float dist;
+
+  if (abs(r) < (2*h)){
+    dist=0.25*(1+cos(0.5*pi*r/h))/h;
+  else
+    dist=0;
+  }
+  return dist;
+} // function DeltaFun
+//-------------------------------------------------------------------//
+
+//-------------------------------------------------------------------//
+// determines indices in1 and in2 of grid elements which need  to be //
+// updated in the interpolation of point ll (shifted by ij according //
+// to the reference point Nij). Depending on the location of point   //
+// ll, there may be at most two active indeces for each element, due //
+// to periodicity of fluid domain.                                   //
+//   0 elements to update, if ll inside the domain,                  //
+//   1 element  to update, if ll is close to the boundary,           //
+//   2 elements to update, if ll is close to the corner.             //
+//-------------------------------------------------------------------//
+void IndDel(int in1,int in2,float ll,int ij,int Nij,int Nmx,int xmn,int xmx){
+  // passive value - do nothing
+  int pas=-100;
+  int in2;
+
+  in2=pas;
+  if (ll < xmn){
+    in1=Nmx+1+ij;
+  }else if ((ll == xmn) || (ll == xmx)){
+    in1=Nmx+1;
+    in2=1;
+  }else if (ll > xmx){
+    in1=ij;
+  }else{
+    in1=Nij+ij;
+  }
+  return;
+} // function IndDel
+//--------------------------------------------------------------------//
+
+//--------------------------------------------------------------------//
+// transforms the real coordinate xy of the body into the correspon-  //
+// ding coordinate pom inside the periodic domain [xmn,xmx]x[xmn,xmx] //                             //
+//--------------------------------------------------------------------//
+float IntoDom(float xy,int xmin,int xmax){
+  int len;
+  float pom;
+  len=xmax-xmin;
+  pom=xy;
+  while (pom>xmax){
+    pom=pom-len;
+  }
+  while (pom<xmin)
+    pom=pom+len;
+  end
+  return pom;
+} // function IntoDom
+//-------------------------------------------------------------------//
+
+//-------------------------------------------------------------------//
+// computes shifting of the index nn in the square periodic domain   //
+// of size Ng+1 where the 1st and the (Ng+1)st columns and rows are  //
+// identical according to the value of which:                        //
+//    which = 1 -- nn shifted one element to the right               //
+//    which =-1 -- nn shifted one element to the left                //
+//-------------------------------------------------------------------//
+int PeriodInd(int nn,int Ng,int which){
+  int ind=0;
+  if (which == (-1)){
+    if (nn == 0){
+      ind=Ng-1;
+    }else{
+      ind=nn-1;
+    }
+  }
+  if (which == 1){
+    if (nn == Ng){
+      ind=1;
+    }else{
+      ind=nn+1;
+    }
+  }
+  return ind;
+} // function PeriodInd
+//------------------------------------------------------------------//
