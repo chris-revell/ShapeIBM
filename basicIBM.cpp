@@ -29,6 +29,33 @@ int DefineCellShape(int Nb, float len, int x, int y) {
 }    // function DefineCellShape
 //-----------------------------------------------------------------//
 
+//-------------------------------------------------------------------//
+// computes shifting of the index nn in the square periodic domain   //
+// of size Ng+1 where the 1st and the (Ng+1)st columns and rows are  //
+// identical according to the value of which:                        //
+//    which = 1 -- nn shifted one element to the right               //
+//    which =-1 -- nn shifted one element to the left                //
+//-------------------------------------------------------------------//
+int PeriodInd(int nn,int Ng,int which){
+  int ind=0;
+  if (which == (-1)){
+    if (nn == 0){
+      ind=Ng-1;
+    }else{
+      ind=nn-1;
+    }
+  }
+  if (which == 1){
+    if (nn == Ng){
+      ind=1;
+    }else{
+      ind=nn+1;
+    }
+  }
+  return ind;
+} // function PeriodInd
+//------------------------------------------------------------------//
+
 //--------------------------------------------------------------------//
 // transforms the real coordinate xy of the body into the correspon-  //
 // ding coordinate pom inside the periodic domain [xmn,xmx]x[xmn,xmx] //                             //
@@ -164,10 +191,10 @@ void SecondaryForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float hb,float Spr,
         dr1=xb[0][0]-xb[0][ii];
         dr2=xb[1][0]-xb[1][ii];
       } else if (ii==Nb-1) {
-        dl1=xb[0,ii-2]-xb[0][ii];
-        dl2=xb[1,ii-2]-xb[1][ii];
-        dr1=xb[0,1]-xb[0][ii];
-        dr2=xb[1,1]-xb[1][ii];
+        dl1=xb[0][ii-2]-xb[0][ii];
+        dl2=xb[1][ii-2]-xb[1][ii];
+        dr1=xb[0][1]-xb[0][ii];
+        dr2=xb[1][1]-xb[1][ii];
       } else {
         dl1=xb[0][ii-2]-xb[0][ii];
         dl2=xb[1][ii-2]-xb[1][ii];
@@ -222,12 +249,12 @@ void OppositeForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float len,float Spr,
   float dr2;
   float ndl;
   float ndr;
-  float Nb2;
+  int Nb2;
 
   for (int ii=0; ii<Nb; ii++){
     if (connect==3){
       Lrest=2*len;
-      Nb2=Nb/4;
+      Nb2=floor(Nb/4);
       if (ii <= (Nb2+1)){
         dl1=xb[0][3*Nb2+2-ii]-xb[0][ii];
         dl2=xb[1][3*Nb2+2-ii]-xb[1][ii];
@@ -253,7 +280,7 @@ void OppositeForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float len,float Spr,
 // square domain [xmin,xmax]^2 with mesh width hg, material points //
 // separation hb and a radius of the discrete delta function hdl.  //
 //-----------------------------------------------------------------//
-void BoundToGrid1(float sg[Ng+1][Ng+1],float xb[2][2],float sb[2][2],int Nb,int Ng,float hdl,float hg,float hb,int xmin,int xmax){
+void BoundToGrid1(float sg[Ng+1][Ng+1][2],float xb[2][2],float sb[2][2],int Nb,int Ng,float hdl,float hg,float hb,int xmin,int xmax){
   int pas=-100; // passive value - do nothing
   float llx,rr,dx,lly,dy;
   int x1=0;
@@ -290,15 +317,15 @@ void BoundToGrid1(float sg[Ng+1][Ng+1],float xb[2][2],float sb[2][2],int Nb,int 
 
         // update the values if poits are not pasive
         if (dx*dy > 0){
-          sg[x1][y1]  =sg[x1][y1]  +sb[0][n3]*dx*dy*hb;
+          sg[x1][y1]  += sb[0][n3]*dx*dy*hb;
           if (x2 != pas){
-            sg[x2][y1] =sg[x2][y1] +sb[0][n3]*dx*dy*hb;
+            sg[x2][y1]+= sb[0][n3]*dx*dy*hb;
           }
           if (y2 != pas){
-            sg[x1][y2] =sg[x1][y2] +sb[0][n3]*dx*dy*hb;
+            sg[x1][y2]+= sb[0][n3]*dx*dy*hb;
           }
           if ((x2 != pas) & (y2 != pas)){
-            sg[x2][y2] =sg[x2][y2] +sb[0][n3]*dx*dy*hb;
+            sg[x2][y2]+= sb[0][n3]*dx*dy*hb;
           }
         }
       }  // for jj
@@ -383,9 +410,9 @@ void BoundToGrid2(float sg[Ng+1][Ng+1][2],float xb[2][Nb],float sb[2][Nb],int Nb
 //---------------------------------------------------------------------//
 void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1][Ng+1][2],float sg[Ng+1][Ng+1][2],int Ng,float rho,float mu,float dt,float hg){
 
-  float pom,Eps,B1,B2,Bb;
+  float pom,Eps,B1,B2,Aa,Bb,Bv;
   int in1,in2;
-
+  float Eps=0.0000001;
 
   // stage n terms: force density fg, source distribution sg and current
   // velocity ug
@@ -393,14 +420,14 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
     for (int n2=0; n2<Ng+1; n2++){
       for (int ik=0; ik<2; ik++){
         // upwind scheme for the advection term
-        if (ug[n1][n2][1]) < 0){
+        if (ug[n1][n2][1] < 0){
           in1=PeriodInd(n1,Ng,1);
           pom=ug[in1][n2][ik]-ug[n1][n2][ik];
         }else{
           in1=PeriodInd(n1,Ng,-1);
           pom=ug[n1][n2][ik]-ug[in1][n2][ik];
         }
-        vg(n1,n2,ik)=ug(n1,n2,1)*pom;
+        vg[n1][n2][ik]=ug[n1][n2][1]*pom;
 
         if (ug[n1][n2][2] < 0){
           in2=PeriodInd(n2,Ng,1);
@@ -437,7 +464,6 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
   ****************************************************************************
 
   // determines fug - the Fourier Transform of the velocity field at the stage n+1
-  Eps=0.0000001;
   for (int n1=0;n1<Ng-1;n1++){
     for (int n2=0;n2<Ng-1;n2++){
       B1=sin(2*pi*n1/Ng);
@@ -474,12 +500,12 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
   vg2=ifft2(fvgg);
   for (int ii=0; ii<Ng; ii++){
     for (int jj=0; jj<Ng; jj++){
-      vg(ii,jj,1)=real(vg1(ii,jj));
-      vg(ii,jj,2)=real(vg2(ii,jj));
+      vg[ii][jj][1]=real(vg1[ii][jj]);
+      vg[ii][jj][2]=real(vg2[ii][jj]);
     }
   }
-  vg(Ng,:,:)=vg(0,:,:);
-  vg(:,Ng,:)=vg(:,0,:);
+  vg[Ng][:][:]=vg[0][:][:];
+  vg[:][Ng][:]=vg[:][0][:];
 
 } // function NavierStokes
 //-----------------------------------------------------------------------//
@@ -492,7 +518,7 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
 //-----------------------------------------------------------------------//
 void GridToBound(float fb[2][Nb],float xb[2][Nb],int Nb,float fg[Ng+1][Ng+1][2],int Ng,float hdl,float hg,int xmn,int xmx){
 
-  float xbb1,xbb2,llx,rr,dx,lly,dy;
+  float llx,rr,dx,lly,dy;
   int Nx,Ny,x1,x2,y1,y2,xbb1,xbb2;
 
   for (int n3=0; n3<Nb; n3++){
@@ -530,33 +556,6 @@ void GridToBound(float fb[2][Nb],float xb[2][Nb],int Nb,float fg[Ng+1][Ng+1][2],
   return;
 } // function GridToBound
 //-------------------------------------------------------------------//
-
-//-------------------------------------------------------------------//
-// computes shifting of the index nn in the square periodic domain   //
-// of size Ng+1 where the 1st and the (Ng+1)st columns and rows are  //
-// identical according to the value of which:                        //
-//    which = 1 -- nn shifted one element to the right               //
-//    which =-1 -- nn shifted one element to the left                //
-//-------------------------------------------------------------------//
-int PeriodInd(int nn,int Ng,int which){
-  int ind=0;
-  if (which == (-1)){
-    if (nn == 0){
-      ind=Ng-1;
-    }else{
-      ind=nn-1;
-    }
-  }
-  if (which == 1){
-    if (nn == Ng){
-      ind=1;
-    }else{
-      ind=nn+1;
-    }
-  }
-  return ind;
-} // function PeriodInd
-//------------------------------------------------------------------//
 
 void main() {
 
