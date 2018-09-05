@@ -2,10 +2,11 @@
 
 #include <iostream>
 #include <math.h>
+#include <vector>
 //#include<cmath>
 //#include "mkl_dfti.h"
-#include "array"
-using std::array;
+//#include "array"
+//using std::array;
 using namespace std;
 
 
@@ -280,7 +281,7 @@ void OppositeForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float len,float Spr,
 // square domain [xmin,xmax]^2 with mesh width hg, material points //
 // separation hb and a radius of the discrete delta function hdl.  //
 //-----------------------------------------------------------------//
-void BoundToGrid1(float sg[Ng+1][Ng+1][2],float xb[2][2],float sb[2][2],int Nb,int Ng,float hdl,float hg,float hb,int xmin,int xmax){
+void BoundToGrid1(float sg[Ng+1][Ng+1],float xb[2][2],float sb[2][2],int Nb,int Ng,float hdl,float hg,float hb,int xmin,int xmax){
   int pas=-100; // passive value - do nothing
   float llx,rr,dx,lly,dy;
   int x1=0;
@@ -366,11 +367,11 @@ void BoundToGrid2(float sg[Ng+1][Ng+1][2],float xb[2][Nb],float sb[2][Nb],int Nb
       for (int jj=-1;jj<2;jj++){
         // compute the interpolation Delta function
         llx=xmin+(Nx-1)*hg+ii*hg;
-        rr=abs(xbb1-llx);
-        dx=DeltaFun(rr,hdl);
+        rr= abs(xbb1-llx);
+        dx= DeltaFun(rr,hdl);
         lly=xmin+(Ny-1)*hg+jj*hg;
-        rr=abs(xbb2-lly);
-        dy=DeltaFun(rr,hdl);
+        rr= abs(xbb2-lly);
+        dy= DeltaFun(rr,hdl);
 
         // determine indices of the grid points to update
         IndDel(x1,x2,llx,ii,Nx,Ng,xmin,xmax);
@@ -410,7 +411,7 @@ void BoundToGrid2(float sg[Ng+1][Ng+1][2],float xb[2][Nb],float sb[2][Nb],int Nb
 //---------------------------------------------------------------------//
 void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1][Ng+1][2],float sg[Ng+1][Ng+1][2],int Ng,float rho,float mu,float dt,float hg){
 
-  float pom,Eps,B1,B2,Aa,Bb,Bv;
+  float pom,B1,B2,Aa,Bb,Bv;
   int in1,in2;
   float Eps=0.0000001;
 
@@ -519,7 +520,12 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
 void GridToBound(float fb[2][Nb],float xb[2][Nb],int Nb,float fg[Ng+1][Ng+1][2],int Ng,float hdl,float hg,int xmn,int xmx){
 
   float llx,rr,dx,lly,dy;
-  int Nx,Ny,x1,x2,y1,y2,xbb1,xbb2;
+  int Nx,Ny,xbb1,xbb2;
+  int x1 = 0;
+  int x2 = 0;
+  int y1 = 0;
+  int y2 = 0;
+
 
   for (int n3=0; n3<Nb; n3++){
     // moves points into the domain
@@ -587,7 +593,7 @@ void main() {
   float fcen[2][Nb]={0};      // Centre forces array
   float fopp[2][Nb]={0};      // Opposite forces array
   float xg[Ng][Ng] ={0};      // Fluid grid array
-  float sg[Ng+1][Ng+1][2]={0};// Fluid grid
+  float sg[Ng+1][Ng+1]={0};// Fluid grid
   float fg[Ng+1][Ng+1][2]={0};// Grid forces
   float vg[Ng+1][Ng+1][2]={0};// Grid velocities
   float ug[Ng+1][Ng+1][2]={0};// Previous grid velocities
