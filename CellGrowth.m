@@ -548,9 +548,11 @@ function  vg=NavierStokes(ug,fg,sg,Ng,rho,mu,dt,hg)
       end
     end % for n2
   end % for n1
-
+  disp(size(fvg1))
+  disp(size(fvg2))  
   % the inverse Fast Fourier Method of fvg
   fvgg=fvg1(1:Ng,1:Ng,1)+i*fvg1(1:Ng,1:Ng,2);
+  disp(size(fvgg))
   vg1=ifft2(fvgg);
   fvgg=fvg2(1:Ng,1:Ng,1)+i*fvg2(1:Ng,1:Ng,2);
   vg2=ifft2(fvgg);

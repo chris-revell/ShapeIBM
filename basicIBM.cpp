@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <complex>
 //#include<cmath>
 //#include "mkl_dfti.h"
 //#include "array"
@@ -76,6 +77,67 @@ void fourn(float data[], unsigned long nn[], int ndim, int isign) { //Replaces d
     }
   nprev *= n;
   }
+}
+
+void rlft3(float ***data, float **speq, unsigned long nn1, unsigned long nn2, unsigned long nn3, int isign)
+//Given a three-dimensional real array data[1..nn1][1..nn2][1..nn3] (where nn1 = 1 for the case of a logically two-dimensional array), this routine returns (for isign=1) the complex fast Fourier transform as two complex arrays: On output, data contains the zero and positive frequency values of the third frequency component, while speq[1..nn1][1..2*nn2] contains the Nyquist critical frequency values of the third frequency component. First (and second) frequency components are stored for zero, positive,
+//and negative frequencies, in standard wrap- around order. See text for description of how complex values are arranged. For isign=-1, the inverse transform (times nn1*nn2*nn3/2 as a constant multiplicative factor) is performed, with output data (viewed as a real array) deriving from input data (viewed as complex) and speq. For inverse transforms on data not generated first by a forward transform, make sure the complex input data array satisfies property (12.5.2). The dimensions nn1, nn2, nn3 must always be integer powers of 2.
+{
+  void fourn(float data[], unsigned long nn[], int ndim, int isign);
+  void nrerror(char error_text[]);
+  unsigned long i1,i2,i3,j1,j2,j3,nn[4],ii3;
+  double theta,wi,wpi,wpr,wr,wtemp;
+  float c1,c2,h1r,h1i,h2r,h2i;
+  //if (1+&data[nn1][nn2][nn3]-&data[1][1][1] != nn1*nn2*nn3) nrerror("rlft3: problem with dimensions or contiguity of data array\n");
+  c1=0.5;
+  c2 = -0.5*isign; theta=isign*(6.28318530717959/nn3); wtemp=sin(0.5*theta);
+  wpr = -2.0*wtemp*wtemp; wpi=sin(theta);
+  nn[1]=nn1;
+  nn[2]=nn2;
+  nn[3]=nn3 >> 1;
+  if (isign == 1) {
+    fourn(&data[1][1][1]-1,nn,3,isign);
+    for (i1=1;i1<=nn1;i1++) {
+      for (i2=1,j2=0;i2<=nn2;i2++) {
+        speq[i1][++j2]=data[i1][i2][1];
+        speq[i1][++j2]=data[i1][i2][2];
+      }
+    }
+  }
+  for (i1=1;i1<=nn1;i1++) {
+    j1=(i1 != 1 ? nn1-i1+2 : 1);
+    wr=1.0;
+    wi=0.0;
+    for (ii3=1,i3=1;i3<=(nn3>>2)+1;i3++,ii3+=2) {
+      for (i2=1;i2<=nn2;i2++) {
+        if (i3 == 1) {
+          j2=(i2 != 1 ? ((nn2-i2)<<1)+3 : 1); h1r=c1*(data[i1][i2][1]+speq[j1][j2]);
+          h1i=c1*(data[i1][i2][2]-speq[j1][j2+1]);
+          h2i=c2*(data[i1][i2][1]-speq[j1][j2]);
+          h2r= -c2*(data[i1][i2][2]+speq[j1][j2+1]);
+          data[i1][i2][1]=h1r+h2r;
+          data[i1][i2][2]=h1i+h2i;
+          speq[j1][j2]=h1r-h2r;
+          speq[j1][j2+1]=h2i-h1i;
+        } else {
+          j2=(i2 != 1 ? nn2-i2+2 : 1);
+          j3=nn3+3-(i3<<1);
+          h1r=c1*(data[i1][i2][ii3]+data[j1][j2][j3]);
+          h1i=c1*(data[i1][i2][ii3+1]-data[j1][j2][j3+1]);
+          h2i=c2*(data[i1][i2][ii3]-data[j1][j2][j3]);
+          h2r= -c2*(data[i1][i2][ii3+1]+data[j1][j2][j3+1]);
+          data[i1][i2][ii3]=h1r+wr*h2r-wi*h2i;
+          data[i1][i2][ii3+1]=h1i+wr*h2i+wi*h2r;
+          data[j1][j2][j3]=h1r-wr*h2r+wi*h2i;
+          data[j1][j2][j3+1]= -h1i+wr*h2i+wi*h2r;
+        }
+      }
+      wr=(wtemp=wr)*wpr-wi*wpi+wr;
+      wi=wi*wpr+wtemp*wpi+wi;
+    }
+  }
+  if (isign == -1)
+  fourn(&data[1][1][1]-1,nn,3,isign);
 }
 
 //--------------------------------------------------------------------//
@@ -473,11 +535,18 @@ void BoundToGrid2(float sg[Ng+1][Ng+1][2],float xb[2][Nb],float sb[2][Nb],int Nb
 // distribution sg, rho and mu are fluid constants, dt is a time step, //
 // hg is a mesh width.                                                 //
 //---------------------------------------------------------------------//
-void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1][Ng+1][2],float sg[Ng+1][Ng+1][2],int Ng,float rho,float mu,float dt,float hg){
+void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1][Ng+1][2],float sg[Ng+1][Ng+1],int Ng,float rho,float mu,float dt,float hg){
 
   float pom,B1,B2,Aa,Bb,Bv;
   int in1,in2;
   float Eps=0.0000001;
+  float sg_slice[Ng][Ng];
+  float vg_slice1[Ng][Ng];
+  float vg_slice2[Ng][Ng];
+  float fvg1[Ng][Ng][2];
+  float fvg2[Ng][Ng][2];
+  float fvgg1[Ng][Ng];
+  float fvgg2[Ng][Ng];
 
   // stage n terms: force density fg, source distribution sg and current
   // velocity ug
@@ -523,10 +592,16 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
   } // for n1
 
   // the Fast Fourier transforms of source distribution sg and stage n term vg
-  fsg =fft2(sg[1:Ng,1:Ng));
-  fug1=fft2(vg(1:Ng,1:Ng,1));
-  fug2=fft2(vg(1:Ng,1:Ng,2));
-  ****************************************************************************
+  for (int i=0;i<Ng;i++){
+    for (int j=0;j<Ng;j++){
+      sg_slice[i][j]  = sg[i][j];
+      vg_slice1[i][j] = vg[i][j][1];
+      vg_slice2[i][j] = vg[i][j][2];
+    }
+  }
+  rlft3(sg_slice);
+  rlft3(vg_slice1);
+  rlft3(vg_slice2);
 
   // determines fug - the Fourier Transform of the velocity field at the stage n+1
   for (int n1=0;n1<Ng-1;n1++){
@@ -537,41 +612,50 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
       Aa=1+4*mu*dt*(pow(sin(pi*n1/Ng),2)+pow(sin(pi*n2/Ng),2))/(rho*hg*hg);
 
       if (Bb < Eps){
-        fvg1[n1+1][n2+1][1]=real(fug1[n1+1][n2+1])/Aa;
-        fvg1[n1+1][n2+1][2]=imag(fug1[n1+1][n2+1])/Aa;
-        fvg2[n1+1][n2+1][1]=real(fug2[n1+1][n2+1])/Aa;
-        fvg2[n1+1][n2+1][2]=imag(fug2[n1+1][n2+1])/Aa;
+        fvg1[n1+1][n2+1][0]=real(vg_slice1[n1+1][n2+1])/Aa;
+        fvg1[n1+1][n2+1][1]=imag(vg_slice1[n1+1][n2+1])/Aa;
+        fvg2[n1+1][n2+1][0]=real(vg_slice2[n1+1][n2+1])/Aa;
+        fvg2[n1+1][n2+1][1]=imag(vg_slice2[n1+1][n2+1])/Aa;
       }else{
-        Bv=B1*real(fug1[n1+1][n2+1])+B2*real(fug2[n1+1][n2+1]);
-        fvg1[n1+1][n2+1][1]=(Bb*real(fug1[n1+1][n2+1])-B1*Bv)/(Aa*Bb);
-        fvg2[n1+1][n2+1][1]=(Bb*real(fug2[n1+1][n2+1])-B2*Bv)/(Aa*Bb);
+        Bv=B1*real(vg_slice1[n1+1][n2+1])+B2*real(vg_slice2[n1+1][n2+1]);
+        fvg1[n1+1][n2+1][0]=(Bb*real(vg_slice1[n1+1][n2+1])-B1*Bv)/(Aa*Bb);
+        fvg2[n1+1][n2+1][0]=(Bb*real(vg_slice2[n1+1][n2+1])-B2*Bv)/(Aa*Bb);
 
-        Bv=B1*imag(fug1[n1+1][n2+1])+B2*imag(fug2[n1+1][n2+1]);
-        fvg1[n1+1][n2+1][2]=(Bb*imag(fug1[n1+1][n2+1])-B1*Bv)/(Aa*Bb);
-        fvg2[n1+1][n2+1][2]=(Bb*imag(fug2[n1+1][n2+1])-B2*Bv)/(Aa*Bb);
+        Bv=B1*imag(vg_slice1[n1+1][n2+1])+B2*imag(vg_slice2[n1+1][n2+1]);
+        fvg1[n1+1][n2+1][1]=(Bb*imag(vg_slice1[n1+1][n2+1])-B1*Bv)/(Aa*Bb);
+        fvg2[n1+1][n2+1][1]=(Bb*imag(vg_slice2[n1+1][n2+1])-B2*Bv)/(Aa*Bb);
 
-        fvg1[n1+1][n2+1][1]=fvg1[n1+1][n2+1][1]+hg*B1*imag(fsg[n1+1][n2+1])/(Bb*rho);
-        fvg1[n1+1][n2+1][2]=fvg1[n1+1][n2+1][2]-hg*B1*real(fsg[n1+1][n2+1])/(Bb*rho);
-        fvg2[n1+1][n2+1][1]=fvg2[n1+1][n2+1][1]+hg*B2*imag(fsg[n1+1][n2+1])/(Bb*rho);
-        fvg2[n1+1][n2+1][2]=fvg2[n1+1][n2+1][2]-hg*B2*real(fsg[n1+1][n2+1])/(Bb*rho);
+        fvg1[n1+1][n2+1][0]=fvg1[n1+1][n2+1][0]+hg*B1*imag(sg_slice[n1+1][n2+1])/(Bb*rho);
+        fvg1[n1+1][n2+1][1]=fvg1[n1+1][n2+1][1]-hg*B1*real(sg_slice[n1+1][n2+1])/(Bb*rho);
+        fvg2[n1+1][n2+1][0]=fvg2[n1+1][n2+1][0]+hg*B2*imag(sg_slice[n1+1][n2+1])/(Bb*rho);
+        fvg2[n1+1][n2+1][1]=fvg2[n1+1][n2+1][1]-hg*B2*real(sg_slice[n1+1][n2+1])/(Bb*rho);
       }
     } // for n2
   } // for n1
 
   // the inverse Fast Fourier Method of fvg
-  fvgg=fvg1(1:Ng,1:Ng,1)+i*fvg1(1:Ng,1:Ng,2);
-  vg1=ifft2(fvgg);
-  fvgg=fvg2(1:Ng,1:Ng,1)+i*fvg2(1:Ng,1:Ng,2);
-  vg2=ifft2(fvgg);
-  for (int ii=0; ii<Ng; ii++){
-    for (int jj=0; jj<Ng; jj++){
-      vg[ii][jj][1]=real(vg1[ii][jj]);
-      vg[ii][jj][2]=real(vg2[ii][jj]);
+  for (int i=0;i<Ng;i++){
+    for (int j=0;j<Ng;j++){
+      fvgg1[i][j]=fvg1[i][j][0]+i*fvg1[i][j][1];
+      rlft3(fvgg1,-1);
     }
   }
-  vg[Ng][:][:]=vg[0][:][:];
-  vg[:][Ng][:]=vg[:][0][:];
-
+  for (int i=0;i<Ng;i++){
+    for (int j=0;j<Ng;j++){
+      fvgg2[i][j]=fvg2[i][j][0]+i*fvg2[i][j][1];
+      rlft3(fvgg2,-1);
+    }
+  }
+  for (int ii=0; ii<Ng; ii++){
+    for (int jj=0; jj<Ng; jj++){
+      vg[ii][jj][0]=real(fvgg1[ii][jj]);
+      vg[ii][jj][1]=real(fvgg2[ii][jj]);
+    }
+  }
+  for (int ii=0; ii<Ng; ii++){
+    vg[Ng][ii][0]=vg[0][ii][0];
+    vg[ii][Ng][1]=vg[ii][0][1];
+  }
 } // function NavierStokes
 //-----------------------------------------------------------------------//
 
@@ -656,7 +740,7 @@ void main() {
   float fsec[2][Nb]={0};      // Secondary forces array
   float fcen[2][Nb]={0};      // Centre forces array
   float fopp[2][Nb]={0};      // Opposite forces array
-  float xg[Ng][Ng] ={0};      // Fluid grid array
+  float xg[Ng][Ng][2];      // Fluid grid array
   float sg[Ng+1][Ng+1]={0};// Fluid grid
   float fg[Ng+1][Ng+1][2]={0};// Grid forces
   float vg[Ng+1][Ng+1][2]={0};// Grid velocities
@@ -688,13 +772,19 @@ void main() {
 
   for (int loop_num=0; loop_num<NumLoop; loop_num++) {
     //-- new position of boundary points --//
-    xb=xb+ub*dt;
+    for (int ii=0; ii<Nb; ii++){
+      xb[0][ii] = xb[0][ii]+dt*ub[0][ii];
+      xb[1][ii] = xb[1][ii]+dt*ub[1][ii];
+    }
     //-- boundary forces --//
     AdjacentForces(fadj,xb,Nb,hb,Spr);            // adjacent
     SecondaryForces(fsec,xb,Nb,hb,Spr,connect);   // secondary
     CenterForces(fcen,xb,Nb,cen,len,Spr,connect); // center
     OppositeForces(fopp,xb,Nb,len,Spr,connect);   // opposite
-    fb=fadj+fsec+fcen+fopp;    // add all forces
+    for (int ii=0; ii<Nb; ii++){
+      fb[0][ii]=fadj[0][ii]+fsec[0][ii]+fcen[0][ii]+fopp[0][ii];    // add all forces
+      fb[1][ii]=fadj[1][ii]+fsec[1][ii]+fcen[1][ii]+fopp[1][ii];    // add all forces
+    }
     //-- grid sources --//
     BoundToGrid1(sg,sb,sbb,Nbs,Ng,hg,hg,0.5*hg,xmin,xmax);
     //-- grid forces --//
@@ -702,7 +792,12 @@ void main() {
     BoundToGrid2(fg,xb,fb,Nb,Ng,hg,hg,0.5*hg,xmin,xmax);
     //-- compute grid velocity from NavierStokes --//
     NavierStokes(vg,ug,fg,sg,Ng,rho,mu,dt,hg);
-    ug=vg;
+    for (int ii=0;ii<Ng;ii++) {
+      for (int jj=0;jj<Ng;jj++) {
+        ug[ii][jj][1]=vg[ii][jj][1];
+        ug[ii][jj][2]=vg[ii][jj][2];
+      }
+    }
     //-- boundary velocities --//
     GridToBound(ub,xb,Nb,vg,Ng,hg,hg,xmin,xmax);
   }   // for loop_num
