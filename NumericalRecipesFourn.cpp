@@ -1,5 +1,8 @@
 #include <math.h>
-#include<iostream>
+#include <cstdlib>
+#include <iostream>
+#include <cmath>
+using namespace std;
 
 #define SWAP(a,b) tempr=(a);(a)=(b);(b)=tempr
 
@@ -128,7 +131,53 @@ void rlft3(float ***data, float **speq, unsigned long nn1, unsigned long nn2, un
 }
 
 int main(){
-  float nativearray[4][4] = {{0.1,0.2,0.3,0.4},{0.1+1,0.2+1,0.3+1,0.4+1},{0.1,0.2,0.3,0.4},{0.1+1,0.2+1,0.3+1,0.4+1}};
-  float spec[4][3] = {0};
-  rlft3(nativearray,spec,1,4,4,1);
+  int i,j,k;
+  int ndim1=1;
+  int ndim2=64;
+  int ndim3=64;
+
+  // memory allocation
+  float*** data=new float**[ndim1];
+  for(i=0;i<ndim1;i++){
+  	data[i]=new float*[ndim2];
+  	for(j=0;j<ndim2;j++){
+  		data[i][j]=new float[ndim3];
+  	}
+  }
+
+  // access to 3D array
+  for(i=0;i<ndim1;i++){
+  	for(j=0;j<ndim2;j++){
+  		for(k=0;k<ndim3;k++){
+  			data[i][j][k]=rand();
+  		}
+  	}
+  }
+
+  float** speq=new float*[ndim1];
+  for(i=0;i<ndim1;i++){
+  	data[i]=new float*[ndim2];  	
+  }
+
+  // access to 3D array
+  for(i=0;i<ndim1;i++){
+  	for(j=0;j<ndim2;j++){
+  		for(k=0;k<ndim3;k++){
+  			data[i][j][k]=0;
+  		}
+  	}
+  }
+
+  rlft3(data,spec,1,4,4,1);
+
+
+  // Freeing the memory
+  for(i=0;i<ndim1;i++){
+  	for(j=0;j<ndim2;j++){
+  		delete[] data[i][j];
+  	}
+  	delete[] data[i];
+  }
+  delete[] data;
+
 }

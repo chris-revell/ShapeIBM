@@ -80,8 +80,16 @@ void fourn(float data[], unsigned long nn[], int ndim, int isign) { //Replaces d
 }
 
 void rlft3(float ***data, float **speq, unsigned long nn1, unsigned long nn2, unsigned long nn3, int isign)
-//Given a three-dimensional real array data[1..nn1][1..nn2][1..nn3] (where nn1 = 1 for the case of a logically two-dimensional array), this routine returns (for isign=1) the complex fast Fourier transform as two complex arrays: On output, data contains the zero and positive frequency values of the third frequency component, while speq[1..nn1][1..2*nn2] contains the Nyquist critical frequency values of the third frequency component. First (and second) frequency components are stored for zero, positive,
-//and negative frequencies, in standard wrap- around order. See text for description of how complex values are arranged. For isign=-1, the inverse transform (times nn1*nn2*nn3/2 as a constant multiplicative factor) is performed, with output data (viewed as a real array) deriving from input data (viewed as complex) and speq. For inverse transforms on data not generated first by a forward transform, make sure the complex input data array satisfies property (12.5.2). The dimensions nn1, nn2, nn3 must always be integer powers of 2.
+//Given a three-dimensional real array data[1..nn1][1..nn2][1..nn3] (where nn1 = 1 for the case of a logically
+//two-dimensional array), this routine returns (for isign=1) the complex fast Fourier transform as two complex arrays:
+//On output, data contains the zero and positive frequency values of the third frequency component,
+//while speq[1..nn1][1..2*nn2] contains the Nyquist critical frequency values of the third frequency component.
+//First (and second) frequency components are stored for zero, positive, and negative frequencies,
+//in standard wrap- around order. See text for description of how complex values are arranged. For isign=-1,
+//the inverse transform (times nn1*nn2*nn3/2 as a constant multiplicative factor) is performed,
+//with output data (viewed as a real array) deriving from input data (viewed as complex) and speq.
+//For inverse transforms on data not generated first by a forward transform, make sure the complex
+//input data array satisfies property (12.5.2). The dimensions nn1, nn2, nn3 must always be integer powers of 2.
 {
   void fourn(float data[], unsigned long nn[], int ndim, int isign);
   void nrerror(char error_text[]);
@@ -547,6 +555,9 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
   float fvg2[Ng][Ng][2];
   float fvgg1[Ng][Ng];
   float fvgg2[Ng][Ng];
+  float speqsg_slice[Ng][Ng/2];
+  float speqvg_slice1[Ng][Ng/2];
+  float speqvg_slice2[Ng][Ng/2];
 
   // stage n terms: force density fg, source distribution sg and current
   // velocity ug
@@ -599,9 +610,9 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
       vg_slice2[i][j] = vg[i][j][2];
     }
   }
-  rlft3(sg_slice);
-  rlft3(vg_slice1);
-  rlft3(vg_slice2);
+  rlft3(sg_slice,speqsg_slice,1,Ng,Ng,1);
+  rlft3(vg_slice1,speqvg_slice1,1,Ng,Ng,1);
+  rlft3(vg_slice2,speqvg_slice2,1,Ng,Ng,1);
 
   // determines fug - the Fourier Transform of the velocity field at the stage n+1
   for (int n1=0;n1<Ng-1;n1++){
@@ -637,13 +648,13 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
   for (int i=0;i<Ng;i++){
     for (int j=0;j<Ng;j++){
       fvgg1[i][j]=fvg1[i][j][0]+i*fvg1[i][j][1];
-      rlft3(fvgg1,-1);
+      rlft3(fvgg1,fvgg1,1,Ng,Ng,-1);
     }
   }
   for (int i=0;i<Ng;i++){
     for (int j=0;j<Ng;j++){
       fvgg2[i][j]=fvg2[i][j][0]+i*fvg2[i][j][1];
-      rlft3(fvgg2,-1);
+      rlft3(fvgg2,fvgg2,1,Ng,Ng,-1);
     }
   }
   for (int ii=0; ii<Ng; ii++){
