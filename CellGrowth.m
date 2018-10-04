@@ -35,7 +35,7 @@ function CellGrowth
 
   NumLoop=40;                          % number of steps
   mod_num=5;                           % frequency
-  Mov=moviein(NumLoop);
+  %Mov=moviein(NumLoop);
 
   %-- define parameters for cell shape and cytoskeleton --%
   if (example==1)
@@ -103,42 +103,42 @@ function CellGrowth
 
 
       %-- draw the results --%
-      clf
-      axis([xmin,xmax,xmin,xmax])
-      axis equal
-      hold on
+      %clf
+      %axis([xmin,xmax,xmin,xmax])
+      %axis equal
+      %hold on
 
       %-- draw cell shape --%
-      plot(xb(1,:),xb(2,:))                        % cell membrane
-      plot([xb(1,Nb),xb(1,1)],[xb(2,Nb),xb(2,1)])
-      plot(xb(1,:),xb(2,:),'*r')                   % boundary points
+      %plot(xb(1,:),xb(2,:))                        % cell membrane
+      %plot([xb(1,Nb),xb(1,1)],[xb(2,Nb),xb(2,1)])
+      %plot(xb(1,:),xb(2,:),'*r')                   % boundary points
 
 
-      if (repeat_num==1)
-        DrawCellCytoskeleton(xb,Nb,cen,connect)
-        title('(1) Growing Cell: cell boundary-red stars, cell cytoskeleton-grey lines','FontSize',15)
-      elseif (repeat_num==2)
-        scaleFG=scaleF*2;
-        quiver(xb(1,:),xb(2,:),scaleFG*fb(1,:),scaleFG*fb(2,:),0,'k')
-        title('(2) Boundary forces-black lines,  cell boundary-red stars','FontSize',15)
-      elseif (repeat_num==3)
-        scaleFG=scaleF/3;
-        quiver(xg(:,:,1),xg(:,:,2),scaleFG*fg(:,:,1),scaleFG*fg(:,:,2),0,'b')
-        title('(3) Fluid forces-blue lines,  cell boundary-red stars','FontSize',15)
-      elseif (repeat_num==4)
-        scaleFV=scaleV/1.5;
-        quiver(xg(1:2:end,1:2:end,1),xg(1:2:end,1:2:end,2),...
-        scaleFV*vg(1:2:end,1:2:end,1),scaleFV*vg(1:2:end,1:2:end,2),0,'b')
-        title('(4) Fluid velocities-blue lines,  cell boundary-red stars','FontSize',15)
-      elseif (repeat_num==5)
-        scaleFV=scaleV/1.5;
-        quiver(xb(1,:),xb(2,:),scaleFV*ub(1,:),scaleFV*ub(2,:),0,'k')
-        title('(5) Boundary velocities-black lines,  cell boundary-red stars','FontSize',15)
-      end
-      axis([xmin,xmax,xmin,xmax])
-      axis equal
-      axis([xmin,xmax,xmin,xmax]*1.1)
-      pause(0.2)
+      %if (repeat_num==1)
+      %  DrawCellCytoskeleton(xb,Nb,cen,connect)
+      %  title('(1) Growing Cell: cell boundary-red stars, cell cytoskeleton-grey lines','FontSize',15)
+      %elseif (repeat_num==2)
+      %  scaleFG=scaleF*2;
+      %  quiver(xb(1,:),xb(2,:),scaleFG*fb(1,:),scaleFG*fb(2,:),0,'k')
+      %  title('(2) Boundary forces-black lines,  cell boundary-red stars','FontSize',15)
+      %elseif (repeat_num==3)
+      %  scaleFG=scaleF/3;
+      %  quiver(xg(:,:,1),xg(:,:,2),scaleFG*fg(:,:,1),scaleFG*fg(:,:,2),0,'b')
+      %  title('(3) Fluid forces-blue lines,  cell boundary-red stars','FontSize',15)
+      %elseif (repeat_num==4)
+      %  scaleFV=scaleV/1.5;
+      %  quiver(xg(1:2:end,1:2:end,1),xg(1:2:end,1:2:end,2),...
+      %  scaleFV*vg(1:2:end,1:2:end,1),scaleFV*vg(1:2:end,1:2:end,2),0,'b')
+      %  title('(4) Fluid velocities-blue lines,  cell boundary-red stars','FontSize',15)
+      %elseif (repeat_num==5)
+      %  scaleFV=scaleV/1.5;
+      %  quiver(xb(1,:),xb(2,:),scaleFV*ub(1,:),scaleFV*ub(2,:),0,'k')
+      %  title('(5) Boundary velocities-black lines,  cell boundary-red stars','FontSize',15)
+      %end
+      %axis([xmin,xmax,xmin,xmax])
+      %axis equal
+      %axis([xmin,xmax,xmin,xmax]*1.1)
+      %pause(0.2)
 
     end   % for loop_num
   end  % for repeat_num
@@ -501,10 +501,11 @@ function  vg=NavierStokes(ug,fg,sg,Ng,rho,mu,dt,hg)
   end % for n1
 
   % the Fast Fourier transforms of source distribution sg and stage n term vg
+  disp(vg(:,:,1))
   fsg =fft2(sg(1:Ng,1:Ng));
   fug1=fft2(vg(1:Ng,1:Ng,1));
   fug2=fft2(vg(1:Ng,1:Ng,2));
-
+  disp(fug1(5,5))
   % determines fug - the Fourier Transform of the velocity field at the stage n+1
   Eps=0.0000001;
   for n1=0:Ng-1
@@ -535,8 +536,8 @@ function  vg=NavierStokes(ug,fg,sg,Ng,rho,mu,dt,hg)
       end
     end % for n2
   end % for n1
-  disp(fvg1(5,5,1))
-  disp(fvg1(5,5,2))
+  %disp(fvg1(5,5,1))
+  %disp(fvg1(5,5,2))
   % the inverse Fast Fourier Method of fvg
   fvgg=fvg1(1:Ng,1:Ng,1)+i*fvg1(1:Ng,1:Ng,2);  
   vg1=ifft2(fvgg);  

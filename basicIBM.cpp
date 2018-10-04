@@ -1,12 +1,12 @@
 //C++ adaptation of CellGrowth.m from Katarzyna Rejniak
-#include <stdio.h>
+//#include <stdio>
 #include <iostream>
 #include <fstream>
 #include <cmath>
-#include <complex.h>
-#include <fftw3.h>
+#include <armadillo>
 
 using namespace std;
+using namespace arma;
 
 const int Ng=64;                  // fluid grid size
 const int Nb=64;                  // number of boundary points
@@ -17,7 +17,7 @@ const float pi = 3.1415;
 // the number of boundary points; len defines a radius for a circular //
 // cell; or a length of a side of the square                          //
 //--------------------------------------------------------------------//
-float DefineCellShape(int Nb, float len, int x, int y) {
+float DefineCellShape(const int& Nb, const float& len, const int& x, const int& y) {
   float hb=2*pi/Nb;
   if (x==1) {
     return (len*cos((y-1)*hb));
@@ -35,7 +35,7 @@ float DefineCellShape(int Nb, float len, int x, int y) {
 //    which = 1 -- nn shifted one element to the right               //
 //    which =-1 -- nn shifted one element to the left                //
 //-------------------------------------------------------------------//
-int PeriodInd(int nn,int Ng,int which){
+int PeriodInd(const int& nn,const int& Ng,const int& which){
   int ind=0;
   if (which == (-1)){
     if (nn == 0){
@@ -57,17 +57,17 @@ int PeriodInd(int nn,int Ng,int which){
 
 //--------------------------------------------------------------------//
 // transforms the real coordinate xy of the body into the correspon-  //
-// ding coordinate pom inside the periodic domain [xmn,xmx]x[xmn,xmx] //                             //
+// ding coordinate pom inside the periodic domain (xmn,xmx)x(xmn,xmx) //                             //
 //--------------------------------------------------------------------//
-float IntoDom(float xy,int xmin,int xmax){
+float IntoDom(const float& xy,const float& xmin,const float& xmax){
   float len;
   float pom;
-  len=float(xmax)-float(xmin);
-  pom=float(xy);
-  while (pom>float(xmax)){
+  len=xmax-xmin;
+  pom=xy;
+  while (pom>xmax){
     pom=pom-len;
   }
-  while (pom<float(xmin)){
+  while (pom<xmin){
     pom=pom+len;
   }
   return pom;
@@ -79,7 +79,7 @@ float IntoDom(float xy,int xmin,int xmax){
 // to the Dirac delta function of radius h for a point located at    //
 // distance r from the center.                                       //
 //-------------------------------------------------------------------//
-float DeltaFun(float r,float h){
+float DeltaFun(const float& r,const float& h){
   float dist;
 
   if (fabs(r) < (2*h)){
@@ -101,20 +101,20 @@ float DeltaFun(float r,float h){
 //   1 element  to update, if ll is close to the boundary,           //
 //   2 elements to update, if ll is close to the corner.             //
 //-------------------------------------------------------------------//
-void IndDel(int *in1,int *in2,float ll,int ij,int Nij,int Nmx,int xmn,int xmx){
+void IndDel(int& in1,int& in2,const float& ll,const int& ij,const int& Nij,const int& Nmx,const float& xmn,const float& xmx){
   // passive value - do nothing
   int pas=-100;
 
-  *in2=pas;
+  in2=pas;
   if (ll < xmn){
-    *in1=Nmx+ij;
+    in1=Nmx+ij;
   }else if ((ll == xmn) || (ll == xmx)){
-    *in1=Nmx;
-    *in2=0;
+    in1=Nmx;
+    in2=0;
   }else if (ll > xmx){
-    *in1=ij-1;
+    in1=ij-1;
   }else{
-    *in1=Nij+ij-1;
+    in1=Nij+ij-1;
   }
   return;
 } // function IndDel
@@ -126,7 +126,7 @@ void IndDel(int *in1,int *in2,float ll,int ij,int Nij,int Nmx,int xmn,int xmx){
 // Hookean springs between each adjacent boundary point with          //
 // spring constant Spr and equilibrium distance Lrest=hb              //
 //--------------------------------------------------------------------//
-void AdjacentForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float hb, float Spr) {
+void AdjacentForces(mat& fbb,const mat& xb,const int& Nb,const float& hb, const float& Spr) {
   float Lrest;
   float dl1;
   float dl2;
@@ -137,25 +137,25 @@ void AdjacentForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float hb, float Spr)
   for (int ii=0; ii<Nb; ii++) {
     Lrest=hb;
     if (ii==0) {
-      dl1=xb[0][Nb-1]-xb[0][ii];
-      dl2=xb[1][Nb-1]-xb[1][ii];
-      dr1=xb[0][ii+1]-xb[0][ii];
-      dr2=xb[1][ii+1]-xb[1][ii];
+      dl1=xb(0,Nb-1)-xb(0,ii);
+      dl2=xb(1,Nb-1)-xb(1,ii);
+      dr1=xb(0,ii+1)-xb(0,ii);
+      dr2=xb(1,ii+1)-xb(1,ii);
     } else if (ii==Nb-1) {
-      dl1=xb[0][ii-1]-xb[0][ii];
-      dl2=xb[1][ii-1]-xb[1][ii];
-      dr1=xb[0][0]-xb[0][ii];
-      dr2=xb[1][0]-xb[1][ii];
+      dl1=xb(0,ii-1)-xb(0,ii);
+      dl2=xb(1,ii-1)-xb(1,ii);
+      dr1=xb(0,0)-xb(0,ii);
+      dr2=xb(1,0)-xb(1,ii);
     } else {
-      dl1=xb[0][ii-1]-xb[0][ii];
-      dl2=xb[1][ii-1]-xb[1][ii];
-      dr1=xb[0][ii+1]-xb[0][ii];
-      dr2=xb[1][ii+1]-xb[1][ii];
+      dl1=xb(0,ii-1)-xb(0,ii);
+      dl2=xb(1,ii-1)-xb(1,ii);
+      dr1=xb(0,ii+1)-xb(0,ii);
+      dr2=xb(1,ii+1)-xb(1,ii);
     }
     ndl=sqrt(pow(dl1,2)+pow(dl2,2));
     ndr=sqrt(pow(dr1,2)+pow(dr2,2));
-    fbb[0][ii]=Spr*(ndl-Lrest)*dl1/ndl+Spr*(ndr-Lrest)*dr1/ndr;
-    fbb[1][ii]=Spr*(ndl-Lrest)*dl2/ndl+Spr*(ndr-Lrest)*dr2/ndr;
+    fbb(0,ii)=Spr*(ndl-Lrest)*dl1/ndl+Spr*(ndr-Lrest)*dr1/ndr;
+    fbb(1,ii)=Spr*(ndl-Lrest)*dl2/ndl+Spr*(ndr-Lrest)*dr2/ndr;
   }
   return;
 }// function AdjacentForces
@@ -167,7 +167,7 @@ void AdjacentForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float hb, float Spr)
 // Hookean springs with spring constant Spr again but this time         //
 // equilibrium distance Lrest=2*hb                                      //
 //----------------------------------------------------------------------//
-void SecondaryForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float hb,float Spr,int connect) {
+void SecondaryForces(mat& fbb,const mat& xb,const int& Nb,const float& hb,const float& Spr,const int& connect) {
   float dl1;
   float dl2;
   float dr1;
@@ -179,35 +179,35 @@ void SecondaryForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float hb,float Spr,
     Lrest=2*hb;
     for (int ii=0; ii<Nb; ii++) {
       if (ii==0) {
-        dl1=xb[0][Nb-2]-xb[0][ii];
-        dl2=xb[1][Nb-2]-xb[1][ii];
-        dr1=xb[0][ii+2]-xb[0][ii];
-        dr2=xb[1][ii+2]-xb[1][ii];
+        dl1=xb(0,Nb-2)-xb(0,ii);
+        dl2=xb(1,Nb-2)-xb(1,ii);
+        dr1=xb(0,ii+2)-xb(0,ii);
+        dr2=xb(1,ii+2)-xb(1,ii);
       } else if (ii==1) {
-        dl1=xb[0][Nb-1]-xb[0][ii];
-        dl2=xb[1][Nb-1]-xb[1][ii];
-        dr1=xb[0][ii+2]-xb[0][ii];
-        dr2=xb[1][ii+2]-xb[1][ii];
+        dl1=xb(0,Nb-1)-xb(0,ii);
+        dl2=xb(1,Nb-1)-xb(1,ii);
+        dr1=xb(0,ii+2)-xb(0,ii);
+        dr2=xb(1,ii+2)-xb(1,ii);
       } else if (ii==Nb-2) {
-        dl1=xb[0][ii-2]-xb[0][ii];
-        dl2=xb[1][ii-2]-xb[1][ii];
-        dr1=xb[0][0]-xb[0][ii];
-        dr2=xb[1][0]-xb[1][ii];
+        dl1=xb(0,ii-2)-xb(0,ii);
+        dl2=xb(1,ii-2)-xb(1,ii);
+        dr1=xb(0,0)-xb(0,ii);
+        dr2=xb(1,0)-xb(1,ii);
       } else if (ii==Nb-1) {
-        dl1=xb[0][ii-2]-xb[0][ii];
-        dl2=xb[1][ii-2]-xb[1][ii];
-        dr1=xb[0][1]-xb[0][ii];
-        dr2=xb[1][1]-xb[1][ii];
+        dl1=xb(0,ii-2)-xb(0,ii);
+        dl2=xb(1,ii-2)-xb(1,ii);
+        dr1=xb(0,1)-xb(0,ii);
+        dr2=xb(1,1)-xb(1,ii);
       } else {
-        dl1=xb[0][ii-2]-xb[0][ii];
-        dl2=xb[1][ii-2]-xb[1][ii];
-        dr1=xb[0][ii+2]-xb[0][ii];
-        dr2=xb[1][ii+2]-xb[1][ii];
+        dl1=xb(0,ii-2)-xb(0,ii);
+        dl2=xb(1,ii-2)-xb(1,ii);
+        dr1=xb(0,ii+2)-xb(0,ii);
+        dr2=xb(1,ii+2)-xb(1,ii);
       }
       ndl=sqrt(pow(dl1,2)+pow(dl2,2));
       ndr=sqrt(pow(dr1,2)+pow(dr2,2));
-      fbb[0][ii]=Spr*(ndl-Lrest)*dl1/ndl+Spr*(ndr-Lrest)*dr1/ndr;
-      fbb[1][ii]=Spr*(ndl-Lrest)*dl2/ndl+Spr*(ndr-Lrest)*dr2/ndr;
+      fbb(0,ii)=Spr*(ndl-Lrest)*dl1/ndl+Spr*(ndr-Lrest)*dr1/ndr;
+      fbb(1,ii)=Spr*(ndl-Lrest)*dl2/ndl+Spr*(ndr-Lrest)*dr2/ndr;
     }
   }
   return;
@@ -221,7 +221,7 @@ void SecondaryForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float hb,float Spr,
 // Again Hookean forces with spring constant Spr                        //
 // and equilibium radius len where len is the typical cell radius       //
 //----------------------------------------------------------------------//
-void CenterForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float cen,float len,float Spr,int connect){
+void CenterForces(mat& fbb,const mat& xb,const int& Nb,const float& cen,const float& len,const float& Spr,const int& connect){
   float dl1;
   float dl2;
   float ndl;
@@ -230,12 +230,12 @@ void CenterForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float cen,float len,fl
   if (connect==2){
     Lrest=len;
     for (int ii=0; ii<Nb/2; ii++){
-      dl1=cen-xb[0][ii];
-      dl2=cen-xb[1][ii];
+      dl1=cen-xb(0,ii);
+      dl2=cen-xb(1,ii);
       ndl=sqrt(pow(dl1,2)+pow(dl2,2));
 
-      fbb[0][ii]=Spr*(ndl-Lrest)*dl1/ndl;
-      fbb[1][ii]=Spr*(ndl-Lrest)*dl2/ndl;
+      fbb(0,ii)=Spr*(ndl-Lrest)*dl1/ndl;
+      fbb(1,ii)=Spr*(ndl-Lrest)*dl2/ndl;
     }
   }
   return;
@@ -247,7 +247,7 @@ void CenterForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float cen,float len,fl
 // Again Hookean springs with spring constant Spr and this time       //
 // equilibrium radius Lrest=2*len where len is the typical cell radius//
 //--------------------------------------------------------------------//
-void OppositeForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float len,float Spr,int connect){
+void OppositeForces(mat& fbb,const mat& xb,const int& Nb,const float& len,const float& Spr,const int& connect){
   float Lrest;
   float dl1;
   float dl2;
@@ -261,13 +261,13 @@ void OppositeForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float len,float Spr,
     Lrest=2*len;
     Nb2=floor(Nb/4);
     for (int ii=0; ii<Nb2; ii++){
-      dl1=xb[0][3*Nb2-ii]-xb[0][ii];
-      dl2=xb[1][3*Nb2-ii]-xb[1][ii];
+      dl1=xb(0,3*Nb2-ii)-xb(0,ii);
+      dl2=xb(1,3*Nb2-ii)-xb(1,ii);
       ndl = sqrt(pow(dl1,2)+pow(dl2,2));
-      fbb[0][ii]       = Spr*(ndl-Lrest)*dl1/ndl;
-      fbb[1][ii]       = Spr*(ndl-Lrest)*dl2/ndl;
-      fbb[0][3*Nb2-ii] = -Spr*(ndl-Lrest)*dl1/ndl;
-      fbb[1][3*Nb2-ii] = -Spr*(ndl-Lrest)*dl2/ndl;
+      fbb(0,ii)       = Spr*(ndl-Lrest)*dl1/ndl;
+      fbb(1,ii)       = Spr*(ndl-Lrest)*dl2/ndl;
+      fbb(0,3*Nb2-ii) = -Spr*(ndl-Lrest)*dl1/ndl;
+      fbb(1,3*Nb2-ii) = -Spr*(ndl-Lrest)*dl2/ndl;
     }
   }
   return;
@@ -277,10 +277,10 @@ void OppositeForces(float fbb[2][Nb],float xb[2][Nb],int Nb,float len,float Spr,
 //-----------------------------------------------------------------//
 // spreads the material values sb(Nb) (forces, sources) defined at //
 // material points xb(1,Nb) to the fluid grid sg(Ng+1,Ng+1) in the //
-// square domain [xmin,xmax]^2 with mesh width hg, material points //
+// square domain (xmin,xmax)^2 with mesh width hg, material points //
 // separation hb and a radius of the discrete delta function hdl.  //
 //-----------------------------------------------------------------//
-void BoundToGrid1(float sg[Ng+1][Ng+1],float xb[2][2],float sb[2][2],int Nb,int Ng,float hdl,float hg,float hb,int xmn,int xmx){
+void BoundToGrid1(mat& sg,const mat& xb,const mat& sb,const int& Nb,const int& Ng,const float& hdl,const float& hg,const float& hb,const float& xmn,const float& xmx){
   int pas=-100; // passive value - do nothing
   float llx,rr,dx,lly,dy;
   int x1=0;
@@ -294,8 +294,8 @@ void BoundToGrid1(float sg[Ng+1][Ng+1],float xb[2][2],float sb[2][2],int Nb,int 
   for (int n3=0;n3<Nb;n3++){
 
     // Move points into the domain. xbb0 and xbb1 are the coordinates of the point in the square domain.
-    xbb0=IntoDom(xb[0][n3],xmn,xmx);
-    xbb1=IntoDom(xb[1][n3],xmn,xmx);
+    xbb0=IntoDom(xb(0,n3),xmn,xmx);
+    xbb1=IntoDom(xb(1,n3),xmn,xmx);
 
     // determine indices of the nearest lower-down grid point
     Nx=1+floor((xbb0-xmn)/hg);
@@ -313,20 +313,20 @@ void BoundToGrid1(float sg[Ng+1][Ng+1],float xb[2][2],float sb[2][2],int Nb,int 
         dy=DeltaFun(rr,hdl);
 
         // determine indices of the grid points to update
-        IndDel(&x1,&x2,llx,ii,Nx,Ng,xmn,xmx);
-        IndDel(&y1,&y2,lly,jj,Ny,Ng,xmn,xmx);
+        IndDel(x1,x2,llx,ii,Nx,Ng,xmn,xmx);
+        IndDel(y1,y2,lly,jj,Ny,Ng,xmn,xmx);
 
         // update the values if points are not pasive
         if (dx*dy > 0){
-          sg[x1][y1]  += sb[0][n3]*dx*dy*hb;
+          sg(x1,y1)  += sb(0,n3)*dx*dy*hb;
           if (x2 != pas){
-            sg[x2][y1]+= sb[0][n3]*dx*dy*hb;
+            sg(x2,y1)+= sb(0,n3)*dx*dy*hb;
           }
           if (y2 != pas){
-            sg[x1][y2]+= sb[0][n3]*dx*dy*hb;
+            sg(x1,y2)+= sb(0,n3)*dx*dy*hb;
           }
           if ((x2 != pas) & (y2 != pas)){
-            sg[x2][y2]+= sb[0][n3]*dx*dy*hb;
+            sg(x2,y2)+= sb(0,n3)*dx*dy*hb;
           }
         }
       }  // for jj
@@ -339,10 +339,10 @@ void BoundToGrid1(float sg[Ng+1][Ng+1],float xb[2][2],float sb[2][2],int Nb,int 
 //-------------------------------------------------------------------//
 // spreads the material values sb(1,Nb) (forces, sources) defined at //
 // material points xb(1,Nb) to the fluid grid sg(Ng+1,Ng+1,2) in the //
-// square domain [xmin,xmax]^2 with mesh width hg, material points   //
+// square domain (xmin,xmax)^2 with mesh width hg, material points   //
 // separation hb and a radius of the discrete delta function hdl.    //
 //-------------------------------------------------------------------//
-void BoundToGrid2(float sg[Ng+1][Ng+1][2],float xb[2][Nb],float sb[2][Nb],int Nb,int Ng,float hdl,float hg,float hb,int xmin,int xmax){
+void BoundToGrid2(cube& sg,const mat& xb,const mat& sb,const int& Nb,const int& Ng,const float& hdl,const float& hg,const float& hb,const float& xmin,const float& xmax){
 
   // passive value - do nothing
   int pas=-100;
@@ -356,8 +356,8 @@ void BoundToGrid2(float sg[Ng+1][Ng+1][2],float xb[2][Nb],float sb[2][Nb],int Nb
 
   for (int n3=0; n3<Nb; n3++){
     // move points into the domain
-    xbb0=IntoDom(xb[0][n3],xmin,xmax);
-    xbb1=IntoDom(xb[1][n3],xmin,xmax);
+    xbb0=IntoDom(xb(0,n3),xmin,xmax);
+    xbb1=IntoDom(xb(1,n3),xmin,xmax);
     // determine indices of the nearest lower-down grid point
     Nx=1+floor((xbb0-xmin)/hg);
     Ny=1+floor((xbb1-xmin)/hg);
@@ -374,26 +374,25 @@ void BoundToGrid2(float sg[Ng+1][Ng+1][2],float xb[2][Nb],float sb[2][Nb],int Nb
         dy= DeltaFun(rr,hdl);
 
         // determine indices of the grid points to update
-        IndDel(&x1,&x2,llx,ii,Nx,Ng,xmin,xmax);
-        IndDel(&y1,&y2,lly,jj,Ny,Ng,xmin,xmax);
-        /*cout << x1 << " " << x2 << endl;
-        cout << y1 << " " << y2 << endl;*/
-        // update the values if poits are not pasive
+        IndDel(x1,x2,llx,ii,Nx,Ng,xmin,xmax);
+        IndDel(y1,y2,lly,jj,Ny,Ng,xmin,xmax);
+
+        // update the values if points are not pasive
         if (dx*dy > 0){
-          sg[x1][y1][1]=sg[x1][y1][1]+sb[0][n3]*dx*dy*hb;
-          sg[x1][y1][2]=sg[x1][y1][2]+sb[1][n3]*dx*dy*hb;
+          sg(x1,y1,0)=sg(x1,y1,0)+sb(0,n3)*dx*dy*hb;
+          sg(x1,y1,1)=sg(x1,y1,1)+sb(1,n3)*dx*dy*hb;
 
           if (x2 != pas){
-            sg[x2][y1][1]=sg[x2][y1][1]+sb[0][n3]*dx*dy*hb;
-            sg[x2][y1][2]=sg[x2][y1][2]+sb[1][n3]*dx*dy*hb;
+            sg(x2,y1,0)=sg(x2,y1,0)+sb(0,n3)*dx*dy*hb;
+            sg(x2,y1,1)=sg(x2,y1,1)+sb(1,n3)*dx*dy*hb;
           }
           if (y2 != pas){
-            sg[x1][y2][1]=sg[x1][y2][1]+sb[0][n3]*dx*dy*hb;
-            sg[x1][y2][2]=sg[x1][y2][2]+sb[1][n3]*dx*dy*hb;
+            sg(x1,y2,0)=sg(x1,y2,0)+sb(0,n3)*dx*dy*hb;
+            sg(x1,y2,1)=sg(x1,y2,1)+sb(1,n3)*dx*dy*hb;
           }
           if ((x2 != pas) && (y2 != pas)){
-            sg[x2][y2][1]=sg[x2][y2][1]+sb[0][n3]*dx*dy*hb;
-            sg[x2][y2][2]=sg[x2][y2][2]+sb[1][n3]*dx*dy*hb;
+            sg(x2,y2,0)=sg(x2,y2,0)+sb(0,n3)*dx*dy*hb;
+            sg(x2,y2,1)=sg(x2,y2,1)+sb(1,n3)*dx*dy*hb;
           }
         }
 
@@ -410,23 +409,20 @@ void BoundToGrid2(float sg[Ng+1][Ng+1][2],float xb[2][Nb],float sb[2][Nb],int Nb
 // distribution sg, rho and mu are fluid constants, dt is a time step, //
 // hg is a mesh width.                                                 //
 //---------------------------------------------------------------------//
-void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1][Ng+1][2],float sg[Ng+1][Ng+1],int Ng,float rho,float mu,float dt,float hg){
+void NavierStokes(cube& vg,const cube& ug,const cube& fg,const mat& sg,const int& Ng,const float& rho,const float& mu,const float& dt,const float& hg){
 
   float pom,B1,B2,Aa,Bb,Bv;
   int in1,in2;
   float Eps=0.0000001;
-  fftw_complex* fvgg     = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*Ng*Ng);
-  fftw_complex* sg_slice = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*Ng*Ng);
-  fftw_complex* vg_slice1= (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*Ng*Ng);
-  fftw_complex* vg_slice2= (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*Ng*Ng);
-  fftw_complex* fsg      = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*Ng*Ng);
-  fftw_complex* fug1     = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*Ng*Ng);
-  fftw_complex* fug2     = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*Ng*Ng);
-  double fvg1[Ng][Ng][2];
-  double fvg2[Ng][Ng][2];
-  fftw_plan p;
-  fftw_complex* vg1     = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*Ng*Ng);
-  fftw_complex* vg2     = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*Ng*Ng);
+  mat dummymat;
+  cx_mat fvgg     = cx_mat(Ng,Ng,fill::zeros);
+  cx_mat fsg      = cx_mat(Ng,Ng,fill::zeros);
+  cx_mat fug1     = cx_mat(Ng,Ng,fill::zeros);
+  cx_mat fug2     = cx_mat(Ng,Ng,fill::zeros);
+  cube fvg0     = cube(Ng,Ng,2,fill::zeros);
+  cube fvg1     = cube(Ng,Ng,2,fill::zeros);
+  cx_mat vg0      = cx_mat(Ng,Ng,fill::zeros);
+  cx_mat vg1      = cx_mat(Ng,Ng,fill::zeros);
 
   // stage n terms: force density fg, source distribution sg and current
   // velocity ug
@@ -434,129 +430,109 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
     for (int n2=0; n2<Ng+1; n2++){
       for (int ik=0; ik<2; ik++){
         // upwind scheme for the advection term
-        if (ug[n1][n2][1] < 0){
+        if (ug(n1,n2,0) < 0){
           in1=PeriodInd(n1,Ng,1);
-          pom=ug[in1][n2][ik]-ug[n1][n2][ik];
+          pom=ug(in1,n2,ik)-ug(n1,n2,ik);
         }else{
           in1=PeriodInd(n1,Ng,-1);
-          pom=ug[n1][n2][ik]-ug[in1][n2][ik];
+          pom=ug(n1,n2,ik)-ug(in1,n2,ik);
         }
-        vg[n1][n2][ik]=ug[n1][n2][1]*pom;
+        vg(n1,n2,ik)=ug(n1,n2,0)*pom;
 
-        if (ug[n1][n2][2] < 0){
+        if (ug(n1,n2,1) < 0){
           in2=PeriodInd(n2,Ng,1);
-          pom=ug[n1][in2][ik]-ug[n1][n2][ik];
+          pom=ug(n1,in2,ik)-ug(n1,n2,ik);
         }else{
           in2=PeriodInd(n2,Ng,-1);
-          pom=ug[n1][n2][ik]-ug[n1][in2][ik];
+          pom=ug(n1,n2,ik)-ug(n1,in2,ik);
         }
-        vg[n1][n2][ik]=vg[n1][n2][ik]+ug[n1][n2][2]*pom;
-        vg[n1][n2][ik]=-dt*vg[n1][n2][ik]/hg;
+        vg(n1,n2,ik)=vg(n1,n2,ik)+ug(n1,n2,1)*pom;
+        vg(n1,n2,ik)=-dt*vg(n1,n2,ik)/hg;
 
         // central difference for the grad of source term
         if (ik == 1){
           in1=PeriodInd(n1,Ng,1);
           in2=PeriodInd(n1,Ng,-1);
-          pom=sg[in1][n2]-sg[in2][n2];
+          pom=sg(in1,n2)-sg(in2,n2);
         }else if (ik == 2){
           in1=PeriodInd(n2,Ng,1);
           in2=PeriodInd(n2,Ng,-1);
-          pom=sg[n1][in1]-sg[n1][in2];
+          pom=sg(n1,in1)-sg(n1,in2);
         }
-        vg[n1][n2][ik]=vg[n1][n2][ik]+dt*mu*pom/(6*hg*rho*rho);
+        vg(n1,n2,ik)=vg(n1,n2,ik)+dt*mu*pom/(6*hg*rho*rho);
 
         // current vlocity and force terms
-        vg[n1][n2][ik]=vg[n1][n2][ik]+ug[n1][n2][ik]+dt*fg[n1][n2][ik]/rho;
+        vg(n1,n2,ik)=vg(n1,n2,ik)+ug(n1,n2,ik)+dt*fg(n1,n2,ik)/rho;
       } // for ik
     } // for n2
   } // for n1
 
   // the Fast Fourier transforms of source distribution sg and stage n term vg
-  for (int i=0;i<Ng;i++){
-    for (int j=0;j<Ng;j++){
-      *(*(sg_slice+i*Ng+j))   = sg[i][j];
-      *(*(sg_slice+i*Ng+j)+1) = 0;
-      *(*(vg_slice1+i*Ng+j))   = vg[i][j][0];
-      *(*(vg_slice1+i*Ng+j)+1) = 0;
-      *(*(vg_slice2+i*Ng+j))   = vg[i][j][1];
-      *(*(vg_slice2+i*Ng+j)+1) = 0;
-    }
-  }
-  p = fftw_plan_dft_2d(Ng,Ng,sg_slice,fsg,FFTW_FORWARD,FFTW_ESTIMATE);
-  fftw_execute(p);
-  fftw_destroy_plan(p);
-  p = fftw_plan_dft_2d(Ng,Ng,vg_slice1,fug1,FFTW_FORWARD,FFTW_ESTIMATE);
-  fftw_execute(p);
-  fftw_destroy_plan(p);
-  p = fftw_plan_dft_2d(Ng,Ng,vg_slice2,fug2,FFTW_FORWARD,FFTW_ESTIMATE);
-  fftw_execute(p);
-  fftw_destroy_plan(p);
-
+  fsg  = fft2(sg(span(0,Ng-1),span(0,Ng-1)));
+  dummymat = vg.slice(0);
+  fug1 = fft2(dummymat(span(0,Ng-1),span(0,Ng-1)));
+  dummymat = vg.slice(1);
+  fug2 = fft2(dummymat(span(0,Ng-1),span(0,Ng-1)));
   // determines fug - the Fourier Transform of the velocity field at the stage n+1
-  for (int n1=0;n1<Ng-1;n1++){
-    for (int n2=0;n2<Ng-1;n2++){
+  for (int n1=0;n1<Ng;n1++){
+    for (int n2=0;n2<Ng;n2++){
       B1=sin(2*pi*n1/Ng);
       B2=sin(2*pi*n2/Ng);
       Bb=pow(B1,2)+pow(B2,2);
       Aa=1+4*mu*dt*(pow(sin(pi*n1/Ng),2)+pow(sin(pi*n2/Ng),2))/(rho*hg*hg);
 
-      if(Bb < Eps){
-        fvg1[n1][n2][0]=fug1[n1*Ng+n2][0]/Aa;
-        fvg1[n1][n2][1]=fug1[n1*Ng+n2][1]/Aa;
-        fvg2[n1][n2][0]=fug2[n1*Ng+n2][0]/Aa;
-        fvg2[n1][n2][1]=fug2[n1*Ng+n2][1]/Aa;
+      B1=sin(2*pi*n1/Ng);
+      B2=sin(2*pi*n2/Ng);
+      Bb=pow(B1,2)+pow(B2,2);
+      Aa=1+4*mu*dt*(pow(sin(pi*n1/Ng),2)+pow(sin(pi*n2/Ng),2))/(rho*hg*hg);
+
+      if (Bb < Eps){
+        fvg0(n1,n2,0)=real(fug1(n1,n2))/Aa;
+        fvg0(n1,n2,1)=imag(fug1(n1,n2))/Aa;
+        fvg1(n1,n2,0)=real(fug2(n1,n2))/Aa;
+        fvg1(n1,n2,1)=imag(fug2(n1,n2))/Aa;
       }else{
-        Bv=B1*fug1[n1*Ng+n2][0]+B2*fug2[n1*Ng+n2][0];
-        fvg1[n1][n2][0]=(Bb*fug1[n1*Ng+n2][0]-B1*Bv)/(Aa*Bb);
-        fvg2[n1][n2][0]=(Bb*fug2[n1*Ng+n2][0]-B2*Bv)/(Aa*Bb);
+        Bv=B1*real(fug1(n1,n2))+B2*real(fug2(n1,n2));
+        fvg0(n1,n2,0)=(Bb*real(fug1(n1,n2))-B1*Bv)/(Aa*Bb);
+        fvg1(n1,n2,0)=(Bb*real(fug2(n1,n2))-B2*Bv)/(Aa*Bb);
 
-        Bv=B1*fug1[n1*Ng+n2][0]+B2*fug2[n1*Ng+n2][0];
-        fvg1[n1][n2][1]=(Bb*fug1[n1*Ng+n2][1]-B1*Bv)/(Aa*Bb);
-        fvg2[n1][n2][1]=(Bb*fug2[n1*Ng+n2][1]-B2*Bv)/(Aa*Bb);
+        Bv=B1*imag(fug1(n1,n2))+B2*imag(fug2(n1,n2));
+        fvg0(n1,n2,1)=(Bb*imag(fug1(n1,n2))-B1*Bv)/(Aa*Bb);
+        fvg1(n1,n2,1)=(Bb*imag(fug2(n1,n2))-B2*Bv)/(Aa*Bb);
 
-        fvg1[n1][n2][0]=fvg1[n1][n2][0]+(hg*B1*fsg[n1*Ng+n2][1])/(Bb*rho);
-        fvg1[n1][n2][1]=fvg1[n1][n2][1]-(hg*B1*fsg[n1*Ng+n2][0])/(Bb*rho);
-        fvg2[n1][n2][0]=fvg2[n1][n2][0]+(hg*B2*fsg[n1*Ng+n2][1])/(Bb*rho);
-        fvg2[n1][n2][1]=fvg2[n1][n2][1]-(hg*B2*fsg[n1*Ng+n2][0])/(Bb*rho);
+        fvg0(n1,n2,0)=fvg0(n1,n2,0)+hg*B1*imag(fsg(n1,n2))/(Bb*rho);
+        fvg0(n1,n2,1)=fvg0(n1,n2,1)-hg*B1*real(fsg(n1,n2))/(Bb*rho);
+        fvg1(n1,n2,0)=fvg1(n1,n2,0)+hg*B2*imag(fsg(n1,n2))/(Bb*rho);
+        fvg1(n1,n2,1)=fvg1(n1,n2,1)-hg*B2*real(fsg(n1,n2))/(Bb*rho);
       }
     } // for n2
   } // for n1
 
   // the inverse Fast Fourier Method of fvg
-  for (int i=0;i<Ng;i++){
-    for (int j=0;j<Ng;j++){
-      fvgg[i*Ng+j][0]=fvg1[i][j][0];
-      fvgg[i*Ng+j][1]=fvg1[i][j][1];
-    }
-  }
-  p = fftw_plan_dft_2d(Ng,Ng,fvgg,vg1,FFTW_BACKWARD,FFTW_ESTIMATE);
-  cout << fvg1[4][4][0] << " " << fvg1[4][4][1] << endl;
-  fftw_destroy_plan(p);
-  for (int i=0;i<Ng;i++){
-    for (int j=0;j<Ng;j++){
-      fvgg[i*Ng+j][0]=fvg2[i][j][0];
-      fvgg[i*Ng+j][1]=fvg2[i][j][1];
-    }
-  }
-  /*for (int ii=0;ii<Ng*Ng;ii++) {
-    //if (vg1[ii][0] > 0){
-      cout << "fvgg[" << ii << "][0] " << fvgg[ii][0] << endl;
-    //}if (vg2[ii][0] > 0){
-      cout << "fvgg[" << ii << "][1] " << fvgg[ii][1] << endl;
-    //}
-  }*/
-  p = fftw_plan_dft_2d(Ng,Ng,fvgg,vg2,FFTW_BACKWARD,FFTW_ESTIMATE);
-  fftw_destroy_plan(p);
+  dummymat = fvg0.slice(0);
+  fvgg.set_real(dummymat(span(0,Ng-1),span(0,Ng-1)));
+  dummymat = fvg0.slice(1);
+  fvgg.set_imag(dummymat(span(0,Ng-1),span(0,Ng-1)));
+  vg0 = ifft2(fvgg);
+
+  dummymat = fvg1.slice(0);
+  fvgg.set_real(dummymat(span(0,Ng-1),span(0,Ng-1)));
+  dummymat = fvg1.slice(1);
+  fvgg.set_imag(dummymat(span(0,Ng-1),span(0,Ng-1)));
+  vg1 = ifft2(fvgg);
 
   for (int ii=0; ii<Ng; ii++){
     for (int jj=0; jj<Ng; jj++){
-      vg[ii][jj][0]=vg1[ii*Ng+jj][0];
-      vg[ii][jj][1]=vg2[ii*Ng+jj][0];
+      vg(ii,jj,0)=real(vg0(ii,jj));
+      vg(ii,jj,1)=real(vg1(ii,jj));
     }
   }
+
   for (int ii=0; ii<Ng; ii++){
-    vg[Ng][ii][0]=vg[0][ii][0];
-    vg[ii][Ng][1]=vg[ii][0][1];
+    vg(Ng,ii,0)=vg(0,ii,0);
+    vg(ii,Ng,0)=vg(ii,Ng,0);
+    vg(Ng,ii,1)=vg(0,ii,1);
+    vg(ii,Ng,1)=vg(ii,Ng,1);
   }
 } // function NavierStokes
 //-----------------------------------------------------------------------//
@@ -564,10 +540,10 @@ void NavierStokes(float vg[Ng+1][Ng+1][2],float ug[Ng+1][Ng+1][2],float fg[Ng+1]
 //-----------------------------------------------------------------------//
 // interpolates the grid values fg(Ng,Ng,2) (velocities) to the material //
 // values fb(1,Nb) defined at the material points xb(1,Nb) in the square //
-// domain [xmn,xmx]^2 with mesh width hg and a radius of the discrete    //
+// domain (xmn,xmx)^2 with mesh width hg and a radius of the discrete    //
 // Dirac delta hdl.                                                      //
 //-----------------------------------------------------------------------//
-void GridToBound(float fb[2][Nb],float xb[2][Nb],int Nb,float fg[Ng+1][Ng+1][2],int Ng,float hdl,float hg,int xmn,int xmx){
+void GridToBound(mat& fb,const mat& xb,const int& Nb,const cube& fg,const int& Ng,const float& hdl,const float& hg,const float& xmn,const float& xmx){
 
   float llx,rr,dx,lly,dy;
   int Nx,Ny,xbb0,xbb1;
@@ -579,33 +555,35 @@ void GridToBound(float fb[2][Nb],float xb[2][Nb],int Nb,float fg[Ng+1][Ng+1][2],
 
   for (int n3=0; n3<Nb; n3++){
     // moves points into the domain
-    xbb0=IntoDom(xb[0][n3],xmn,xmx);
-    xbb1=IntoDom(xb[1][n3],xmn,xmx);
+    xbb0=IntoDom(xb(0,n3),xmn,xmx);
+    xbb1=IntoDom(xb(1,n3),xmn,xmx);
 
     //computes the indices of the nearest down-left grid point
     Nx=1+floor((xbb0-xmn)/hg);
     Ny=1+floor((xbb1-xmn)/hg);
-
+    cout << "test0" << endl;
     // test all 16 neighboring points
     for (int ii=-1;ii<2;ii++){
       for (int jj=-1;jj<2;jj++){
         // determine the value of the interpolation Delta-function
+        cout << "test1" << endl;
         llx=xmn+(Nx-1)*hg+ii*hg;
         rr=fabs(xbb0-llx);
         dx=DeltaFun(rr,hdl);
         lly=xmn+(Ny-1)*hg+jj*hg;
         rr=fabs(xbb1-lly);
         dy=DeltaFun(rr,hdl);
-
+        cout << "test2" << endl;
         // determine the indices of grid points gaining positive impact
-        IndDel(&x1,&x2,llx,ii,Nx,Ng,xmn,xmx);
-        IndDel(&y1,&y2,lly,jj,Ny,Ng,xmn,xmx);
-
+        IndDel(x1,x2,llx,ii,Nx,Ng,xmn,xmx);
+        IndDel(y1,y2,lly,jj,Ny,Ng,xmn,xmx);
+        cout << "test3" << endl;
         // update the values if inside the impact domain
         if (dx*dy > 0){
-          fb[0][n3]=fb[0][n3]+fg[x1][y1][1]*dx*dy*hg*hg;
-          fb[1][n3]=fb[1][n3]+fg[x1][y1][2]*dx*dy*hg*hg;
+          fb(0,n3)=fb(0,n3)+fg(x1,y1,0)*dx*dy*hg*hg;
+          fb(1,n3)=fb(1,n3)+fg(x1,y1,1)*dx*dy*hg*hg;
         }
+        cout << "test4" << endl;
       } // for jj
     } // for ii
   }// for n3
@@ -613,11 +591,11 @@ void GridToBound(float fb[2][Nb],float xb[2][Nb],int Nb,float fg[Ng+1][Ng+1][2],
 } // function GridToBound
 //-------------------------------------------------------------------//
 
-void main() {
+int main() {
 
-  int xmin=-1;
-  int xmax=1;
-  int cen=(xmax+xmin)/2;      // fluid domain (square)
+  float xmin=-1;
+  float xmax=1;
+  float cen=(xmax+xmin)/2;      // fluid domain (square)
   float hg=float(xmax-xmin)/float(Ng);    // fluid mesh width
   float Src=1;                // source strength
   float Spr=100;              // spring stiffness
@@ -633,44 +611,48 @@ void main() {
   int NumLoop=40;             // number of steps
   int mod_num=5;              // frequency
   int Nbs=2;
-  float sb[2][2];
-  float xb[2][Nb] = {0};      // Position of all boundary elements
-  float ub[2][Nb] = {0};      // Velocity of all boundary elements
   float hb;                   // Spacing between boundary elements?
-  float fb[2][Nb] = {0};      // Boundary forces
-  float fadj[2][Nb]={0};      // Adjacent forces array
-  float fsec[2][Nb]={0};      // Secondary forces array
-  float fcen[2][Nb]={0};      // Centre forces array
-  float fopp[2][Nb]={0};      // Opposite forces array
-  float xg[Ng][Ng][2];      // Fluid grid array
-  float sg[Ng+1][Ng+1]={0};// Fluid grid
-  float fg[Ng+1][Ng+1][2]={0};// Grid forces
-  float vg[Ng+1][Ng+1][2]={0};// Grid velocities
-  float ug[Ng+1][Ng+1][2]={0};// Previous grid velocities
-  float sbb[2][2]  ={0};      //
+  mat sb   = mat(2,2,fill::zeros);
+  mat xb   = mat(2,Nb,fill::zeros);     // Position of all boundary elements
+  mat ub   = mat(2,Nb,fill::zeros);     // Velocity of all boundary elements
+  mat fb   = mat(2,Nb,fill::zeros);     // Boundary forces
+  mat fadj = mat(2,Nb,fill::zeros);     // Adjacent forces array
+  mat fsec = mat(2,Nb,fill::zeros);     // Secondary forces array
+  mat fcen = mat(2,Nb,fill::zeros);     // Centre forces array
+  mat fopp = mat(2,Nb,fill::zeros);     // Opposite forces array
+  cube xg = cube(Ng+1,Ng+1,2,fill::zeros);// Fluid grid array
+  mat sg = mat(Ng+1,Ng+1,fill::zeros);  // Fluid grid
+  cube fg = cube(Ng+1,Ng+1,2,fill::zeros);// Grid forces
+  cube vg = cube(Ng+1,Ng+1,2,fill::zeros);// Grid velocities
+  cube ug = cube(Ng+1,Ng+1,2,fill::zeros);// Previous grid velocities
+  mat sbb= mat(2,2,fill::zeros);        //
+
+  cube fvg0     = cube(Ng,Ng,2,fill::zeros);
+  cube fvg1     = cube(Ng,Ng,2,fill::zeros);
 
   //-- define fluid grid --//
   for (int ii=0;ii<Ng+1;ii++){
     for (int jj=0;jj<Ng+1;jj++){
-      xg[ii][jj][0]=xmin+ii*hg;
-      xg[ii][jj][1]=xmin+jj*hg;
+      xg(ii,jj,0)=xmin+ii*hg;
+      xg(ii,jj,1)=xmin+jj*hg;
     }
   }
 
   //-- cell shape --//
   for (int ii=0;ii<Nb;ii++) {
-    xb[0][ii] = DefineCellShape(Nb,len,1,ii);
-    xb[1][ii] = DefineCellShape(Nb,len,2,ii);
+    xb(0,ii) = DefineCellShape(Nb,len,1,ii);
+    xb(1,ii) = DefineCellShape(Nb,len,2,ii);
   }
-  hb=sqrt(pow((xb[1][1]-xb[1][2]),2)+pow((xb[2][1]-xb[2][2]),2));
+
+  hb=sqrt(pow((xb(0,1)-xb(0,2)),2)+pow((xb(1,1)-xb(1,2)),2));
 
   //-- distributed sources and sinks --//
-  sb[0][0]=cen;
-  sb[1][0]=cen;
-  sb[0][1]=xmin;
-  sb[1][1]=xmin;
-  sbb[0][0]= Src;     // a source at the center
-  sbb[0][1]=-Src;     // a sink in the corner
+  sb(0,0)  =cen;
+  sb(1,0)  =cen;
+  sb(0,1)  =xmin;
+  sb(1,1)  =xmin;
+  sbb(0,0) = Src;     // a source at the center
+  sbb(0,1) =-Src;     // a sink in the corner
 
   ofstream file1 ("boundarypositions.txt");
 
@@ -681,73 +663,30 @@ void main() {
     CenterForces(fcen,xb,Nb,cen,len,Spr,connect); // center
     OppositeForces(fopp,xb,Nb,len,Spr,connect);   // opposite
     for (int ii=0; ii<Nb; ii++){
-      fb[0][ii]=fadj[0][ii]+fsec[0][ii]+fcen[0][ii]+fopp[0][ii];    // add all forces
-      fb[1][ii]=fadj[1][ii]+fsec[1][ii]+fcen[1][ii]+fopp[1][ii];    // add all forces
+      fb(0,ii)=fadj(0,ii)+fsec(0,ii)+fcen(0,ii)+fopp(0,ii);    // add all forces
+      fb(1,ii)=fadj(1,ii)+fsec(1,ii)+fcen(1,ii)+fopp(1,ii);    // add all forces
     }
-
     //-- grid sources --//
     BoundToGrid1(sg,sb,sbb,Nbs,Ng,hg,hg,0.5*hg,xmin,xmax);
-    /*for (int ii=0;ii<Ng;ii++) {
-      for (int jj=0;jj<Ng;jj++) {
-        if (sg[ii][jj] > 0){
-          cout << "sg[" << ii << "][" << jj << "] " << sg[ii][jj] << endl;
-        }
-      }
-    }*/
     //-- grid forces --//
     BoundToGrid2(fg,xb,fb,Nb,Ng,hg,hg,0.5*hg,xmin,xmax);
     //-- compute grid velocity from NavierStokes --//
-    /*for (int ii=0;ii<Ng;ii++) {
-      for (int jj=0;jj<Ng;jj++) {
-        if (fg[ii][jj][0] > 0){
-          cout << "fg[" << ii << "][" << jj << "][0] " << fg[ii][jj][0] << endl;
-        }if (fg[ii][jj][1] > 0){
-          cout << "fg[" << ii << "][" << jj << "][1] " << fg[ii][jj][1] << endl;
-        }
-      }
-    }
-    for (int ii=0;ii<Ng;ii++) {
-      for (int jj=0;jj<Ng;jj++) {
-        if (ug[ii][jj][0] > 0){
-          cout << "ug[" << ii << "][" << jj << "][0] " << ug[ii][jj][0] << endl;
-        }if (ug[ii][jj][1] > 0){
-          cout << "ug[" << ii << "][" << jj << "][1] " << ug[ii][jj][1] << endl;
-        }
-      }
-    }*/
     NavierStokes(vg,ug,fg,sg,Ng,rho,mu,dt,hg);
-    for (int ii=0;ii<Ng;ii++) {
-      for (int jj=0;jj<Ng;jj++) {
-        ug[ii][jj][0]=vg[ii][jj][0];
-        ug[ii][jj][1]=vg[ii][jj][1];
-      }
-    }
-    /*for (int ii=0;ii<Ng;ii++) {
-      for (int jj=0;jj<Ng;jj++) {
-        if (vg[ii][jj][0] > 0){
-          cout << "vg[" << ii << "][" << jj << "][0] " << vg[ii][jj][0] << endl;
-        }if (vg[ii][jj][1] > 0){
-          cout << "vg[" << ii << "][" << jj << "][1] " << vg[ii][jj][1] << endl;
-        }
-      }
-    }*/
+    ug = vg;
     //-- boundary velocities --//
     GridToBound(ub,xb,Nb,vg,Ng,hg,hg,xmin,xmax);
 
     //-- new position of boundary points --//
-    for (int ii=0; ii<Nb; ii++){
-      xb[0][ii] = xb[0][ii]+dt*ub[0][ii];
-      xb[1][ii] = xb[1][ii]+dt*ub[1][ii];
-    }
+    xb = xb + dt*ub;
 
     // Write data to file //
     for(int row = 0 ; row < Nb ; row++){
-      file1 << xb[0][row] << ", ";
-      file1 << xb[1][row] << endl;
+      file1 << xb(0,row) << ", ";
+      file1 << xb(1,row) << endl;
     }
     file1 << "" << endl;
 
   }   // for loop_num
   file1.close();
-  return;
+  return 0;
 }
