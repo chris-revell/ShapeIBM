@@ -33,7 +33,7 @@ function CellGrowth
   scaleF=1.0;                          % scalling parameter for forces
   scaleV=1.0;                          % scalling parameter for velocities
 
-  NumLoop=1;                          % number of steps
+  NumLoop=40;                          % number of steps
   mod_num=5;                           % frequency
   %Mov=moviein(NumLoop);
 
@@ -78,54 +78,24 @@ function CellGrowth
 
       %-- new position of boundary points --%
       xb=xb+ub*dt;
-      %disp("xb(1,1)")
-      %disp(xb(1,1))
-      %disp("xb(1,Nb)")
-      %disp(xb(1,Nb))
       %-- boundary forces --%
       fb=zeros(size(xb));
       fadj=AdjacentForces(xb,Nb,hb,Spr);            % adjacent
-      %disp("fadj(1,1)")
-      %disp(fadj(1,1))
       fsec=SecondaryForces(xb,Nb,hb,Spr,connect);   % secondary
-      %disp("fsec(1,1)")
-      %disp(fsec(1,1))
       fcen=CenterForces(xb,Nb,cen,len,Spr,connect); % center
-      %disp("fcen(1,1)")
-      %disp(fcen(1,1))
       fopp=OppositeForces(xb,Nb,len,Spr,connect);   % opposite
-      %disp("fopp(1,1)")
-      %disp(fopp(1,1))
       fb=fadj+fsec+fcen+fopp;    % add all forces
-      %disp("fb(1,1)")
-      %disp(fb(1,1))
       %-- grid sources --%
       sg=BoundToGrid1(sb,sbb,Nbs,Ng,hg,hg,0.5*hg,xmin,xmax);
-      %disp("sg(1,1)")
-      %disp(sg(1,1))
-      %disp("sg(1,2)")
-      %disp(sg(1,2))
-      %disp("sg(2,1)")
-      %disp(sg(2,1))
-      %disp("sg(2,2)")
-      %disp(sg(2,2))
       %-- grid forces --%
       fg=zeros(size(ug));
       fg=BoundToGrid2(xb,fb,Nb,Ng,hg,hg,0.5*hg,xmin,xmax);
-      %disp("fg(1,1,1)")
-      %disp(fg(1,1,1))
       %-- compute grid velocity from NavierStokes --%
-      %disp("ug(1,1,1)")
-      %disp(ug(1,1,1))
       vg=NavierStokes(ug,fg,sg,Ng,rho,mu,dt,hg);
-      disp("vg(1,1,1)")
-      disp(vg(1,1,1))
       ug=vg;
 
       %-- boundary velocities --%
       ub=GridToBound(xb,Nb,vg,Ng,hg,hg,xmin,xmax);
-      disp("ub(1,1)")
-      disp(ub(1,1))
 
       %-- draw the results --%
       %clf
@@ -372,49 +342,27 @@ function sg=BoundToGrid1(xb,sb,Nb,Ng,hdl,hg,hb,xmin,xmax)
     % move points into the domain
     xbb1=IntoDom(xb(1,n3),xmin,xmax);
     xbb2=IntoDom(xb(2,n3),xmin,xmax);
-    %disp("xbb1")
-    %disp(xbb1)
-    %disp("xbb2")
-    %disp(xbb2)
     % determine indeces of the nearest lower-down grid point
     Nx=1+floor((xbb1-xmin)/hg);
     Ny=1+floor((xbb2-xmin)/hg);
-    %disp("Nx")
-    %disp(Nx)
-    %disp("Ny")
-    %disp(Ny)
     % tests all 16 possible grid points
     for ii=-1:2
       for jj=-1:2
         % compute the interpolation Delta function
-        %disp("ii")
-        %disp(ii)
-        %disp("jj")
-        %disp(jj)
         llx=xmin+(Nx-1)*hg+ii*hg;
         rr=abs(xbb1-llx);
         dx=DeltaFun(rr,hdl);
         lly=xmin+(Ny-1)*hg+jj*hg;
         rr=abs(xbb2-lly);
         dy=DeltaFun(rr,hdl);
-        %disp("dx")
-        %disp(dx)
-        %disp("dy")
-        %disp(dy)
         % determine indices of the grid points to update
         [x1,x2]=IndDel(llx,ii,Nx,Ng,xmin,xmax);
         [y1,y2]=IndDel(lly,jj,Ny,Ng,xmin,xmax);
-        %disp("x1")
-        %disp(x1)
-        %disp("x2")
-        %disp(x2)
-        %disp("y1")
-        %disp(y1)
-        %disp("y2")
-        %disp(y2)
         % update the values if poits are not pasive
         if (dx*dy > 0)
           sg(x1,y1)  =sg(x1,y1)  +sb(1,n3)*dx*dy*hb;
+          disp(sprintf('%d, %d, %0.5f',x1,y1,sg(x1,y1)))
+          disp(sprintf('%0.5f, %0.5f, %0.5f, %0.5f',dx,dy,hb,sb(1,n3)))
           if (x2 ~= pas)
             sg(x2,y1) =sg(x2,y1) +sb(1,n3)*dx*dy*hb;
           end
@@ -429,6 +377,13 @@ function sg=BoundToGrid1(xb,sb,Nb,Ng,hdl,hg,hb,xmin,xmax)
       end  % for jj
     end % for ii
   end % for n3
+  %for ii=1:Ng+1
+  %  for jj=1:Ng+1
+  %    if (sg(ii,jj)>0)
+  %      disp(sprintf('%d, %d, %0.5f',ii,jj,sg(ii,jj)))
+  %    end
+  %  end
+  %end
 end % function BoundToGrid1
 %-------------------------------------------------------------------%
 
@@ -511,25 +466,9 @@ function  vg=NavierStokes(ug,fg,sg,Ng,rho,mu,dt,hg)
         if (ug(n1,n2,1) < 0)
           in1=PeriodInd(n1,Ng,1);
           pom=ug(in1,n2,ik)-ug(n1,n2,ik);
-          %disp("n1,n2,ik")
-          %disp(n1)
-          %disp(n2)
-          %disp(ik)
-          %disp("in1")
-          %disp(in1)
-          %disp("pom")
-          %disp(pom)
         else
           in1=PeriodInd(n1,Ng,-1);
           pom=ug(n1,n2,ik)-ug(in1,n2,ik);
-          %disp("n1,n2,ik")
-          %disp(n1)
-          %disp(n2)
-          %disp(ik)
-          %disp("in1")
-          %disp(in1)
-          %disp("pom")
-          %disp(pom)
         end
         vg(n1,n2,ik)=ug(n1,n2,1)*pom;
 
@@ -540,20 +479,8 @@ function  vg=NavierStokes(ug,fg,sg,Ng,rho,mu,dt,hg)
           in2=PeriodInd(n2,Ng,-1);
           pom=ug(n1,n2,ik)-ug(n1,in2,ik);
         end
-        %disp("n1,n2,ik")
-        %disp(n1)
-        %disp(n2)
-        %disp(ik)
-        %disp("in2")
-        %disp(in2)
-        %disp("pom")
-        %disp(pom)
-        %disp("vg(n1,n2,ik)")
-        %disp(vg(n1,n2,ik))
         vg(n1,n2,ik)=vg(n1,n2,ik)+ug(n1,n2,2)*pom;
         vg(n1,n2,ik)=-dt*vg(n1,n2,ik)/hg;
-        %disp("vg(n1,n2,ik)")
-        %disp(vg(n1,n2,ik))
 
         % central difference for the grad of source term
         if (ik == 1)
@@ -566,30 +493,17 @@ function  vg=NavierStokes(ug,fg,sg,Ng,rho,mu,dt,hg)
           pom=sg(n1,in1)-sg(n1,in2);
         end
         vg(n1,n2,ik)=vg(n1,n2,ik)+dt*mu*pom/(6*hg*rho*rho);
-        %disp("vg(n1,n2,ik)")
-        %disp(vg(n1,n2,ik))
         % current vlocity and force terms
         vg(n1,n2,ik)=vg(n1,n2,ik)+ug(n1,n2,ik)+dt*fg(n1,n2,ik)/rho;
-        %disp("vg(n1,n2,ik)")
-        %disp(vg(n1,n2,ik))
-      end % for ik
+        end % for ik
     end % for n2
   end % for n1
 
   % the Fast Fourier transforms of source distribution sg and stage n term vg
 
   fsg =fft2(sg(1:Ng,1:Ng));
-  %disp(sg(1,1))
-  %disp("fsg(1,1)")
-  %disp(real(fsg(1,1)))
-  %disp(vg(1,1,1))
   fug1=fft2(vg(1:Ng,1:Ng,1));
-  %disp("fug1(1,1)")
-  %disp(real(fug1(1,1)))
-  %disp(vg(1,1,2))
   fug2=fft2(vg(1:Ng,1:Ng,2));
-  %disp("fug2(1,1)")
-  %disp(real(fug2(1,1)))
 
   % determines fug - the Fourier Transform of the velocity field at the stage n+1
   Eps=0.0000001;
@@ -651,74 +565,31 @@ function fb=GridToBound(xb,Nb,fg,Ng,hdl,hg,xmn,xmx)
 
   for n3=1:1
     % moves points into the domain
-    %disp("xb(1,n3)");
-    %disp(xb(1,n3));
-    %disp("xb(2,n3)");
-    %disp(xb(2,n3));
     xbb1=IntoDom(xb(1,n3),xmn,xmx);
     xbb2=IntoDom(xb(2,n3),xmn,xmx);
-    %disp("xbb1");
-    %disp(xbb1);
-    %disp("xbb2");
-    %disp(xbb2);
     %computes the indices of the nearest down-left grid point
     Nx=1+floor((xbb1-xmn)/hg);
     Ny=1+floor((xbb2-xmn)/hg);
-    %disp("Nx");
-    %disp(Nx);
-    %disp("Ny");
-    %disp(Ny);
     % test all 16 neighboring points
     for ii=-1:2
       for jj=-1:2
-        %disp("ii, jj");
-        %disp(ii);
-        %disp(jj);
         % determine the value of the interpolation Delta-function
         llx=xmn+(Nx-1)*hg+ii*hg;
         rr=abs(xbb1-llx);
-        %disp("llx");
-        %disp(llx);
-        %disp("rr");
-        %disp(rr);
         dx=DeltaFun(rr,hdl);
         lly=xmn+(Ny-1)*hg+jj*hg;
         rr=abs(xbb2-lly);
         dy=DeltaFun(rr,hdl);
-        %disp("dx");
-        %disp(dx);
-        %disp("dy");
-        %disp(dy);
         % determine the indices of grid points gaining positive impact
         [x1,x2]=IndDel(llx,ii,Nx,Ng,xmn,xmx);
         [y1,y2]=IndDel(lly,jj,Ny,Ng,xmn,xmx);
-        disp("x1");
-        disp(x1);
-        disp("x2");
-        disp(x2);
-        disp("y1");
-        disp(y1);
-        disp("y2");
-        disp(y2);
+
         % update the values if inside the impact domain
         if (dx*dy > 0)
           fb(1,n3)=fb(1,n3)+fg(x1,y1,1)*dx*dy*hg*hg;
           fb(2,n3)=fb(2,n3)+fg(x1,y1,2)*dx*dy*hg*hg;
         end
-        disp("fg(x1,y1,1)")
-        disp(fg(x1,y1,1))
-        disp("fg(x1,y1,2)")
-        disp(fg(x1,y1,2))
-        disp("dx")
-        disp(dx)
-        disp("dy")
-        disp(dy)
-        disp("hg")
-        disp(hg)        
-        disp("fb(1,n3)")
-        disp(fb(1,n3))
-        disp("fb(2,n3)")
-        disp(fb(2,n3))
+
       end % for jj
     end % for ii
   end % for n3
@@ -773,20 +644,12 @@ end % function IndDel
 %--------------------------------------------------------------------%
 function pom=IntoDom(xy,xmin,xmax)
   len=xmax-xmin;
-  disp("len");
-  disp(len);
   pom=xy;
-  disp("pom");
-  disp(pom);
   while (pom>xmax)
     pom=pom-len;
-    disp("while pom");
-    disp(pom);
   end
   while (pom<xmin)
     pom=pom+len;
-    disp("while pom");
-    disp(pom);
   end
 end % function IntoDom
 %-------------------------------------------------------------------%

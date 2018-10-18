@@ -63,16 +63,12 @@ float IntoDom(const float& xy,const float& xmin,const float& xmax){
   float len;
   float pom;
   len=xmax-xmin;
-  cout << "len "<< len << endl;
   pom=xy;
-  cout << "pom "<< pom << endl;
   while (pom>xmax){
     pom=pom-len;
-    cout << "while pom "<< pom << endl;
   }
   while (pom<xmin){
     pom=pom+len;
-    cout << "while pom "<< pom << endl;
   }
   return pom;
 } // function IntoDom
@@ -261,7 +257,7 @@ void OppositeForces(mat& fbb,const mat& xb,const int& Nb,const float& len,const 
   float ndr;
   int Nb2;
 
-  if (connect==3){
+  if (connect==4){
     Lrest=2*len;
     Nb2=floor(Nb/4);
     for (int ii=0; ii<Nb2; ii++){
@@ -300,18 +296,12 @@ void BoundToGrid1(mat& sg,const mat& xb,const mat& sb,const int& Nb,const int& N
     // Move points into the domain. xbb0 and xbb1 are the coordinates of the point in the square domain.
     xbb0=IntoDom(xb(0,n3),xmn,xmx);
     xbb1=IntoDom(xb(1,n3),xmn,xmx);
-    //cout << "xbb0 " << xbb0 << endl;
-    //cout << "xbb1 " << xbb1 << endl;
     // determine indices of the nearest lower-down grid point
     Nx=1+floor((xbb0-xmn)/hg);
     Ny=1+floor((xbb1-xmn)/hg);
-    //cout << "Nx " << Nx << endl;
-    //cout << "Ny " << Ny << endl;
     // tests all 16 possible grid points
     for (int ii=-1; ii<3; ii++){
       for (int jj=-1; jj<3; jj++){
-        //cout << "ii " << ii << endl;
-        //cout << "jj " << jj << endl;
         // compute the interpolation Delta function
         llx=xmn+(Nx-1)*hg+ii*hg;
         rr=fabs(xbb0-llx);
@@ -319,18 +309,14 @@ void BoundToGrid1(mat& sg,const mat& xb,const mat& sb,const int& Nb,const int& N
         lly=xmn+(Ny-1)*hg+jj*hg;
         rr=fabs(xbb1-lly);
         dy=DeltaFun(rr,hdl);
-        //cout << "dx " << dx << endl;
-        //cout << "dy " << dy << endl;
         // determine indices of the grid points to update
         IndDel(x1,x2,llx,ii,Nx,Ng,xmn,xmx);
         IndDel(y1,y2,lly,jj,Ny,Ng,xmn,xmx);
-        //cout << "x1 " << x1 << endl;
-        //cout << "x2 " << x2 << endl;
-        //cout << "y1 " << y1 << endl;
-        //cout << "y2 " << y2 << endl;
         // update the values if points are not passive
         if (dx*dy > 0){
           sg(x1,y1)  = sg(x1,y1) + sb(0,n3)*dx*dy*hb;
+          cout << x1 << " " << y1 << " " << sg(x1,y1) << endl;
+          cout << dx << " " << dy << " " << hb << sb(0,n3) << endl;
           if (x2 != pas){
             sg(x2,y1)= sg(x2,y1) + sb(0,n3)*dx*dy*hb;
           }
@@ -344,6 +330,14 @@ void BoundToGrid1(mat& sg,const mat& xb,const mat& sb,const int& Nb,const int& N
       }  // for jj
     } // for ii
   } // for n3
+
+  //for (int ii=0; ii<Ng+1;ii++){
+  //  for (int jj=0; jj<Ng+1;jj++){
+  //    if (sg(ii,jj)>0){
+  //      cout << ii << " " << jj << " " << sg(ii,jj) << endl;
+  //    }
+  //  }
+  //}
   return;
 } // function BoundToGrid1
 //-------------------------------------------------------------------//
@@ -447,23 +441,11 @@ void NavierStokes(cube& vg,const cube& ug,const cube& fg,const mat& sg,const int
         // upwind scheme for the advection term
         if (ug(n1,n2,0) < 0){
           in1=PeriodInd(n1,Ng,1);
-          //cout << "n1,n2,ik " << endl;
-          //cout << n1 << endl;
-          //cout << n2 << endl;
-          //cout << ik << endl;
-          //cout << "in1 " << in1 << endl;
           pom=ug(in1,n2,ik)-ug(n1,n2,ik);
-          //cout << "pom " << pom << endl;
         }else{
           in1=PeriodInd(n1,Ng,-1);
-          //cout << "n1,n2,ik " << endl;
-          //cout << n1 << endl;
-          //cout << n2 << endl;
-          //cout << ik << endl;
-          //cout << "in1 " << in1 << endl;
           pom=ug(n1,n2,ik)-ug(in1,n2,ik);
-          //cout << "pom " << pom << endl;
-        }
+          }
         vg(n1,n2,ik)=ug(n1,n2,0)*pom;
 
         if (ug(n1,n2,1) < 0){
@@ -473,15 +455,8 @@ void NavierStokes(cube& vg,const cube& ug,const cube& fg,const mat& sg,const int
           in2=PeriodInd(n2,Ng,-1);
           pom=ug(n1,n2,ik)-ug(n1,in2,ik);
         }
-        //cout << "n1,n2,ik " << endl;
-        //cout << n1 << endl;
-        //cout << n2 << endl;
-        //cout << ik << endl;
-        //cout << "vg(n1,n2,ik) " << vg(n1,n2,ik) << endl;
-        //cout << "pom " << pom << endl;
         vg(n1,n2,ik)=vg(n1,n2,ik)+ug(n1,n2,1)*pom;
         vg(n1,n2,ik)=-dt*vg(n1,n2,ik)/hg;
-        //cout << "vg(n1,n2,ik) " << vg(n1,n2,ik) << endl;
 
         // central difference for the grad of source term
         if (ik == 0){
@@ -494,26 +469,18 @@ void NavierStokes(cube& vg,const cube& ug,const cube& fg,const mat& sg,const int
           pom=sg(n1,in1)-sg(n1,in2);
         }
         vg(n1,n2,ik)=vg(n1,n2,ik)+dt*mu*pom/(6*hg*rho*rho);
-        //cout << "vg(n1,n2,ik) " << vg(n1,n2,ik) << endl;
         // current vlocity and force terms
         vg(n1,n2,ik)=vg(n1,n2,ik)+ug(n1,n2,ik)+dt*fg(n1,n2,ik)/rho;
-        //cout << "vg(n1,n2,ik) " << vg(n1,n2,ik) << endl;
-      } // for ik
+        } // for ik
     } // for n2
   } // for n1
 
   // the Fast Fourier transforms of source distribution sg and stage n term vg
-  fsg  = fft(sg(span(0,Ng-1),span(0,Ng-1)));
-  //cout << sg(span(0,Ng-1),span(0,Ng-1))(0,0) << endl;
-  //cout << "fsg(0,0) " << fsg(0,0) << endl;
+  fsg  = fft2(sg(span(0,Ng-1),span(0,Ng-1)));
   dummymat = vg.slice(0);
-  //cout << dummymat(0,0) << endl;
-  fug1 = fft(dummymat(span(0,Ng-1),span(0,Ng-1)));
-  //cout << "fug1(0,0) " << fug1(0,0) << endl;
+  fug1 = fft2(dummymat(span(0,Ng-1),span(0,Ng-1)));
   dummymat = vg.slice(1);
-  //cout << dummymat(0,0) << endl;
-  fug2 = fft(dummymat(span(0,Ng-1),span(0,Ng-1)));
-  //cout << "fug2(0,0) " << fug2(0,0) << endl;
+  fug2 = fft2(dummymat(span(0,Ng-1),span(0,Ng-1)));
   // determines fug - the Fourier Transform of the velocity field at the stage n+1
   for (int n1=0;n1<Ng;n1++){
     for (int n2=0;n2<Ng;n2++){
@@ -554,13 +521,13 @@ void NavierStokes(cube& vg,const cube& ug,const cube& fg,const mat& sg,const int
   fvgg.set_real(dummymat(span(0,Ng-1),span(0,Ng-1)));
   dummymat = fvg0.slice(1);
   fvgg.set_imag(dummymat(span(0,Ng-1),span(0,Ng-1)));
-  vg0 = ifft(fvgg);
+  vg0 = ifft2(fvgg);
 
   dummymat = fvg1.slice(0);
   fvgg.set_real(dummymat(span(0,Ng-1),span(0,Ng-1)));
   dummymat = fvg1.slice(1);
   fvgg.set_imag(dummymat(span(0,Ng-1),span(0,Ng-1)));
-  vg1 = ifft(fvgg);
+  vg1 = ifft2(fvgg);
 
   for (int ii=0; ii<Ng; ii++){
     for (int jj=0; jj<Ng; jj++){
@@ -594,58 +561,33 @@ void GridToBound(mat& fb,const mat& xb,const int& Nb,const cube& fg,const int& N
   int y2 = 0;
 
 
-  for (int n3=0; n3<1; n3++){
+  for (int n3=0; n3<Nb; n3++){
     // moves points into the domain
-    cout << "" << endl;
-    cout << "" << endl;
-    cout << "" << endl;
-    //cout << "xb(0,n3)" << xb(0,n3) << endl;
-    //cout << "xb(1,n3)" << xb(1,n3) << endl;
     xbb0=IntoDom(xb(0,n3),xmn,xmx);
     xbb1=IntoDom(xb(1,n3),xmn,xmx);
-    //cout << "xbb0" << xbb0 << endl;
-    //cout << "xbb1" << xbb1 << endl;
     //computes the indices of the nearest down-left grid point
     Nx=1+floor((xbb0-xmn)/hg);
     Ny=1+floor((xbb1-xmn)/hg);
-    //cout << "Nx" << Nx << endl;
-    //cout << "Ny" << Ny << endl;
     // test all 16 neighboring points
     for (int ii=-1;ii<3;ii++){
       for (int jj=-1;jj<3;jj++){
         // determine the value of the interpolation Delta-function
-        //cout << "" << endl;
-        //cout << "ii,jj" << ii << jj << endl;
         llx=xmn+(Nx-1)*hg+ii*hg;
         rr=fabs(xbb0-llx);
-        //cout << "llx" << llx << endl;
-        //cout << "rr" << rr << endl;
         dx=DeltaFun(rr,hdl);
         lly=xmn+(Ny-1)*hg+jj*hg;
         rr=fabs(xbb1-lly);
         dy=DeltaFun(rr,hdl);
-        //cout << "dx" << dx << endl;
-        //cout << "dy" << dy << endl;
+
         // determine the indices of grid points gaining positive impact
         IndDel(x1,x2,llx,ii,Nx,Ng,xmn,xmx);
         IndDel(y1,y2,lly,jj,Ny,Ng,xmn,xmx);
-        //cout << "x1" << x1 << endl;
-        //cout << "x2" << x2 << endl;
-        //cout << "y1" << y1 << endl;
-        //cout << "y2" << y2 << endl;
+
         // update the values if inside the impact domain
         if (dx*dy > 0){
           fb(0,n3)=fb(0,n3)+fg(x1,y1,0)*dx*dy*hg*hg;
           fb(1,n3)=fb(1,n3)+fg(x1,y1,1)*dx*dy*hg*hg;
         }
-        cout << "fg(x1,y1,0)" << fg(x1,y1,0) << endl;
-        cout << "fg(x1,y1,1)" << fg(x1,y1,1) << endl;
-        cout << "dx" << dx << endl;
-        cout << "dy" << dy << endl;
-        cout << "hg" << hg << endl;
-        cout << "fb(0,n3)" << fb(0,n3) << endl;
-        cout << "fb(1,n3)" << fb(1,n3) << endl;
-
       } // for jj
     } // for ii
   }// for n3
@@ -670,7 +612,7 @@ int main() {
                               // 2-adjacent and center, 3-adjcent and opposite
   float scaleF=1.0;           // scaling parameter for forces
   float scaleV=1.0;           // scaling parameter for velocities
-  int NumLoop=1;             // number of steps
+  int NumLoop=40;             // number of steps
   int mod_num=5;              // frequency
   int Nbs=2;
   float hb;                   // Spacing between boundary elements?
@@ -717,42 +659,33 @@ int main() {
   sbb(0,1) =-Src;     // a sink in the corner
 
   ofstream file1 ("boundarypositions.txt");
+  // Write data to file //
+  for(int row = 0 ; row < Nb ; row++){
+    file1 << xb(0,row) << ", ";
+    file1 << xb(1,row) << endl;
+  }
+  file1 << "" << endl;
+  file1.flush();
 
   for (int loop_num=0; loop_num<NumLoop; loop_num++) {
     //-- boundary forces --//
-    //cout << "xb(0,0) " << xb(0,0) << endl;
-    //cout << "xb(0,Nb-1) " << xb(0,Nb-1) << endl;
     AdjacentForces(fadj,xb,Nb,hb,Spr);            // adjacent
-    //cout << "fadj(0,0) " << fadj(0,0) << endl;
     SecondaryForces(fsec,xb,Nb,hb,Spr,connect);   // secondary
-    //cout << "fsec(0,0) " << fsec(0,0) << endl;
     CenterForces(fcen,xb,Nb,cen,len,Spr,connect); // center
-    //cout << "fcen(0,0) " << fcen(0,0) << endl;
     OppositeForces(fopp,xb,Nb,len,Spr,connect);   // opposite
-    //cout << "fopp(0,0) " << fopp(0,0) << endl;
     for (int ii=0; ii<Nb; ii++){
       fb(0,ii)=fadj(0,ii)+fsec(0,ii)+fcen(0,ii)+fopp(0,ii);    // add all forces
       fb(1,ii)=fadj(1,ii)+fsec(1,ii)+fcen(1,ii)+fopp(1,ii);    // add all forces
     }
-    //cout << "fb(0,0) " << fb(0,0) << endl;
     //-- grid sources --//
     BoundToGrid1(sg,sb,sbb,Nbs,Ng,hg,hg,0.5*hg,xmin,xmax);
-    //cout << "sg(0,0) " << sg(0,0) << endl;
-    //cout << "sg(0,1) " << sg(0,1) << endl;
-    //cout << "sg(1,0) " << sg(1,0) << endl;
-    //cout << "sg(1,1) " << sg(1,1) << endl;
     //-- grid forces --//
     BoundToGrid2(fg,xb,fb,Nb,Ng,hg,hg,0.5*hg,xmin,xmax);
-    //cout << "fg(0,0,0) " << fg(0,0,0) << endl;
     //-- compute grid velocity from NavierStokes --//
-    //cout << "ug(0,0,0) " << ug(0,0,0) << endl;
     NavierStokes(vg,ug,fg,sg,Ng,rho,mu,dt,hg);
     ug = vg;
-    cout << "vg(0,0,0) " << vg(0,0,0) << endl;
-    cout << "vg(0,0,1) " << vg(0,0,1) << endl;
     //-- boundary velocities --//
     GridToBound(ub,xb,Nb,vg,Ng,hg,hg,xmin,xmax);
-    cout << "ub(0,0) " << ub(0,0) << endl;
     //-- new position of boundary points --//
     xb = xb + dt*fb;
 
@@ -762,6 +695,7 @@ int main() {
       file1 << xb(1,row) << endl;
     }
     file1 << "" << endl;
+    file1.flush();
 
   }   // for loop_num
   file1.close();
