@@ -8,9 +8,26 @@
 using namespace std;
 using namespace arma;
 
-const int Ng=64;                  // fluid grid size
-const int Nb=64;                  // number of boundary points
-const float pi = 3.1415;
+// System parameters
+const int     Ng=16*16;                     // fluid grid size
+const int     Nb=64;                        // number of boundary points
+const float   pi = 3.1415;                  // Value of pi
+const float   xmin=-10;                     // Fluid domain dimensions
+const float   xmax=10;                      // Fluid domain dimensions
+const float   cen=(xmax+xmin)/2;            // Fluid centre point
+const float   hg=float(xmax-xmin)/float(Ng);// fluid mesh width
+const float   Src=0.5;                      // source strength
+const float   Spr=1;                        // spring stiffness
+const float   rho=1;                        // fluid density
+const float   mu=1;                         // fluid viscosity
+const float   dt=0.05;                      // time step
+const float   len=0.2;                      // body radius/half length
+const int     connect=3;                    // spring connections:
+const float   scaleF=1.0;                   // scaling parameter for forces
+const float   scaleV=1.0;                   // scaling parameter for velocities
+const int     NumLoop=40;                   // number of steps
+const int     Nbs=2;                        // Number of fluid sources
+
 
 //--------------------------------------------------------------------//
 // Define cell shape. Nb defines
@@ -82,7 +99,7 @@ float IntoDom(const float& xy,const float& xmin,const float& xmax){
 float DeltaFun(const float& r,const float& h){
   float dist;
 
-  if (fabs(r) < (2*h)){
+  if (abs(r) < (2*h)){
     dist=0.25*(1+cos(0.5*pi*r/h))/h;
   }else{
     dist=0;
@@ -257,20 +274,19 @@ void OppositeForces(mat& fbb,const mat& xb,const int& Nb,const float& len,const 
   float ndr;
   int Nb2;
 
-  if (connect==4){
+  if (connect==3){
     Lrest=2*len;
     Nb2=floor(Nb/4);
     for (int ii=0; ii<Nb2; ii++){
       dl1=xb(0,3*Nb2-ii)-xb(0,ii);
       dl2=xb(1,3*Nb2-ii)-xb(1,ii);
       ndl = sqrt(pow(dl1,2)+pow(dl2,2));
-      fbb(0,ii)       = Spr*(ndl-Lrest)*dl1/ndl;
-      fbb(1,ii)       = Spr*(ndl-Lrest)*dl2/ndl;
-      fbb(0,3*Nb2-ii) = -Spr*(ndl-Lrest)*dl1/ndl;
-      fbb(1,3*Nb2-ii) = -Spr*(ndl-Lrest)*dl2/ndl;
+      fbb(0,ii)       = Spr*abs(ndl-Lrest)*dl1/ndl;
+      fbb(1,ii)       = Spr*abs(ndl-Lrest)*dl2/ndl;
+      fbb(0,3*Nb2-ii) = -Spr*abs(ndl-Lrest)*dl1/ndl;
+      fbb(1,3*Nb2-ii) = -Spr*abs(ndl-Lrest)*dl2/ndl;
     }
   }
-  return;
 }// function OppositeForces
 //--------------------------------------------------------------------//
 
@@ -315,8 +331,6 @@ void BoundToGrid1(mat& sg,const mat& xb,const mat& sb,const int& Nb,const int& N
         // update the values if points are not passive
         if (dx*dy > 0){
           sg(x1,y1)  = sg(x1,y1) + sb(0,n3)*dx*dy*hb;
-          cout << x1 << " " << y1 << " " << sg(x1,y1) << endl;
-          cout << dx << " " << dy << " " << hb << sb(0,n3) << endl;
           if (x2 != pas){
             sg(x2,y1)= sg(x2,y1) + sb(0,n3)*dx*dy*hb;
           }
@@ -330,15 +344,6 @@ void BoundToGrid1(mat& sg,const mat& xb,const mat& sb,const int& Nb,const int& N
       }  // for jj
     } // for ii
   } // for n3
-
-  //for (int ii=0; ii<Ng+1;ii++){
-  //  for (int jj=0; jj<Ng+1;jj++){
-  //    if (sg(ii,jj)>0){
-  //      cout << ii << " " << jj << " " << sg(ii,jj) << endl;
-  //    }
-  //  }
-  //}
-  return;
 } // function BoundToGrid1
 //-------------------------------------------------------------------//
 
@@ -597,24 +602,6 @@ void GridToBound(mat& fb,const mat& xb,const int& Nb,const cube& fg,const int& N
 
 int main() {
 
-  float xmin=-1;
-  float xmax=1;
-  float cen=(xmax+xmin)/2;      // fluid domain (square)
-  float hg=float(xmax-xmin)/float(Ng);    // fluid mesh width
-  float Src=1;                // source strength
-  float Spr=100;              // spring stiffness
-  float rho=1;                // fluid density
-  float mu=1;                 // fluid viscosity
-  float dt=0.05;              // time step
-  float len=0.2;              // body radius/half length
-  int connect=3;              // spring connections:
-                              // 0-adjacent only, 1-adjacent and secondary
-                              // 2-adjacent and center, 3-adjcent and opposite
-  float scaleF=1.0;           // scaling parameter for forces
-  float scaleV=1.0;           // scaling parameter for velocities
-  int NumLoop=40;             // number of steps
-  int mod_num=5;              // frequency
-  int Nbs=2;
   float hb;                   // Spacing between boundary elements?
   mat sb   = mat(2,2,fill::zeros);
   mat xb   = mat(2,Nb,fill::zeros);     // Position of all boundary elements
@@ -687,7 +674,7 @@ int main() {
     //-- boundary velocities --//
     GridToBound(ub,xb,Nb,vg,Ng,hg,hg,xmin,xmax);
     //-- new position of boundary points --//
-    xb = xb + dt*fb;
+    xb = xb + dt*ub;
 
     // Write data to file //
     for(int row = 0 ; row < Nb ; row++){
