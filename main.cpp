@@ -16,15 +16,13 @@ const float   xmin=-10;                     // Fluid domain dimensions
 const float   xmax=10;                      // Fluid domain dimensions
 const float   cen=(xmax+xmin)/2;            // Fluid centre point
 const float   hg=float(xmax-xmin)/float(Ng);// fluid mesh width
-const float   Src=0.5;                      // source strength
+const float   Src=0.1;                      // source strength
 const float   Spr=1;                        // spring stiffness
 const float   rho=1;                        // fluid density
 const float   mu=1;                         // fluid viscosity
-const float   dt=0.05;                      // time step
-const float   len=0.2;                      // body radius/half length
+const float   dt=0.01;                      // time step
+const float   len=0.2;                      // Initial cell radius
 const int     connect=3;                    // spring connections:
-const float   scaleF=1.0;                   // scaling parameter for forces
-const float   scaleV=1.0;                   // scaling parameter for velocities
 const int     NumLoop=40;                   // number of steps
 const int     Nbs=2;                        // Number of fluid sources
 
@@ -683,6 +681,7 @@ int main() {
     }
     file1 << "" << endl;
     file1.flush();
+    printf("%d/%d\n",loop_num+1,NumLoop);
 
   }   // for loop_num
   file1.close();
