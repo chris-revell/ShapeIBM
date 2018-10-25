@@ -629,10 +629,8 @@ int main() {
     sbb(0,0) = Src;     // a source at the center
     sbb(0,1) =-Src;     // a sink in the corner
 
-    file1.open ("boundarypositions.txt", std::ofstream::out | std::ofstream::app);
-    // Write initial data to file //
-    cout << Cells[0].xb.n_rows << endl;
-    cout << Cells[1].xb.n_rows << endl;
+    file1.open ("output/boundarypositions.txt", std::ofstream::out | std::ofstream::app);
+    // Write initial data to file //    
     for(int row = 0 ; row < Nb ; row++){
         file1 << Cells[0].xb(0,row) << ", ";
         file1 << Cells[0].xb(1,row) << endl;

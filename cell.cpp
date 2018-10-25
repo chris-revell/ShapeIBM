@@ -17,4 +17,4 @@ cell::cell(const int& Nb, const float& len, const float& initialpositionx, const
         xb(1,ii) = len*sin(ii*hb)+initialpositiony;
     }
 }
-cell::~cell() = default;
+cell::~cell() {}

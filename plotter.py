@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-data = np.genfromtxt("boundarypositions.txt",delimiter=", ")
+data = np.genfromtxt("output/boundarypositions.txt",delimiter=", ")
 Nc = 2
 xmax=10
 xmin=10
@@ -15,6 +15,6 @@ for step in range(nsteps):
     ax.set_ylim([-1,1])
     ax.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
     ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-    fig.savefig("test{:02d}".format(step))
+    fig.savefig("output/test{:02d}".format(step))
     plt.close()
-os.system("convert -delay 10 -loop 0 *.png animated.gif; rm *.png")
+os.system("convert -delay 10 -loop 0 output/*.png output/animated.gif; rm output/*.png")
