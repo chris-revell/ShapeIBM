@@ -4,8 +4,10 @@
 #include <fstream>
 #include <cmath>
 #include <armadillo>
-#include "cell.hpp"
 #include <vector>
+#include "cell.hpp"
+#include "routines.hpp"
+
 
 using namespace std;
 using namespace arma;
@@ -28,49 +30,6 @@ const int     NumLoop=40;                   // number of steps
 const int     Nbs=2;                        // Number of fluid sources
 const int     Nc=2;                         // Number of cells
 
-
-//--------------------------------------------------------------------//
-// Define cell shape. Nb defines
-// the number of boundary points; len defines a radius for a circular //
-// cell; or a length of a side of the square                          //
-//--------------------------------------------------------------------//
-float DefineCellShape(const int& Nb, const float& len, const int& x, const int& y) {
-    float hb=2*M_PI/static_cast<float>(Nb);
-    if (x==1) {
-        return (len*cos(y*hb));
-    }
-    else {
-        return (len*sin(y*hb));
-    }
-}    // function DefineCellShape
-//-----------------------------------------------------------------//
-
-//-------------------------------------------------------------------//
-// computes shifting of the index nn in the square periodic domain   //
-// of size Ng+1 where the 1st and the (Ng+1)st columns and rows are  //
-// identical according to the value of which:                        //
-//    which = 1 -- nn shifted one element to the right               //
-//    which =-1 -- nn shifted one element to the left                //
-//-------------------------------------------------------------------//
-int PeriodInd(const int& nn,const int& Ng,const int& which){
-    int ind=0;
-    if (which == (-1)){
-        if (nn == 0){
-            ind=Ng-1;
-        }else{
-            ind=nn-1;
-        }
-    }
-    if (which == 1){
-        if (nn == Ng){
-            ind=1;
-        }else{
-            ind=nn+1;
-        }
-    }
-    return ind;
-} // function PeriodInd
-//------------------------------------------------------------------//
 
 //--------------------------------------------------------------------//
 // transforms the real coordinate xy of the body into the correspon-  //
