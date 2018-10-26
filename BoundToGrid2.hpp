@@ -6,4 +6,4 @@
 //
 //
 
-void BoundToGrid2(cube& sg,const vector<cell>& cells,const int& Nb,const int& Ng,const float& hdl,const float& hg,const float& hb,const float& xmin,const float& xmax)
+void BoundToGrid2(cube& sg,const mat& xb,const mat& sb,const int& Nb,const int& Ng,const float& hdl,const float& hg,const float& hb,const float& xmin,const float& xmax);
