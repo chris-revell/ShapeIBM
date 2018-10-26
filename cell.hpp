@@ -10,9 +10,14 @@
 class cell {
 private:
 public:
-    cell(const int& Nb, const float& len, const float& initialpositionx,const float& initialpositiony);
-    arma::mat xb;
-    ~cell();
+    cell(const int& Nb, const float& len, const float& initialx,const float& initialy); // Constructor takes number of boundary points, typical radius, and x,y positions of centre of mass
+    arma::mat xb; // Positions of all boundary points in cell
+    arma::mat xb; // Forces on all boundary points in cell arising from interactions with other boundary points
+    float hb;     // Typical angular spacing between boundary elements given typical radius len
+    int Nb;       // Number of boundary points in cell
+    void AdjacentForces();
+    float corticaltension; // Spring constant of boundary forces
+    ~cell(); //Destructor
 protected:
 
 };
