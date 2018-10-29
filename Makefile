@@ -1,7 +1,7 @@
 # Compile basicIBM with Intel c++ compiler
 
 CC=icc
-CFlags=-c -Wall -std=c++11 -g -O0
+CFlags=-c -Wall -std=c++11 -g -O0 -fsanitize=bounds
 CLibs=-larmadillo
 
 all: basicIBM clean

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 
 data = np.genfromtxt("output/boundarypositions.txt",delimiter=", ")
-Nc = 2
+Nc = 1
 xmax=10
 xmin=10
 npoints = 64*Nc
@@ -17,4 +17,5 @@ for step in range(nsteps):
     ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
     fig.savefig("output/test{:02d}".format(step))
     plt.close()
-os.system("convert -delay 10 -loop 0 output/*.png output/animated.gif; rm output/*.png")
+os.system("convert -delay 10 -loop 0 output/*.png output/animated.gif;")
+# rm output/*.png")
