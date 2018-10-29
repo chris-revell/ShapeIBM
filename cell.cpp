@@ -6,7 +6,11 @@
 #include "armadillo"
 #include "cmath"
 
-cell::cell(const int& Nb, const float& len, const float& initialx, const float& initialy) { // Constructor takes number of boundary points, typical radius, and x,y positions of centre of mass
+using namespace arma;
+using namespace std;
+
+cell::cell(const int& NumBounds, const float& len, const float& initialx, const float& initialy) { // Constructor takes number of boundary points, typical radius, and x,y positions of centre of mass
+    Nb = NumBounds;
     hb=2*M_PI/static_cast<float>(Nb); // Typical angular spacing between boundary elements given typical radius len
     xb = arma::mat(2,Nb,arma::fill::zeros); // Positions of all boundary points in cell
     fb = arma::mat(2,Nb,arma::fill::zeros); // Forces on all boundary points in cell arising from interactions with other boundary points
@@ -18,7 +22,7 @@ cell::cell(const int& Nb, const float& len, const float& initialx, const float& 
     }
 }
 
-void AdjacentForces(); {
+void cell::AdjacentForces() {
   float dl1,dl2,dr1,dr2,ndl,ndr;
   for (int ii=0; ii<Nb; ii++) {
       if (ii==0) {
@@ -43,7 +47,5 @@ void AdjacentForces(); {
       fb(1,ii)=corticaltension*((ndl-hb)*dl2/ndl+(ndr-hb)*dr2/ndr);
   }
 }
-
-
 
 cell::~cell() {}

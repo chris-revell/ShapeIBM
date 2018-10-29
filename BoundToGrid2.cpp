@@ -7,6 +7,13 @@
 //
 
 #include "BoundToGrid2.hpp"
+#include "tissue.hpp"
+#include <armadillo>
+#include <vector>
+#include "cell.hpp"
+#include "smallfunctions.hpp"
+
+using namespace arma;
 
 //-------------------------------------------------------------------//
 // spreads the material values sb(1,Nb) (forces, sources) defined at //

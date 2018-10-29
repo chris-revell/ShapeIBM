@@ -6,4 +6,5 @@
 //
 //
 
-void BoundToGrid2(cube& sg,const mat& xb,const mat& sb,const int& Nb,const int& Ng,const float& hdl,const float& hg,const float& hb,const float& xmin,const float& xmax);
+#include <armadillo>
+void BoundToGrid2(arma::cube& sg,const arma::mat& xb,const arma::mat& sb,const int& Nb,const int& Ng,const float& hdl,const float& hg,const float& hb,const float& xmin,const float& xmax);
