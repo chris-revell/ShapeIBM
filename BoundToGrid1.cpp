@@ -16,62 +16,46 @@
 using namespace arma;
 using namespace std;
 
-//-----------------------------------------------------------------//
-// spreads the material values sb(Nb) (forces, sources) defined at //
-// material points xb(1,Nb) to the fluid grid sg(Ng+1,Ng+1) in the //
-// square domain (xmin,xmax)^2 with mesh width hg, material points //
-// separation hb and a radius of the discrete delta function hdl.  //
-//-----------------------------------------------------------------//
-void BoundToGrid1(tissue Tissue,const mat& xb,const mat& sb,const int& Nb){
+void BoundToGrid1(tissue& Tissue){
   int pas=-100; // passive value - do nothing
-  float llx,rr,dx,lly,dy;
+  float llx,rr,dx,lly,dy,xbb0,xbb1;
   int x1=0;
   int x2=0;
   int y1=0;
   int y2=0;
-  float xbb0;
-  float xbb1;
   int Nx,Ny;
 
-  int Ng  = Tissue.Ng;
-  float hdl = Tissue.hg;
-  float hg  = Tissue.hg;
-  float hb  = 0.5*Tissue.hg;
-  float xmn = Tissue.xmin;
-  float xmx = Tissue.xmax;
-  mat sg = Tissue.sg;
-
-  for (int n3=0;n3<Nb;n3++){
+  for (int n3=0;n3<Tissue.Nbs;n3++){
     // Move points into the domain. xbb0 and xbb1 are the coordinates of the point in the square domain.
-    xbb0=IntoDom(xb(0,n3),xmn,xmx);
-    xbb1=IntoDom(xb(1,n3),xmn,xmx);
+    xbb0=IntoDom(Tissue.sb(0,n3),Tissue.xmin,Tissue.xmax);
+    xbb1=IntoDom(Tissue.sb(1,n3),Tissue.xmin,Tissue.xmax);
     // determine indices of the nearest lower-down grid point
-    Nx=1+floor((xbb0-xmn)/hg);
-    Ny=1+floor((xbb1-xmn)/hg);
+    Nx=1+floor((xbb0-Tissue.xmin)/Tissue.hg);
+    Ny=1+floor((xbb1-Tissue.xmin)/Tissue.hg);
     // tests all 16 possible grid points
-    for (int ii=-1; ii<3; ii++){
-      for (int jj=-1; jj<3; jj++){
+    for (int ii=-1; ii<2; ii++){
+      for (int jj=-1; jj<2; jj++){
         // compute the interpolation Delta function
-        llx=xmn+(Nx-1)*hg+ii*hg;
-        rr=fabs(xbb0-llx);
-        dx=DeltaFun(rr,hdl);
-        lly=xmn+(Ny-1)*hg+jj*hg;
-        rr=fabs(xbb1-lly);
-        dy=DeltaFun(rr,hdl);
+        llx=Tissue.xmin+(Nx-1)*Tissue.hg+ii*Tissue.hg;
+        rr=abs(xbb0-llx);
+        dx=DeltaFun(rr,0.5*Tissue.hg);
+        lly=Tissue.xmin+(Ny-1)*Tissue.hg+jj*Tissue.hg;
+        rr=abs(xbb1-lly);
+        dy=DeltaFun(rr,0.5*Tissue.hg);
         // determine indices of the grid points to update
-        IndDel(x1,x2,llx,ii,Nx,Ng,xmn,xmx);
-        IndDel(y1,y2,lly,jj,Ny,Ng,xmn,xmx);
+        IndDel(x1,x2,llx,ii,Nx,Tissue.Ng,Tissue.xmin,Tissue.xmax);
+        IndDel(y1,y2,lly,jj,Ny,Tissue.Ng,Tissue.xmin,Tissue.xmax);
         // update the values if points are not passive
         if (dx*dy > 0){
-          sg(x1,y1)  = sg(x1,y1) + sb(0,n3)*dx*dy*hb;
+          Tissue.sg(x1,y1)  = Tissue.sg(x1,y1) + Tissue.sbb(0,n3)*dx*dy*0.5*Tissue.hg;
           if (x2 != pas){
-            sg(x2,y1)= sg(x2,y1) + sb(0,n3)*dx*dy*hb;
+            Tissue.sg(x2,y1)= Tissue.sg(x2,y1) + Tissue.sbb(0,n3)*dx*dy*0.5*Tissue.hg;
           }
           if (y2 != pas){
-            sg(x1,y2)= sg(x1,y2) + sb(0,n3)*dx*dy*hb;
+            Tissue.sg(x1,y2)= Tissue.sg(x1,y2) + Tissue.sbb(0,n3)*dx*dy*0.5*Tissue.hg;
           }
           if ((x2 != pas) & (y2 != pas)){
-            sg(x2,y2)= sg(x2,y2) + sb(0,n3)*dx*dy*hb;
+            Tissue.sg(x2,y2)= Tissue.sg(x2,y2) + Tissue.sbb(0,n3)*dx*dy*0.5*Tissue.hg;
           }
         }
       }  // for jj

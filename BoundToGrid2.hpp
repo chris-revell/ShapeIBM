@@ -5,6 +5,12 @@
 //  Created by Christopher Revell on 26/10/2018.
 //
 //
+#ifndef BOUNDTOGRID2_H
+#define BOUNDTOGRID2_H
 
+#include "tissue.hpp"
 #include <armadillo>
-void BoundToGrid2(arma::cube& sg,const arma::mat& xb,const arma::mat& sb,const int& Nb,const int& Ng,const float& hdl,const float& hg,const float& hb,const float& xmin,const float& xmax);
+void BoundToGrid2(tissue& Tissue);
+
+
+#endif

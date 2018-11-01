@@ -12,78 +12,91 @@
 #include "smallfunctions.hpp"
 #include "GridToBound.hpp"
 #include "NavierStokes.hpp"
-
+#include "GlobalToLocal.hpp"
+#include "ReadParams.hpp"
 
 using namespace std;
 using namespace arma;
 
 // System parameters
-const int     Numg=16*16;                   // fluid grid size
-const int     Nb=64;                        // number of boundary points
-const int     dims=10;
-const float   cen=0;                        // Fluid centre point
-const float   Src=1;                      // source strength
-const float   rho=1;                        // fluid density
-const float   mu=1;                         // fluid viscosity
-const float   dt=1;                      // time step
-const float   len=0.2;                      // Initial cell radius
-const int     NumLoop=40;                   // number of steps
-const int     Nbs=2;                        // Number of fluid sources
-const int     Nc=1;                         // Number of cells
+int   Numg;    // fluid grid size
+int   Nb;      // number of boundary points
+int   dims;    // Fluid grid dimensions
+float cen;     // Fluid centre point
+float Src;     // source strength
+float rho;     // fluid density
+float mu;      // fluid viscosity
+float dt;      // time step
+float len;     // Initial cell radius
+int   NumLoop; // number of steps
+
 
 int main() {
-  mat sb   = mat(2,2,fill::zeros);
-  mat ub   = mat(2,Nb,fill::zeros);     // Velocity of all boundary elements
-  cube fg = cube(Numg+1,Numg+1,2,fill::zeros);// Grid forces
-  cube vg = cube(Numg+1,Numg+1,2,fill::zeros);// Grid velocities
-  cube ug = cube(Numg+1,Numg+1,2,fill::zeros);// Previous grid velocities
-  mat sbb= mat(2,2,fill::zeros);        //
-  cube fvg0     = cube(Numg,Numg,2,fill::zeros);
-  cube fvg1     = cube(Numg,Numg,2,fill::zeros);
+
+  ReadParams(Numg,Nb,dims,cen,Src,rho,mu,dt,len,NumLoop);
+
+  mat stoch_xb = mat(2,Nb*2,arma::fill::zeros);
   ofstream file1;
-  tissue Tissue = tissue(Numg,dims);
+  tissue Tissue = tissue(Numg,dims,Nb,Src);
 
-  Tissue.AddCell(Nb,len,0,0);
+  for (int ii=0;ii<2;ii++){
+    Tissue.AddCell(len,4*ii*len,0);
+  }
+  Tissue.UpdateSources();
 
-  //-- distributed sources and sinks --//
-  sb(0,0)  =cen;
-  sb(1,0)  =cen;
-  sb(0,1)  =-dims;
-  sb(1,1)  =-dims;
-  sbb(0,0) = Src;     // a source at the center
-  sbb(0,1) =-Src;     // a sink in the corner
-
-  file1.open ("output/boundarypositions.txt", std::ofstream::out | std::ofstream::app);
+  file1.open ("output/boundarypositions.txt", ofstream::out);
   // Write initial data to file //
   for(int row = 0 ; row < Nb ; row++){
     file1 << Tissue.Cells[0].xb(0,row) << ", ";
     file1 << Tissue.Cells[0].xb(1,row) << endl;
+    file1 << Tissue.Cells[1].xb(0,row) << ", ";
+    file1 << Tissue.Cells[1].xb(1,row) << endl;
   }
-  //file1 << "" << endl;
   file1.flush();
 
   for (int loop_num=0; loop_num<NumLoop; loop_num++) {
     //-- boundary forces --//
-    Tissue.Cells[0].AdjacentForces();
+    for (int ii=0;ii<Tissue.Nc;ii++){
+      Tissue.Cells[ii].AdjacentForces();
+    }
+    Tissue.CombineBoundaries();
+
     //-- grid sources --//
-    BoundToGrid1(Tissue,sb,sbb,Nbs);
+    BoundToGrid1(Tissue);
+
     //-- grid forces --//
-    BoundToGrid2(fg,Tissue.Cells[0].xb,Tissue.Cells[0].fb,Tissue.Cells[0].Nb,Tissue.Ng,Tissue.hg,Tissue.hg,0.5*Tissue.hg,Tissue.xmin,Tissue.xmax);
+    BoundToGrid2(Tissue);
+
     //-- compute grid velocity from NavierStokes --//
-    NavierStokes(vg,ug,fg,Tissue.sg,Tissue.Ng,rho,mu,dt,Tissue.hg);
-    ug = vg;
+    NavierStokes(Tissue.vg,Tissue.ug,Tissue.fg,Tissue.sg,Tissue.Ng,rho,mu,dt,Tissue.hg);
+    Tissue.ug = Tissue.vg;
+
     //-- boundary velocities --//
-    GridToBound(ub,Tissue.Cells[0].xb,Nb,vg,Tissue.Ng,Tissue.hg,Tissue.hg,Tissue.xmin,Tissue.xmax);
+    GridToBound(Tissue.ubglobal,Tissue.xbglobal,Tissue.Nb,Tissue.vg,Tissue.Ng,Tissue.hg,Tissue.hg,Tissue.xmin,Tissue.xmax);
+
     //-- new position of boundary points --//
-    Tissue.Cells[0].xb = Tissue.Cells[0].xb + dt*ub;
+    stoch_xb.randn();
+
+    Tissue.xbglobal = Tissue.xbglobal + dt*Tissue.ubglobal + stoch_xb/100000;
+
+    Tissue.Cells[0].UpdateCom();
+    Tissue.Cells[1].UpdateCom();
+
+    GlobalToLocal(Tissue);
+
+    Tissue.UpdateSources();
+
     // Write data to file //
     for(int row = 0 ; row < Nb ; row++){
       file1 << Tissue.Cells[0].xb(0,row) << ", ";
       file1 << Tissue.Cells[0].xb(1,row) << endl;
+      file1 << Tissue.Cells[1].xb(0,row) << ", ";
+      file1 << Tissue.Cells[1].xb(1,row) << endl;
     }
-    //file1 << "" << endl;
     file1.flush();
+
     printf("%d/%d\n",loop_num+1,NumLoop);
+    
   }   // for loop_num
   file1.close();
   return 0;

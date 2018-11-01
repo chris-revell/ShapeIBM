@@ -1,13 +1,13 @@
 # Compile basicIBM with Intel c++ compiler
 
 CC=icc
-CFlags=-c -Wall -std=c++11 -g -O0 -fsanitize=bounds
+CFlags=-c -Wall -std=c++11 -g -O0
 CLibs=-larmadillo
 
 all: basicIBM clean
 
-basicIBM: main.o cell.o tissue.o BoundToGrid1.o BoundToGrid2.o GridToBound.o NavierStokes.o smallfunctions.o
-	$(CC) main.o cell.o tissue.o BoundToGrid1.o BoundToGrid2.o GridToBound.o NavierStokes.o smallfunctions.o -o basicIBM
+basicIBM: main.o cell.o tissue.o BoundToGrid1.o BoundToGrid2.o GridToBound.o NavierStokes.o GlobalToLocal.o smallfunctions.o ReadParams.o
+	$(CC) main.o cell.o tissue.o BoundToGrid1.o BoundToGrid2.o GridToBound.o NavierStokes.o GlobalToLocal.o smallfunctions.o ReadParams.o -o basicIBM
 
 main: main.cpp
 	$(CC) main.cpp $(CFlags) $(CLibs)
@@ -30,8 +30,14 @@ GridToBound: GridToBound.cpp
 NavierStokes: NavierStokes.cpp
 	$(CC) NavierStokes.cpp $(CFlags) $(CLibs)
 
+GlobalToLocal: GlobalToLocal.cpp
+	$(CC) GlobalToLocal.cpp $(CFlags) $(CLibs)
+
 smallfunctions: smallfunctions.cpp
 	$(CC) smallfunctions.cpp $(CFlags) $(CLibs)
+
+	ReadParams: ReadParams.cpp
+		$(CC) ReadParams.cpp $(CFlags) $(CLibs)
 
 clean:
 	rm -rf *.o
