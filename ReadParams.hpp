@@ -11,6 +11,6 @@
 
 #include <stdio.h>
 
-void ReadParams(int& Numg,int& Nb,int& dims,float& cen,float& Src,float& rho,float& mu,float& dt,float& len,int& NumLoop);
+void ReadParams(int& Numg,int& Nb,int& dims,float& cen,float& Src,float& rho,float& mu,float& dt,float& len,int& NumLoop,int& Numcells);
 
 #endif /* ReadParams_hpp */

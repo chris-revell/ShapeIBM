@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 
 data = np.genfromtxt("output/boundarypositions.txt",delimiter=", ")
-Nc = 2
+Nc = 3
 xmax=10
 npoints = 64*Nc
 nsteps = int(np.shape(data)[0]/(npoints))

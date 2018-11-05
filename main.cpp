@@ -29,18 +29,18 @@ float mu;      // fluid viscosity
 float dt;      // time step
 float len;     // Initial cell radius
 int   NumLoop; // number of steps
-
+int   Numcells;// number of cells
 
 int main() {
 
-  ReadParams(Numg,Nb,dims,cen,Src,rho,mu,dt,len,NumLoop);
+  ReadParams(Numg,Nb,dims,cen,Src,rho,mu,dt,len,NumLoop,Numcells);
 
-  mat stoch_xb = mat(2,Nb*2,arma::fill::zeros);
+  mat stoch_xb = mat(2,Nb*Numcells,arma::fill::zeros);
   ofstream file1;
   tissue Tissue = tissue(Numg,dims,Nb,Src);
 
-  for (int ii=0;ii<2;ii++){
-    Tissue.AddCell(len,4*ii*len,0);
+  for (int ii=0;ii<Numcells;ii++){
+    Tissue.AddCell(len,3*ii*len,0);
   }
   Tissue.UpdateSources();
 
@@ -76,10 +76,11 @@ int main() {
 
     //-- new position of boundary points --//
     stoch_xb.randn();
+    Tissue.xbglobal = Tissue.xbglobal + dt*Tissue.ubglobal + stoch_xb/1000;
 
-    Tissue.xbglobal = Tissue.xbglobal + dt*Tissue.ubglobal + stoch_xb/100000;
-
-    Tissue.Cells[0].UpdateCom();
+    for (int ii=0;ii<Tissue.Nc;ii++){
+      Tissue.Cells[ii].UpdateCom();
+    }
     Tissue.Cells[1].UpdateCom();
 
     GlobalToLocal(Tissue);
@@ -87,16 +88,16 @@ int main() {
     Tissue.UpdateSources();
 
     // Write data to file //
-    for(int row = 0 ; row < Nb ; row++){
-      file1 << Tissue.Cells[0].xb(0,row) << ", ";
-      file1 << Tissue.Cells[0].xb(1,row) << endl;
-      file1 << Tissue.Cells[1].xb(0,row) << ", ";
-      file1 << Tissue.Cells[1].xb(1,row) << endl;
+    for (int ii=0;ii<Tissue.Nc;ii++){
+      for(int row = 0 ; row < Nb ; row++){
+        file1 << Tissue.Cells[ii].xb(0,row) << ", ";
+        file1 << Tissue.Cells[ii].xb(1,row) << endl;
+      }
     }
     file1.flush();
 
     printf("%d/%d\n",loop_num+1,NumLoop);
-    
+
   }   // for loop_num
   file1.close();
   return 0;
