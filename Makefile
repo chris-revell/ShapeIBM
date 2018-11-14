@@ -1,43 +1,47 @@
 # Compile basicIBM with Intel c++ compiler
 
-CC=icc
-CFlags=-c -Wall -std=c++11 -g -O0
+CC=icpc
+CFlags=-c -Wall -std=c++11 -ggdb -O0
 CLibs=-larmadillo
+LDFLAGS=-ggdb -std=c++11 -O0 -Wall
 
 all: basicIBM clean
 
-basicIBM: main.o cell.o tissue.o BoundToGrid1.o BoundToGrid2.o GridToBound.o NavierStokes.o GlobalToLocal.o smallfunctions.o ReadParams.o
-	$(CC) main.o cell.o tissue.o BoundToGrid1.o BoundToGrid2.o GridToBound.o NavierStokes.o GlobalToLocal.o smallfunctions.o ReadParams.o -o basicIBM
+basicIBM: main.o element.o cell.o tissue.o BoundToGrid1.o BoundToGrid2.o GridToBound.o NavierStokes.o GlobalToLocal.o smallfunctions.o ReadParams.o
+	$(CC) main.o element.o cell.o tissue.o BoundToGrid1.o BoundToGrid2.o GridToBound.o NavierStokes.o GlobalToLocal.o smallfunctions.o ReadParams.o -o basicIBM $(LDFLAGS)
 
 main: main.cpp
-	$(CC) main.cpp $(CFlags) $(CLibs)
+	$(CC) $(CFlags) main.cpp $(CLibs)
+
+element: element.cpp
+	$(CC) $(CFlags) element.cpp $(CLibs)
 
 cell: cell.cpp
-	$(CC) cell.cpp $(CFlags) $(CLibs)
+	$(CC) $(CFlags) cell.cpp $(CLibs)
 
 tissue: tissue.cpp
-	$(CC) tissue.cpp $(CFlags) $(CLibs)
+	$(CC) $(CFlags) tissue.cpp $(CLibs)
 
 BoundToGrid1: BoundToGrid1.cpp
-	$(CC) BoundToGrid1.cpp $(CFlags) $(CLibs)
+	$(CC) $(CFlags) BoundToGrid1.cpp $(CLibs)
 
 BoundToGrid2: BoundToGrid2.cpp
-	$(CC) BoundToGrid2.cpp $(CFlags) $(CLibs)
+	$(CC) $(CFlags) BoundToGrid2.cpp $(CLibs)
 
 GridToBound: GridToBound.cpp
-	$(CC) GridToBound.cpp $(CFlags) $(CLibs)
+	$(CC) $(CFlags) GridToBound.cpp $(CLibs)
 
 NavierStokes: NavierStokes.cpp
-	$(CC) NavierStokes.cpp $(CFlags) $(CLibs)
+	$(CC) $(CFlags) NavierStokes.cpp $(CLibs)
 
 GlobalToLocal: GlobalToLocal.cpp
-	$(CC) GlobalToLocal.cpp $(CFlags) $(CLibs)
+	$(CC) $(CFlags) GlobalToLocal.cpp $(CLibs)
+
+ReadParams: ReadParams.cpp
+	$(CC) $(CFlags) ReadParams.cpp $(CLibs)
 
 smallfunctions: smallfunctions.cpp
-	$(CC) smallfunctions.cpp $(CFlags) $(CLibs)
-
-	ReadParams: ReadParams.cpp
-		$(CC) ReadParams.cpp $(CFlags) $(CLibs)
+	$(CC) $(CFlags) smallfunctions.cpp $(CLibs)
 
 clean:
 	rm -rf *.o

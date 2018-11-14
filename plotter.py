@@ -3,16 +3,21 @@ import matplotlib.pyplot as plt
 import os
 
 data = np.genfromtxt("output/boundarypositions.txt",delimiter=", ")
+nbounds = np.genfromtxt("output/nbounds.txt",delimiter=", ",dtype=int)
+#nbounds.astype(int)
 Nc = 3
 xmax=10
-npoints = 64*Nc
-nsteps = int(np.shape(data)[0]/(npoints))
-for step in range(nsteps):
-    print("{:02d}/{:02d}".format((step+1),nsteps))
+npoints = nbounds[-1]
+drawn = 0
+for step in range(nbounds.shape[0]):
+    print("{:02d}/{:02d}".format((step+1),nbounds.shape[0]))
     fig, ax = plt.subplots(figsize=(4,4))
-    ax.scatter(data[step*npoints:(step+1)*npoints,0],data[step*npoints:(step+1)*npoints,1])
-    ax.set_xlim([-xmax/4,xmax/4])
-    ax.set_ylim([-xmax/4,xmax/4])
+    print("{}:{}".format(drawn,drawn+nbounds[step]))
+
+    ax.scatter(data[drawn:drawn+nbounds[step],0],data[drawn:drawn+nbounds[step],1])
+    drawn = drawn+nbounds[step]
+    ax.set_xlim([-xmax/10,xmax/10])
+    ax.set_ylim([-xmax/10,xmax/10])
     ax.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
     ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
     fig.savefig("output/test{:02d}".format(step))

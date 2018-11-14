@@ -14,7 +14,11 @@ using namespace std;
 using namespace arma;
 
 void GlobalToLocal(tissue& Tissue){
-  for (int ii=0;ii<Tissue.Nc;ii++){
-    Tissue.Cells[ii].xb = Tissue.xbglobal.cols(ii*Tissue.Nbcell,(ii+1)*Tissue.Nbcell-1);
+  int cellindex,elementindex;
+  for (int ii=0;ii<Tissue.Nb;ii++){
+    cellindex    = Tissue.indices(0,ii);
+    elementindex = Tissue.indices(1,ii);
+    Tissue.Cells[cellindex].Elements[elementindex].pos(0) = Tissue.xbglobal(0,ii);
+    Tissue.Cells[cellindex].Elements[elementindex].pos(1) = Tissue.xbglobal(1,ii);
   }
 }

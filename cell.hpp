@@ -6,22 +6,26 @@
 #define CELL_H
 
 #include <armadillo>
+#include "element.hpp"
 
 class cell {
 private:
 public:
-  cell(const int& NumBounds, const float& radius, const float& initialx,const float& initialy); // Constructor takes number of boundary points, typical radius, and x,y positions of centre of mass
+  cell(const int& cellnum, const int& Totalb, const int& NumBounds, const float& radius, const float& initialx, const float& initialy,const float& mesh); // Constructor takes number of boundary points, typical radius, and x,y positions of centre of mass
   void AdjacentForces(void);
   void OppositeForces(void);
   void UpdateCom(void);
-  arma::mat xb;          // Positions of all boundary points in cell
-  arma::mat fb;          // Forces on all boundary points in cell arising from interactions with other boundary points
-  arma::vec com;         // Cell centre of mass
-  float corticaltension; // Spring constant of boundary forces
-  float hb;              // Typical angular spacing between boundary elements given typical radius len
-  float len;             // Typical cell radius
-  int Nb;                // Number of boundary points in cell
-  ~cell(); //Destructor
+  std::vector<element> Elements; // Vector containing all element objects within this cell object
+  arma::mat xb;                  // Positions of all boundary points in cell
+  arma::mat fb;                  // Forces on all boundary points in cell arising from interactions with other boundary points
+  arma::vec com;                 // Cell centre of mass
+  float corticaltension;         // Spring constant of boundary forces
+  float hb;                      // Typical angular spacing between boundary elements given typical radius len
+  float hg;                      // Global fluid mesh spacing
+  float len;                     // Typical cell radius
+  int Nb;                        // Number of boundary points in cell
+  int label;                     // Identifying label of cell
+  ~cell();                       //Destructor
 protected:
 
 };

@@ -15,11 +15,11 @@
 class element {
 private:
 public:
-    element(const float& initialx, const float& initialy, const int& n1, const int& n2);
+    element(const int& cell, const int& Totalb,const float& initialx, const float& initialy, const int& n1, const int& n2);
     arma::vec pos;  // Element position
-    int label;      // Unique element label
+    int label;      // Global element label in xbglobal and fbglobal arrays
     int parent;     // Label of cell to which element belongs
-    std::vector<int> neighbours; // Labels of elements with with this element shares a tension interaction in the boundary
+    std::vector<int> neighbours; // Indices of spatial neighbour elements in Cells[parent].Elements vector
     ~element();
 protected:
 

@@ -18,6 +18,7 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   Ng       = GridSize;
   Nbcell   = boundarypoints;
   Nb       = 0;
+  dt       = 0.01;
   Src      = sourcestrength;
   xg       = cube(Ng+1,Ng+1,2,fill::zeros);
   sg       = mat(Ng+1,Ng+1,fill::zeros);
@@ -25,8 +26,10 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   vg       = cube(Ng+1,Ng+1,2,fill::zeros);
   ug       = cube(Ng+1,Ng+1,2,fill::zeros);
   xbglobal = mat(2,0,fill::zeros);
-  ubglobal = mat(2,Nb,fill::zeros);
-  fbglobal = mat(2,Nb,fill::zeros);
+  ubglobal = mat(2,0,fill::zeros);
+  fbglobal = mat(2,0,fill::zeros);
+  indices  = mat(2,0,fill::zeros);
+  stoch_xb = mat(2,0,arma::fill::zeros);
 //  vector<cell> Cells;
   Nc  = 0;
   Nbs = 4;
@@ -55,14 +58,24 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
 }
 
 void tissue::CombineBoundaries(void){
-  if (xbglobal.n_cols < Nc*Nbcell){
-    xbglobal.resize(2,Nc*Nbcell);
-    fbglobal.resize(2,Nc*Nbcell);
-    ubglobal.resize(2,Nc*Nbcell);
+  Nb = 0;
+  for (int ii=0;ii<Nc;ii++){
+    Nb = Nb+Cells[ii].Nb;
+  }
+  if (xbglobal.n_cols < Nb){
+    xbglobal.resize(2,Nb);
+    fbglobal.resize(2,Nb);
+    ubglobal.resize(2,Nb);
+    indices.resize(2,Nb);
+    stoch_xb.resize(2,Nb);
   }
   for (int ii=0;ii<Nc;ii++){
-    xbglobal.cols(ii*Nbcell,(ii+1)*Nbcell-1) = Cells[ii].xb;
-    fbglobal.cols(ii*Nbcell,(ii+1)*Nbcell-1) = Cells[ii].fb;
+    for (int jj=0; jj<Cells[ii].Nb;jj++){
+      xbglobal(0,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].pos(0);
+      xbglobal(1,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].pos(1);
+      indices(0,Cells[ii].Elements[jj].label) = ii;
+      indices(1,Cells[ii].Elements[jj].label) = jj;
+    }
   }
 }
 
@@ -83,11 +96,37 @@ void tissue::UpdateSources(){
   }
 }
 
-void tissue::AddCell(const float& len, const float& initialx, const float& initialy) {
-  Cells.push_back(cell(Nbcell,len,initialx,initialy));
+void tissue::AddCell(const float& len, const float& initialx, const float& initialy){
+  Cells.push_back(cell(Nc,Nb,Nbcell,len,initialx,initialy,hg));
   Nc++;
   Nb=Nb+Nbcell;
   Nbs++;
+}
+
+void tissue::BoundaryRefinement(){
+  float dx1,dy1,dx2,dy2,r1,r2,newposx,newposy;
+  for (int kk=0;kk<Nc;kk++){
+    for (int ii=0;ii<Cells[kk].Nb;ii++){
+      //for (int jj=0;jj<Cells[kk].Elements[ii].neighbours.size();jj++){
+        dx1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[0]].pos(0)-Cells[kk].Elements[ii].pos(0);
+        dy1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[0]].pos(1)-Cells[kk].Elements[ii].pos(1);
+        // Find separation distances from x and y values.
+        r1=sqrt(pow(dx1,2)+pow(dy1,2));
+        if (r1>hg/10){
+          newposx = Cells[kk].Elements[ii].pos(0)+0.5*dx1;
+          newposy = Cells[kk].Elements[ii].pos(1)+0.5*dy1;
+          Cells[kk].Elements.push_back(element(kk,Nb,newposx,newposy,ii,((Cells[kk].Elements[ii].neighbours[1])%(Cells[kk].Nb+1)+(Cells[kk].Nb+1))%(Cells[kk].Nb+1)));
+          Nb++;
+          Cells[kk].Nb = Cells[kk].Nb+1;
+        }
+      //}
+    }
+  }
+}
+
+void tissue::UpdatePositions(){
+  stoch_xb.randn();
+  xbglobal = xbglobal + dt*ubglobal + stoch_xb/1000;
 }
 
 tissue::~tissue() {}

@@ -7,12 +7,18 @@
 //
 
 #include "element.hpp"
+#include <iostream>
+using namespace std;
+using namespace arma;
 
-element::element(const float& initialx, const float& initialy)  {
+element::element(const int& cell, const int& Totalb, const float& initialx, const float& initialy,const int& n1,const int& n2)  {
+  pos = vec(2,fill::zeros);
   pos(0)=initialx;
   pos(1)=initialy;
-  neighbours[0]=n1;
-  neighbours[1]=n2;
+  neighbours.push_back(n1);
+  neighbours.push_back(n2);
+  label = Totalb;
+  parent = cell;
 }
 
 

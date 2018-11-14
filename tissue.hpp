@@ -23,6 +23,8 @@ public:
     void AddCell(const float& len, const float& initialx, const float& initialy); // Function to add a cell object to the tissue
     void CombineBoundaries(void);
     void UpdateSources(void);
+    void BoundaryRefinement(void);
+    void UpdatePositions(void);
     arma::cube xg;           // Fluid grid
     arma::mat  sg;
     arma::cube fg;           // Fluid forces
@@ -33,6 +35,8 @@ public:
     arma::mat  xbglobal;     // Positions of all boundary points in the system
     arma::mat  fbglobal;     // Forces on all boundary points in the system
     arma::mat  ubglobal;     // Velocities of all boundary points in the system
+    arma::mat  indices;      // Velocities of all boundary points in the system
+    arma::mat  stoch_xb;     // Array containing stochastic update values for element positions
     int Ng;                  // Fluid grid dimensions of the system
     int Nc;                  // Number of cells in the system
     int Nbcell;              // Number of boundary points per cell
@@ -43,6 +47,7 @@ public:
     float xmax;              // Fluid domain dimensions
     float hg;                // Fluid mesh width
     float Src;               // Source strength/cell growth rate
+    float dt;                // Time interval between steps
     ~tissue();               // Destructor
 protected:
 
