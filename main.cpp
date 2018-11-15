@@ -58,31 +58,31 @@ int main() {
     for (int ii=0;ii<Tissue.Nc;ii++){
       Tissue.Cells[ii].AdjacentForces();
     }
-
+    
     Tissue.CombineBoundaries();
-
+    
     //-- grid sources --//
     BoundToGrid1(Tissue);
-
+    
     //-- grid forces --//
     BoundToGrid2(Tissue);
-
+    
     //-- compute grid velocity from NavierStokes --//
     NavierStokes(Tissue.vg,Tissue.ug,Tissue.fg,Tissue.sg,Tissue.Ng,rho,mu,Tissue.dt,Tissue.hg);
-
+    
     Tissue.ug = Tissue.vg;
     //-- boundary velocities --//
     GridToBound(Tissue.ubglobal,Tissue.xbglobal,Tissue.Nb,Tissue.vg,Tissue.Ng,Tissue.hg,Tissue.hg,Tissue.xmin,Tissue.xmax);
-
+    
     //-- new position of boundary points --//
     Tissue.UpdatePositions();
-
+    
     for (int ii=0;ii<Tissue.Nc;ii++){
       Tissue.Cells[ii].UpdateCom();
-
     }
+    
     GlobalToLocal(Tissue);
-
+    
     Tissue.UpdateSources();
 
     // Write data to file //

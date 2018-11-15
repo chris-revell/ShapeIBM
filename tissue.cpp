@@ -73,6 +73,10 @@ void tissue::CombineBoundaries(void){
     for (int jj=0; jj<Cells[ii].Nb;jj++){
       xbglobal(0,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].pos(0);
       xbglobal(1,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].pos(1);
+      fbglobal(0,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].internalforce(0);
+      fbglobal(1,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].internalforce(1);
+      ubglobal(0,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].ub(0);
+      ubglobal(1,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].ub(1);
       indices(0,Cells[ii].Elements[jj].label) = ii;
       indices(1,Cells[ii].Elements[jj].label) = jj;
     }
@@ -104,22 +108,22 @@ void tissue::AddCell(const float& len, const float& initialx, const float& initi
 }
 
 void tissue::BoundaryRefinement(){
-  float dx1,dy1,dx2,dy2,r1,r2,newposx,newposy;
+  float dx1,dy1,r1,newposx,newposy;
   for (int kk=0;kk<Nc;kk++){
     for (int ii=0;ii<Cells[kk].Nb;ii++){
-      //for (int jj=0;jj<Cells[kk].Elements[ii].neighbours.size();jj++){
-        dx1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[0]].pos(0)-Cells[kk].Elements[ii].pos(0);
-        dy1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[0]].pos(1)-Cells[kk].Elements[ii].pos(1);
-        // Find separation distances from x and y values.
-        r1=sqrt(pow(dx1,2)+pow(dy1,2));
-        if (r1>hg/10){
-          newposx = Cells[kk].Elements[ii].pos(0)+0.5*dx1;
-          newposy = Cells[kk].Elements[ii].pos(1)+0.5*dy1;
-          Cells[kk].Elements.push_back(element(kk,Nb,newposx,newposy,ii,((Cells[kk].Elements[ii].neighbours[1])%(Cells[kk].Nb+1)+(Cells[kk].Nb+1))%(Cells[kk].Nb+1)));
-          Nb++;
-          Cells[kk].Nb = Cells[kk].Nb+1;
-        }
-      //}
+
+      dx1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[1]].pos(0)-Cells[kk].Elements[ii].pos(0);
+      dy1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[1]].pos(1)-Cells[kk].Elements[ii].pos(1);
+      // Find separation distances from x and y values.
+      r1=sqrt(pow(dx1,2)+pow(dy1,2));
+      if (r1>2*hg){
+        newposx = Cells[kk].Elements[ii].pos(0)+0.5*dx1;
+        newposy = Cells[kk].Elements[ii].pos(1)+0.5*dy1;
+        Cells[kk].Elements.push_back(element(Cells[kk].Elements[ii].ub(0),Cells[kk].Elements[ii].ub(1),kk,Nb,newposx,newposy,ii,((Cells[kk].Elements[ii].neighbours[1])%(Cells[kk].Nb+1)+(Cells[kk].Nb+1))%(Cells[kk].Nb+1)));
+        Cells[kk].Elements[ii].neighbours[1]=Cells[kk].Nb;
+        Nb++;
+        Cells[kk].Nb = Cells[kk].Nb+1;
+      }
     }
   }
 }

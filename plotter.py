@@ -7,7 +7,6 @@ nbounds = np.genfromtxt("output/nbounds.txt",delimiter=", ",dtype=int)
 #nbounds.astype(int)
 Nc = 3
 xmax=10
-npoints = nbounds[-1]
 drawn = 0
 for step in range(nbounds.shape[0]):
     print("{:02d}/{:02d}".format((step+1),nbounds.shape[0]))

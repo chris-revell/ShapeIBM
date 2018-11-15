@@ -22,7 +22,7 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
   hg=mesh;
   // Loop over initial element angles to set cartesian coordinates of all boundary points. Add constant value to set initial cell position.
   for (int ii=0;ii<Nb;ii++){
-    Elements.push_back(element(label,Totalb+ii,len*cos(ii*hb)+initialx,len*sin(ii*hb)+initialy,((ii-1)%Nb+Nb)%Nb,((ii+1)%Nb+Nb)%Nb));
+    Elements.push_back(element(0,0,label,Totalb+ii,len*cos(ii*hb)+initialx,len*sin(ii*hb)+initialy,((ii-1)%Nb+Nb)%Nb,((ii+1)%Nb+Nb)%Nb));
   }
   com(0) = initialx;
   com(1) = initialy;
@@ -46,8 +46,8 @@ void cell::AdjacentForces() {
     r1=sqrt(pow(dx1,2)+pow(dy1,2));
     r2=sqrt(pow(dx2,2)+pow(dy2,2));
     // Calculate forces on element ii from
-    fb(0,ii)=corticaltension*((r1-hb)*dx1/r1+(r2-hb)*dx2/r2);
-    fb(1,ii)=corticaltension*((r1-hb)*dy1/r1+(r2-hb)*dy2/r2);
+    Elements[ii].internalforce(0) = corticaltension*((r1-hb)*dx1/r1+(r2-hb)*dx2/r2);
+    Elements[ii].internalforce(1) = corticaltension*((r1-hb)*dy1/r1+(r2-hb)*dy2/r2);
   }
 }
 
