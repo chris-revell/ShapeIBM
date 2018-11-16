@@ -14,7 +14,7 @@
 
 using namespace std;
 
-void ReadParams(int& Numg,int& Nb,int& dims,float& cen,float& Src,float& rho,float& mu,float& len,int& NumLoop,int& Numcells){
+void ReadParams(int& Numg,int& Nb,int& dims,float& cen,float& Src,float& rho,float& mu,float& len,int& Numcells,float& t_max){
   ifstream infile("input/parameters.txt");
   string line;
   vector<string> params;
@@ -32,8 +32,8 @@ void ReadParams(int& Numg,int& Nb,int& dims,float& cen,float& Src,float& rho,flo
     rho = stof(params[5]);
     mu = stof(params[6]);
     len = stof(params[7]);
-    NumLoop = stoi(params[8]);
-    Numcells = stoi(params[9]);
+    Numcells = stoi(params[8]);
+    t_max = stof(params[9]);
   }else{
     cout << "Parameter file input/parameters.txt not found" << endl;
   }

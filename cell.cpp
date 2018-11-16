@@ -17,7 +17,7 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
   xb = mat(2,Nb,arma::fill::zeros); // Positions of all boundary points in cell
   fb = mat(2,Nb,arma::fill::zeros); // Forces on all boundary points in cell arising from interactions with other boundary points
   com= vec(2,arma::fill::zeros);    // Cell centre of mass
-  corticaltension = 0.01; // Spring constant of boundary forces
+  corticaltension = 1; // Spring constant of boundary forces
   len=radius;
   hg=mesh;
   // Loop over initial element angles to set cartesian coordinates of all boundary points. Add constant value to set initial cell position.
@@ -46,8 +46,8 @@ void cell::AdjacentForces() {
     r1=sqrt(pow(dx1,2)+pow(dy1,2));
     r2=sqrt(pow(dx2,2)+pow(dy2,2));
     // Calculate forces on element ii from
-    Elements[ii].internalforce(0) = corticaltension*((r1-hb)*dx1/r1+(r2-hb)*dx2/r2);
-    Elements[ii].internalforce(1) = corticaltension*((r1-hb)*dy1/r1+(r2-hb)*dy2/r2);
+    Elements[ii].internalforce(0) = corticaltension*(dx1/r1+dx2/r2);
+    Elements[ii].internalforce(1) = corticaltension*(dy1/r1+dy2/r2);
   }
 }
 

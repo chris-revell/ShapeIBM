@@ -19,7 +19,7 @@ for step in range(nbounds.shape[0]):
     ax.set_ylim([-xmax/10,xmax/10])
     ax.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
     ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-    fig.savefig("output/test{:02d}".format(step))
+    fig.savefig("output/test{:05d}".format(step))
     plt.close()
 os.system("convert -delay 10 -loop 0 output/*.png output/animated.gif;")
 # rm output/*.png")

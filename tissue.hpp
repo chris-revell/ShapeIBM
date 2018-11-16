@@ -19,7 +19,7 @@ class tissue {
 private:
 
 public:
-    tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength); // Constructor
+    tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength, const float& density, const float& viscocity); // Constructor
     void AddCell(const float& len, const float& initialx, const float& initialy); // Function to add a cell object to the tissue
     void CombineBoundaries(void);
     void UpdateSources(void);
@@ -48,6 +48,8 @@ public:
     float hg;                // Fluid mesh width
     float Src;               // Source strength/cell growth rate
     float dt;                // Time interval between steps
+    float rho;               // Fluid density
+    float mu;                // Fluid drag factor
     ~tissue();               // Destructor
 protected:
 

@@ -14,12 +14,14 @@
 using namespace arma;
 using namespace std;
 
-tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength){
+tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength, const float& density, const float& viscosity){
   Ng       = GridSize;
   Nbcell   = boundarypoints;
   Nb       = 0;
   dt       = 0.01;
   Src      = sourcestrength;
+  rho      = density;
+  mu       = viscosity;
   xg       = cube(Ng+1,Ng+1,2,fill::zeros);
   sg       = mat(Ng+1,Ng+1,fill::zeros);
   fg       = cube(Ng+1,Ng+1,2,fill::zeros);
@@ -116,7 +118,7 @@ void tissue::BoundaryRefinement(){
       dy1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[1]].pos(1)-Cells[kk].Elements[ii].pos(1);
       // Find separation distances from x and y values.
       r1=sqrt(pow(dx1,2)+pow(dy1,2));
-      if (r1>2*hg){
+      if (r1>hg){
         newposx = Cells[kk].Elements[ii].pos(0)+0.5*dx1;
         newposy = Cells[kk].Elements[ii].pos(1)+0.5*dy1;
         Cells[kk].Elements.push_back(element(Cells[kk].Elements[ii].ub(0),Cells[kk].Elements[ii].ub(1),kk,Nb,newposx,newposy,ii,((Cells[kk].Elements[ii].neighbours[1])%(Cells[kk].Nb+1)+(Cells[kk].Nb+1))%(Cells[kk].Nb+1)));
