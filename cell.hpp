@@ -11,7 +11,7 @@
 class cell {
 private:
 public:
-  cell(const int& cellnum, const int& Totalb, const int& NumBounds, const float& radius, const float& initialx, const float& initialy,const float& mesh); // Constructor takes number of boundary points, typical radius, and x,y positions of centre of mass
+  cell(const int& cellnum, const int& Totalb, const int& NumBounds, const float& radius, const float& initialx, const float& initialy,const float& mesh,const float& tension); // Constructor takes number of boundary points, typical radius, and x,y positions of centre of mass
   void AdjacentForces(void);
   void OppositeForces(void);
   void UpdateCom(void);

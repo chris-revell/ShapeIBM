@@ -8,9 +8,8 @@
 #ifndef NAVIERSTOKES_H
 #define NAVIERSTOKES_H
 
-#include <armadillo>
+#include "tissue.hpp"
 
-void NavierStokes(arma::cube& vg,const arma::cube& ug,const arma::cube& fg,const arma::mat& sg,const int& Ng,const float& rho,const float& mu,const float& dt,const float& hg);
-
+void NavierStokes(tissue& Tissue);
 
 #endif

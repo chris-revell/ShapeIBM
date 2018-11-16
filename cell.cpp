@@ -10,14 +10,14 @@
 using namespace arma;
 using namespace std;
 
-cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const float& radius, const float& initialx, const float& initialy,const float& mesh) { // Constructor takes number of boundary points, typical radius, and x,y positions of centre of mass
+cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const float& radius, const float& initialx, const float& initialy,const float& mesh,const float& tension) { // Constructor takes number of boundary points, typical radius, and x,y positions of centre of mass
   Nb = NumBounds;
   label = cellnum;
   hb=2*M_PI/static_cast<float>(Nb); // Typical angular spacing between boundary elements given typical radius len
   xb = mat(2,Nb,arma::fill::zeros); // Positions of all boundary points in cell
   fb = mat(2,Nb,arma::fill::zeros); // Forces on all boundary points in cell arising from interactions with other boundary points
   com= vec(2,arma::fill::zeros);    // Cell centre of mass
-  corticaltension = 1; // Spring constant of boundary forces
+  corticaltension = tension; // Spring constant of boundary forces
   len=radius;
   hg=mesh;
   // Loop over initial element angles to set cartesian coordinates of all boundary points. Add constant value to set initial cell position.

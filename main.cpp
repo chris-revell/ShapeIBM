@@ -20,27 +20,28 @@ using namespace std;
 using namespace arma;
 
 // System parameters
-int   Numg;    // fluid grid size
-int   Nb;      // number of boundary points
-int   dims;    // Fluid grid dimensions
-float cen;     // Fluid centre point
-float Src;     // source strength
-float rho;     // fluid density
-float mu;      // fluid viscosity
-float len;     // Initial cell radius in micrometres
-int   Numcells;// number of cells
-float t;    // Run time in seconds
-float t_max;// Max run time in seconds
+int   Numg;           // fluid grid size
+int   Nb;             // number of boundary points
+int   dims;           // Fluid grid dimensions
+float cen;            // Fluid centre point
+float Src;            // source strength
+float rho;            // fluid density
+float mu;             // fluid viscosity
+float len;            // Initial cell radius in micrometres
+int   Numcells;       // number of cells
+float t;              // Run time in seconds
+float t_max;          // Max run time in seconds
+float corticaltension;// Cell cortical tension
 
 int main() {
 
   t=0;
-  ReadParams(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,t_max);
+  ReadParams(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,t_max,corticaltension);
 
   tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu);
 
   for (int ii=0;ii<Numcells;ii++){
-    Tissue.AddCell(len,3*ii*len,0);
+    Tissue.AddCell(len,3*ii*len,0,corticaltension);
   }
   Tissue.UpdateSources();
   Tissue.CombineBoundaries();
@@ -59,8 +60,7 @@ int main() {
   while (t<t_max) {
 
     Tissue.BoundaryRefinement();
-
-    file2 << Tissue.Nb << endl;
+    Tissue.UpdateSources();
 
     //-- boundary forces --//
     for (int ii=0;ii<Tissue.Nc;ii++){
@@ -76,11 +76,11 @@ int main() {
     BoundToGrid2(Tissue);
 
     //-- compute grid velocity from NavierStokes --//
-    NavierStokes(Tissue.vg,Tissue.ug,Tissue.fg,Tissue.sg,Tissue.Ng,Tissue.rho,Tissue.mu,Tissue.dt,Tissue.hg);
+    NavierStokes(Tissue);
 
     Tissue.ug = Tissue.vg;
     //-- boundary velocities --//
-    GridToBound(Tissue.ubglobal,Tissue.xbglobal,Tissue.Nb,Tissue.vg,Tissue.Ng,Tissue.hg,Tissue.hg,Tissue.xmin,Tissue.xmax);
+    GridToBound(Tissue);
 
     //-- new position of boundary points --//
     Tissue.UpdatePositions();
@@ -91,13 +91,14 @@ int main() {
 
     GlobalToLocal(Tissue);
 
-    Tissue.UpdateSources();
+
 
     // Write data to file //
     for (int ii=0;ii<Tissue.Nb;ii++){
       file1 << Tissue.xbglobal(0,ii) << ", ";
       file1 << Tissue.xbglobal(1,ii) << endl;
     }
+    file2 << Tissue.Nb << endl;
     file1.flush();
     file2.flush();
 

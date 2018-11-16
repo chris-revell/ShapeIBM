@@ -102,8 +102,8 @@ void tissue::UpdateSources(){
   }
 }
 
-void tissue::AddCell(const float& len, const float& initialx, const float& initialy){
-  Cells.push_back(cell(Nc,Nb,Nbcell,len,initialx,initialy,hg));
+void tissue::AddCell(const float& len, const float& initialx, const float& initialy,float& corticaltension){
+  Cells.push_back(cell(Nc,Nb,Nbcell,len,initialx,initialy,hg,corticaltension));
   Nc++;
   Nb=Nb+Nbcell;
   Nbs++;
