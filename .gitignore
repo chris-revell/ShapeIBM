@@ -1,8 +1,5 @@
 .DS_store
 basicIBM
-
 output/*
-*.png
-*.gif
-*.o
-*.gch
+bin/*
+build/*
