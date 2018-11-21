@@ -5,7 +5,7 @@
 #CLibs=-larmadillo
 #LDFLAGS=-ggdb -std=c++11 -O0 -Wall
 
-CC := icpc# This is the main compiler
+CC := icpc
 SRCDIR := src
 BUILDDIR := build
 TARGET := basicIBM
@@ -14,7 +14,7 @@ SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 CFLAGS := -c -Wall -std=c++11 -ggdb -O0 # -Wall
-LIB := 
+LIB := -larmadillo
 INC := -I include
 
 $(TARGET): $(OBJECTS)

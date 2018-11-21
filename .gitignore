@@ -3,3 +3,5 @@ basicIBM
 output/*
 bin/*
 build/*
+*.gch
+*.tmp
