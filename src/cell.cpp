@@ -20,9 +20,11 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
   corticaltension = tension; // Spring constant of boundary forces
   len=radius;
   hg=mesh;
+  e=0.75;
   // Loop over initial element angles to set cartesian coordinates of all boundary points. Add constant value to set initial cell position.
   for (int ii=0;ii<Nb;ii++){
-    Elements.push_back(element(0,0,label,Totalb+ii,len*cos(ii*hb)+initialx,len*sin(ii*hb)+initialy,((ii-1)%Nb+Nb)%Nb,((ii+1)%Nb+Nb)%Nb));
+    r = len/sqrt(1-pow(e*cos(ii*hb),2));
+    Elements.push_back(element(0,0,label,Totalb+ii,r*cos(ii*hb)+initialx,r*sin(ii*hb)+initialy,((ii-1)%Nb+Nb)%Nb,((ii+1)%Nb+Nb)%Nb));
   }
   com(0) = initialx;
   com(1) = initialy;
@@ -89,7 +91,21 @@ void cell::UpdateCom(){
   com(1) = ysum/Nb;
 }
 
-
+float cell::CalculateVolume(){
+  vec r1 = vec(3,fill::zeros);
+  vec r2 = vec(3,fill::zeros);
+  vec r3 = vec(3,fill::zeros);
+  float volume = 0;
+  for(int ii=0;ii<Nb;ii++){
+    r1(0) = Elements[ii].pos(0)-com(0);
+    r1(1) = Elements[ii].pos(1)-com(1);
+    r2(0) = Elements[(ii+1)%Nb].pos(0)-com(0);
+    r2(1) = Elements[(ii+1)%Nb].pos(1)-com(1);
+    r3 = cross(r1,r2);
+    volume = volume + 0.5*dot(r3,r3);
+  }
+  return volume;
+}
 
 
 

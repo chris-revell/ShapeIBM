@@ -10,6 +10,8 @@
 
 class cell {
 private:
+  float r;
+  float e;
 public:
   cell(const int& cellnum, const int& Totalb, const int& NumBounds, const float& radius, const float& initialx, const float& initialy,const float& mesh,const float& tension); // Constructor takes number of boundary points, typical radius, and x,y positions of centre of mass
   void AdjacentForces(void);
@@ -25,6 +27,7 @@ public:
   float len;                     // Typical cell radius
   int Nb;                        // Number of boundary points in cell
   int label;                     // Identifying label of cell
+  float CalculateVolume();
   ~cell();                       //Destructor
 protected:
 

@@ -16,7 +16,6 @@
 using namespace arma;
 using namespace std;
 
-
 //---------------------------------------------------------------------//
 // Uses the Fast Fourier Method to solve the Navier-Stokes equations   //
 // for updating grid velocity Tissue.ug due to grid forces Tissue.fg and grid source //
@@ -32,8 +31,8 @@ void NavierStokes(tissue& Tissue){
   cx_mat fsg      = cx_mat(Tissue.Ng,Tissue.Ng,fill::zeros);
   cx_mat fug1     = cx_mat(Tissue.Ng,Tissue.Ng,fill::zeros);
   cx_mat fug2     = cx_mat(Tissue.Ng,Tissue.Ng,fill::zeros);
-  cube fvg0     = cube(Tissue.Ng,Tissue.Ng,2,fill::zeros);
-  cube fvg1     = cube(Tissue.Ng,Tissue.Ng,2,fill::zeros);
+  cube fvg0       = cube(Tissue.Ng,Tissue.Ng,2,fill::zeros);
+  cube fvg1       = cube(Tissue.Ng,Tissue.Ng,2,fill::zeros);
   cx_mat vg0      = cx_mat(Tissue.Ng,Tissue.Ng,fill::zeros);
   cx_mat vg1      = cx_mat(Tissue.Ng,Tissue.Ng,fill::zeros);
   // stage n terms: force density Tissue.fg, source distribution Tissue.sg and current
