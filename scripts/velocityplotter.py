@@ -9,19 +9,23 @@ grid1 = np.genfromtxt("output/gridpositions1.txt")
 data0 = np.genfromtxt("output/fluidvelocities0.txt")
 data1 = np.genfromtxt("output/fluidvelocities1.txt")
 data = np.genfromtxt("output/boundarypositions.txt",delimiter=", ")
-nbounds = np.genfromtxt("output/nbounds.txt",delimiter=", ",dtype=int)
+nbounds = np.genfromtxt("output/nbounds.txt",dtype=int)
 
 fig,ax=plt.subplots()
 
-nsteps = int(np.shape(data0)[0]/65)
+Numg=512
+
+nsteps = int(np.shape(data0)[0]/(Numg+1))
 drawn = 0
 for i in range(nsteps):
-    if i%10<1:
-        ax.quiver(grid0[::2,::2],grid1[::2,::2],data0[i*65:(i+1)*65:2,::2],data1[i*65:(i+1)*65:2,::2])
-        ax.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-        ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-        ax.plot(np.append(data[drawn:drawn+nbounds[i],0],data[drawn,0]),np.append(data[drawn:drawn+nbounds[i],1],data[drawn,1]))
-        fig.savefig("output/voltest{:04d}.png".format(i),bbox_inches='tight',padding_inches=0,dpi=200)
-        ax.cla()
+    #if i%10<1:
+    ax.quiver(grid0[::4,::4],grid1[::4,::4],data0[i*(Numg+1):(i+1)*(Numg+1):4,::4],data1[i*(Numg+1):(i+1)*(Numg+1):4,::4])
+    ax.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
+    ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
+    ax.set_xlim([-5,5])
+    ax.set_ylim([-5,5])
+    ax.plot(np.append(data[drawn:drawn+nbounds[i],0],data[drawn,0]),np.append(data[drawn:drawn+nbounds[i],1],data[drawn,1]))
+    fig.savefig("output/voltest{:04d}.png".format(i),bbox_inches='tight',padding_inches=0,dpi=200)
+    ax.cla()
     drawn = drawn+nbounds[i]
 os.system("convert -delay 10 -loop 0 output/voltest*.png output/volanimated.gif;")
