@@ -20,17 +20,17 @@ using namespace std;
 using namespace arma;
 
 // System parameters
-int   Numg=512;            // fluid grid size
-int   Nb  =256;            // number of boundary points
-int   dims=10;             // Fluid grid dimensions
-float cen=0;              // Fluid centre point
+int   Numg=512;             // fluid grid size
+int   Nb  =64;             // number of boundary points
+int   dims=10;              // Fluid grid dimensions
+float cen=0;                // Fluid centre point
 float Src=0.0;              // source strength
-float rho=1;              // fluid density
-float mu=1;               // fluid viscosity
-float len=1;            // Initial cell radius in micrometres
-int   Numcells=1;         // number of cells
-float t=0;                // Run time in seconds
-float t_max=10;            // Max run time in seconds
+float rho=1;                // fluid density
+float mu=30;                 // fluid viscosity
+float len=1;                // Initial cell radius in micrometres
+int   Numcells=1;           // number of cells
+float t=0;                  // Run time in seconds
+float t_max=100;             // Max run time in seconds
 float corticaltension=0.001;// Cell cortical tension
 
 int main() {
@@ -40,7 +40,7 @@ int main() {
   tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu);
 
   for (int ii=0;ii<Numcells;ii++){
-    Tissue.AddCell(len,3*len+3*ii*len,0,corticaltension);
+    Tissue.AddCell(len,0,0,corticaltension);
   }
   Tissue.UpdateSources();
   Tissue.CombineBoundaries();
@@ -59,6 +59,11 @@ int main() {
   file6.open ("output/gridpositions0.txt", ios::out);
   ofstream file7;
   file7.open ("output/gridpositions1.txt", ios::out);
+  // Write grid positions to file
+  for (int ii=0;ii<Numg+1;ii++){
+    file6 << Tissue.xg.slice(0).row(ii);
+    file7 << Tissue.xg.slice(1).row(ii);
+  }
   // Write initial data to file //
   for (int ii=0;ii<Tissue.Nb;ii++){
     file1 << Tissue.xbglobal(0,ii) << ", ";
@@ -91,7 +96,7 @@ int main() {
     }
     GlobalToLocal(Tissue);
 
-    if (fmod(t,0.1)<Tissue.dt){
+    if (fmod(t,1)<Tissue.dt){
       // Write data to file //
       cout << t << endl;
       for (int ii=0;ii<Tissue.Nb;ii++){
@@ -115,10 +120,6 @@ int main() {
     t = t+Tissue.dt;
 
   }   // for loop_num
-  for (int ii=0;ii<Numg+1;ii++){
-    file6 << Tissue.xg.slice(0).row(ii);
-    file7 << Tissue.xg.slice(1).row(ii);
-  }
   file1.close();
   file2.close();
   file3.close();

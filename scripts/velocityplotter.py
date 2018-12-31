@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-os.system("rm output/*.png;rm output/volanimated.gif;")
+os.system("rm output/*.png;rm output/velocityanimated.gif;")
 
 grid0 = np.genfromtxt("output/gridpositions0.txt")
 grid1 = np.genfromtxt("output/gridpositions1.txt")
@@ -24,8 +24,9 @@ for i in range(nsteps):
     ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
     ax.set_xlim([-5,5])
     ax.set_ylim([-5,5])
+    ax.axis('equal')
     ax.plot(np.append(data[drawn:drawn+nbounds[i],0],data[drawn,0]),np.append(data[drawn:drawn+nbounds[i],1],data[drawn,1]))
-    fig.savefig("output/voltest{:04d}.png".format(i),bbox_inches='tight',padding_inches=0,dpi=200)
+    fig.savefig("output/velocitytest{:04d}.png".format(i),bbox_inches='tight',padding_inches=0,dpi=200)
     ax.cla()
     drawn = drawn+nbounds[i]
-os.system("convert -delay 10 -loop 0 output/voltest*.png output/volanimated.gif;")
+os.system("convert -delay 10 -loop 0 output/velocitytest*.png output/velocityanimated.gif;")

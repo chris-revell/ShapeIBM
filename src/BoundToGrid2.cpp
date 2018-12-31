@@ -39,8 +39,8 @@ void BoundToGrid2(tissue& Tissue){
     Nx=1+floor((xbb0-Tissue.xmin)/Tissue.hg);
     Ny=1+floor((xbb1-Tissue.xmin)/Tissue.hg);
     // tests all 16 possible grid points
-    for (int ii=-1; ii<2;ii++){
-      for (int jj=-1;jj<2;jj++){
+    for (int ii=-1; ii<3;ii++){
+      for (int jj=-1;jj<3;jj++){
         // compute the interpolation Delta function
         llx=Tissue.xmin+(Nx-1)*Tissue.hg+ii*Tissue.hg;
         rr= abs(xbb0-llx);
