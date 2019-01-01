@@ -53,8 +53,8 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   //-- define fluid grid --//
   for (int ii=0;ii<Ng+1;ii++){
     for (int jj=0;jj<Ng+1;jj++){
-      xg(ii,jj,0)=xmin+ii*hg;
-      xg(ii,jj,1)=xmin+jj*hg;
+      xg(ii,jj,0)=xmin+ii*hg+hg/2;
+      xg(ii,jj,1)=xmin+jj*hg+hg/2;
     }
   }
 }
@@ -131,8 +131,9 @@ void tissue::BoundaryRefinement(){
 }
 
 void tissue::UpdatePositions(){
-  stoch_xb.randn();
-  xbglobal = xbglobal + dt*ubglobal + stoch_xb/1000;
+  //stoch_xb.randn();
+  xbglobal = xbglobal + dt*ubglobal;// + stoch_xb.tail_cols(xbglobal.n_cols-1)/1000;
+  //xbglobal.tail_cols(xbglobal.n_cols-1) = xbglobal.tail_cols(xbglobal.n_cols-1) + dt*ubglobal.tail_cols(xbglobal.n_cols-1);// + stoch_xb.tail_cols(xbglobal.n_cols-1)/1000;
 }
 
 tissue::~tissue() {}

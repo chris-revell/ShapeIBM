@@ -27,19 +27,19 @@ void BoundToGrid1(tissue& Tissue){
 
   for (int n3=0;n3<Tissue.Nbs;n3++){
     // Move points into the domain. xbb0 and xbb1 are the coordinates of the point in the square domain.
-    xbb0=IntoDom(Tissue.sb(0,n3),Tissue.xmin,Tissue.xmax);
-    xbb1=IntoDom(Tissue.sb(1,n3),Tissue.xmin,Tissue.xmax);
+    xbb0=Tissue.sb(0,n3);//IntoDom(Tissue.sb(0,n3),Tissue.xmin,Tissue.xmax);
+    xbb1=Tissue.sb(1,n3);//IntoDom(Tissue.sb(1,n3),Tissue.xmin,Tissue.xmax);
     // determine indices of the nearest lower-down grid point
-    Nx=1+floor((xbb0-Tissue.xmin)/Tissue.hg);
-    Ny=1+floor((xbb1-Tissue.xmin)/Tissue.hg);
+    Nx=floor((xbb0-Tissue.xmin)/Tissue.hg);
+    Ny=floor((xbb1-Tissue.xmin)/Tissue.hg);
     // tests all 16 possible grid points
     for (int ii=-1; ii<3; ii++){
       for (int jj=-1; jj<3; jj++){
         // compute the interpolation Delta function
-        llx=Tissue.xmin+(Nx-1)*Tissue.hg+ii*Tissue.hg;
+        llx=Tissue.xmin+Nx*Tissue.hg+ii*Tissue.hg;
         rr=abs(xbb0-llx);
         dx=DeltaFun(rr,0.5*Tissue.hg);
-        lly=Tissue.xmin+(Ny-1)*Tissue.hg+jj*Tissue.hg;
+        lly=Tissue.xmin+Ny*Tissue.hg+jj*Tissue.hg;
         rr=abs(xbb1-lly);
         dy=DeltaFun(rr,0.5*Tissue.hg);
         // determine indices of the grid points to update
