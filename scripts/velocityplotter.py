@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-os.system("rm output/*.png;rm output/velocityanimated.gif;")
+os.system("rm output/velocity*.png;rm output/velocityanimated.gif;")
 
 grid0 = np.genfromtxt("output/gridpositions0.txt")
 grid1 = np.genfromtxt("output/gridpositions1.txt")
@@ -19,7 +19,7 @@ nsteps = int(np.shape(data0)[0]/(Numg+1))
 drawn = 0
 for i in range(nsteps):
     #if i%10<1:
-    ax.quiver(grid0[::4,::4],grid1[::4,::4],data0[i*(Numg+1):(i+1)*(Numg+1):4,::4],data1[i*(Numg+1):(i+1)*(Numg+1):4,::4])
+    ax.quiver(grid0[::8,::8],grid1[::8,::8],data0[i*(Numg+1):(i+1)*(Numg+1):8,::8],data1[i*(Numg+1):(i+1)*(Numg+1):8,::8])
     ax.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
     ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
     ax.set_xlim([-5,5])

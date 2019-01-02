@@ -26,12 +26,12 @@ int   dims=10;              // Fluid grid dimensions
 float cen=0;                // Fluid centre point
 float Src=0.0;              // source strength
 float rho=1;                // fluid density
-float mu=10;                 // fluid viscosity
+float mu=0.1;                 // fluid viscosity
 float len=1;                // Initial cell radius in micrometres
 int   Numcells=1;           // number of cells
 float t=0;                  // Run time in seconds
 float t_max=100;             // Max run time in seconds
-float corticaltension=0.001;// Cell cortical tension
+float corticaltension=0.1;// Cell cortical tension
 
 int main() {
 
@@ -80,6 +80,7 @@ int main() {
       Tissue.Cells[ii].AdjacentForces();
     }
     Tissue.CombineBoundaries();
+    Tissue.ubglobal.zeros();
     //-- grid sources --//
     BoundToGrid1(Tissue);
     //-- grid forces --//
