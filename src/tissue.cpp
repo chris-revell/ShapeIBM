@@ -83,6 +83,8 @@ void tissue::CombineBoundaries(void){
       indices(1,Cells[ii].Elements[jj].label) = jj;
     }
   }
+  stoch_xb.randn();
+  fbglobal = fbglobal+stoch_xb/1000.0;
 }
 
 void tissue::UpdateSources(){
