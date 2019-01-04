@@ -17,7 +17,7 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
   xb = mat(2,Nb,arma::fill::zeros); // Positions of all boundary points in cell
   fb = mat(2,Nb,arma::fill::zeros); // Forces on all boundary points in cell arising from interactions with other boundary points
   com= vec(2,arma::fill::zeros);    // Cell centre of mass
-  corticaltension = tension; // Spring constant of boundary forces
+  ctension = tension; // Spring constant of boundary forces
   len=radius;
   hg=mesh;
   e=0.75;
@@ -49,14 +49,14 @@ void cell::AdjacentForces() {
     r1=sqrt(pow(dx1,2)+pow(dy1,2));
     r2=sqrt(pow(dx2,2)+pow(dy2,2));
     // Calculate forces on element ii from
-    Elements[ii].internalforce(0) = corticaltension*((r1-hb)*dx1/r1+(r2-hb)*dx2/r2);
-    Elements[ii].internalforce(1) = corticaltension*((r1-hb)*dy1/r1+(r2-hb)*dy2/r2);
+    Elements[ii].internalforce(0) = ctension*((r1-hb)*dx1/r1+(r2-hb)*dx2/r2);
+    Elements[ii].internalforce(1) = ctension*((r1-hb)*dy1/r1+(r2-hb)*dy2/r2);
   }
 }
 
 //--------------------------------------------------------------------//
 // define opposite forces between opposite boundary points            //
-// Again Hookean springs with spring constant corticaltension and this time       //
+// Again Hookean springs with spring constant tension and this time       //
 // equilibrium radius Lrest=2*len where len is the tyM_PIcal cell radius//
 //--------------------------------------------------------------------//
 //void cell::OppositeForces(){
@@ -72,10 +72,10 @@ void cell::AdjacentForces() {
 //    dx1=xb(0,3*Nb2-ii)-xb(0,ii);
 //    dy1=xb(1,3*Nb2-ii)-xb(1,ii);
 //    r1 = sqrt(pow(dx1,2)+pow(dy1,2));
-//    fb(0,ii)       = fb(0,ii)      +corticaltension*abs(r1-Lrest)*dx1/r1;
-//    fb(1,ii)       = fb(1,ii)      +corticaltension*abs(r1-Lrest)*dy1/r1;
-//    fb(0,3*Nb2-ii) = fb(0,3*Nb2-ii)-corticaltension*abs(r1-Lrest)*dx1/r1;
-//    fb(1,3*Nb2-ii) = fb(1,3*Nb2-ii)-corticaltension*abs(r1-Lrest)*dy1/r1;
+//    fb(0,ii)       = fb(0,ii)      +ctension*abs(r1-Lrest)*dx1/r1;
+//    fb(1,ii)       = fb(1,ii)      +ctension*abs(r1-Lrest)*dy1/r1;
+//    fb(0,3*Nb2-ii) = fb(0,3*Nb2-ii)-ctension*abs(r1-Lrest)*dx1/r1;
+//    fb(1,3*Nb2-ii) = fb(1,3*Nb2-ii)-ctension*abs(r1-Lrest)*dy1/r1;
 //  }
 //}// function OppositeForces
 //--------------------------------------------------------------------//

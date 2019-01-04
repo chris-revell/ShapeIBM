@@ -21,30 +21,35 @@ using namespace std;
 using namespace arma;
 
 // System parameters
-int   Numg=512;             // fluid grid size
-int   Nb  =64;             // number of boundary points
-int   dims=10;              // Fluid grid dimensions
-float cen=0;                // Fluid centre point
-float Src=0.0;              // source strength
-float rho=1;                // fluid density
-float mu=0.1;                 // fluid viscosity
-float len=1;                // Initial cell radius in micrometres
-int   Numcells=1;           // number of cells
-float t=0;                  // Run time in seconds
-float t_max=100;             // Max run time in seconds
-float corticaltension=0.01;// Cell cortical tension
-int nloop=0;                 // Just counts how many time steps there have been so far
-int exitval;
-char buffer[50];
+int   Numg     = 512;   // Fluid grid size
+int   Nb       = 64;    // Number of boundary points
+int   dims     = 10;    // Fluid grid dimensions
+float cen      = 0;     // Fluid centre point
+float Src      = 0.0;   // Source strength
+float rho      = 1;     // Fluid density
+float mu       = 5;     // Fluid viscosity
+float xi       = 0.01;  // Stochastic magnitude
+float len      = 1;     // Initial cell radius in micrometres
+int   Numcells = 1;     // Number of cells
+float dt       = 1;     // Time step in seconds
+float t        = 0;     // Run time in seconds
+float t_max    = 2000;  // Max run time in seconds
+float t_output = 10.0;  // Output interval in seconds
+float tension  = 0.1;   // Cell cortical tension
+int   nloop    = 0;     // Just counts how many time steps there have been so far
+int   exitval;          // Dummy variable for system calls
+char  buffer[50];       // Dummy string for system calls
+
 
 int main() {
 
-  //ReadParams(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,t_max,corticaltension);
+  //ReadParams(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,t_max,tension);
+  exitval = system("rm output/velocity*.png;rm output/velocityanimated.gif;");
 
-  tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu);
+  tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu,xi,dt);
 
   for (int ii=0;ii<Numcells;ii++){
-    Tissue.AddCell(len,0,0,corticaltension);
+    Tissue.AddCell(len,0,0,tension);
   }
   Tissue.UpdateSources();
   Tissue.CombineBoundaries();
@@ -101,7 +106,7 @@ int main() {
     }
     GlobalToLocal(Tissue);
 
-    if (fmod(t,1)<Tissue.dt){
+    if (fmod(t,t_output)<Tissue.dt){
       // Write data to file //
       cout << t << endl;
       for (int ii=0;ii<Tissue.Nb;ii++){
@@ -134,6 +139,6 @@ int main() {
   file3.close();
   file4.close();
   file5.close();
-  //exitval = system("convert -delay 10 -loop 0 output/velocitytest*.png output/velocityanimated.gif");
+  exitval = system("convert -delay 10 -loop 0 output/velocitytest*.png output/velocityanimated.gif");
   return 0;
 }

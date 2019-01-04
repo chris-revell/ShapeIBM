@@ -21,7 +21,7 @@ public:
   arma::mat xb;                  // Positions of all boundary points in cell
   arma::mat fb;                  // Forces on all boundary points in cell arising from interactions with other boundary points
   arma::vec com;                 // Cell centre of mass
-  float corticaltension;         // Spring constant of boundary forces
+  float ctension;         // Spring constant of boundary forces
   float hb;                      // Typical angular spacing between boundary elements given typical radius len
   float hg;                      // Global fluid mesh spacing
   float len;                     // Typical cell radius
