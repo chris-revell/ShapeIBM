@@ -5,6 +5,7 @@
 #include <cmath>
 #include <armadillo>
 #include <vector>
+#include <stdlib.h>
 #include "cell.hpp"
 #include "element.hpp"
 #include "tissue.hpp"
@@ -31,7 +32,10 @@ float len=1;                // Initial cell radius in micrometres
 int   Numcells=1;           // number of cells
 float t=0;                  // Run time in seconds
 float t_max=100;             // Max run time in seconds
-float corticaltension=0.1;// Cell cortical tension
+float corticaltension=0.01;// Cell cortical tension
+int nloop=0;                 // Just counts how many time steps there have been so far
+int exitval;
+char buffer[50];
 
 int main() {
 
@@ -115,6 +119,10 @@ int main() {
       file3.flush();
       file4.flush();
       file5.flush();
+      // Call plotter
+      exitval = sprintf(buffer,"python3 scripts/velocityplottersingle.py %d %d %d %d &",nloop,Tissue.Nb,Tissue.Ng,1);
+      exitval = system(buffer);
+      nloop = nloop+1;
     }
     //printf("%f/%f\n",t,t_max);
 
@@ -126,5 +134,6 @@ int main() {
   file3.close();
   file4.close();
   file5.close();
+  //exitval = system("convert -delay 10 -loop 0 output/velocitytest*.png output/velocityanimated.gif");
   return 0;
 }
