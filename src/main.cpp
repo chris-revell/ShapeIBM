@@ -16,6 +16,8 @@
 #include "NavierStokes.hpp"
 #include "GlobalToLocal.hpp"
 #include "ReadParams.hpp"
+#include <mkl.h>
+#include <omp.h>
 
 using namespace std;
 using namespace arma;
@@ -26,16 +28,16 @@ int   Nb       = 64;    // Number of boundary points
 int   dims     = 10;    // Fluid grid dimensions
 float cen      = 0;     // Fluid centre point
 float Src      = 0.0;   // Source strength
-float rho      = 1;     // Fluid density
-float mu       = 5;     // Fluid viscosity
-float xi       = 0.01;  // Stochastic magnitude
+float rho      = 10;     // Fluid density
+float mu       = 50;     // Fluid viscosity
+float xi       = 0.0001;  // Stochastic magnitude
 float len      = 1;     // Initial cell radius in micrometres
 int   Numcells = 1;     // Number of cells
 float dt       = 1;     // Time step in seconds
 float t        = 0;     // Run time in seconds
-float t_max    = 2000;  // Max run time in seconds
-float t_output = 10.0;  // Output interval in seconds
-float tension  = 0.1;   // Cell cortical tension
+float t_max    = 8000;  // Max run time in seconds
+float t_output = 200.0;  // Output interval in seconds
+float tension  = 0.001;   // Cell cortical tension
 int   nloop    = 0;     // Just counts how many time steps there have been so far
 int   exitval;          // Dummy variable for system calls
 char  buffer[50];       // Dummy string for system calls
@@ -44,15 +46,15 @@ char  buffer[50];       // Dummy string for system calls
 int main() {
 
   //ReadParams(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,t_max,tension);
-  exitval = system("rm output/velocity*.png;rm output/velocityanimated.gif;");
+  exitval = system("rm output/velocity*.png;rm output/velocityanimated.gif;rm grid*txt; rm fluid*txt");
 
   tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu,xi,dt);
 
   for (int ii=0;ii<Numcells;ii++){
     Tissue.AddCell(len,0,0,tension);
   }
-  Tissue.UpdateSources();
-  Tissue.CombineBoundaries();
+  //Tissue.UpdateSources();
+  //Tissue.CombineBoundaries();
 
   ofstream file1;
   file1.open ("output/boundarypositions.txt", ofstream::out);
@@ -74,11 +76,11 @@ int main() {
     file7 << Tissue.xg.slice(1).row(ii);
   }
   // Write initial data to file //
-  for (int ii=0;ii<Tissue.Nb;ii++){
-    file1 << Tissue.xbglobal(0,ii) << ", ";
-    file1 << Tissue.xbglobal(1,ii) << endl;
-  }
-  file1.flush();
+  //for (int ii=0;ii<Tissue.Nb;ii++){
+  //  file1 << Tissue.xbglobal(0,ii) << ", ";
+  //  file1 << Tissue.xbglobal(1,ii) << endl;
+  //}
+  //file1.flush();
 
   while (t<t_max) {
 

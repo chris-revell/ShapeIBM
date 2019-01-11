@@ -23,7 +23,7 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   Src      = sourcestrength;
   rho      = density;
   mu       = viscosity;
-  xi     = stoch;
+  xi       = stoch;
   xg       = cube(Ng+1,Ng+1,2,fill::zeros);
   sg       = mat(Ng+1,Ng+1,fill::zeros);
   fg       = cube(Ng+1,Ng+1,2,fill::zeros);
@@ -33,7 +33,7 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   ubglobal = mat(2,0,fill::zeros);
   fbglobal = mat(2,0,fill::zeros);
   indices  = mat(2,0,fill::zeros);
-  stoch_xb = mat(2,0,arma::fill::zeros);
+  //stoch_xb = mat(2,0,arma::fill::zeros);
 //  vector<cell> Cells;
   Nc  = 0;
   Nbs = 4;
@@ -50,7 +50,7 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   sb(1,2) = 0.0;
   sb(0,3) = xmax;
   sb(1,3) = 0.0;
-  distribution = std::normal_distribution<double>(0.0,2.0);
+  //distribution = std::normal_distribution<double>(0.0,2.0);
 
   hg  =float(xmax-xmin)/float(Ng);
   //-- define fluid grid --//
@@ -72,7 +72,7 @@ void tissue::CombineBoundaries(void){
     fbglobal.resize(2,Nb);
     ubglobal.resize(2,Nb);
     indices.resize(2,Nb);
-    stoch_xb.resize(2,Nb);
+    //stoch_xb.resize(2,Nb);
   }
   for (int ii=0;ii<Nc;ii++){
     for (int jj=0; jj<Cells[ii].Nb;jj++){
@@ -86,13 +86,14 @@ void tissue::CombineBoundaries(void){
       indices(1,Cells[ii].Elements[jj].label) = jj;
     }
   }
-  stoch_xb.randn(); // Set random angle
-  for (int ii=0;ii<Nb;ii++){
-    float gauss = xi*distribution(generator);       // Find random magnitude
-    stoch_xb(0,ii) = gauss*cos(2*M_PI*stoch_xb(0,ii));// Use random angle to find magnitude in each dimension
-    stoch_xb(1,ii) = gauss*sin(2*M_PI*stoch_xb(1,ii));// Use random angle to find magnitude in each dimension
-  }
-  fbglobal = fbglobal+stoch_xb/1000.0;
+
+  //stoch_xb.randu(); // Set random angle
+  //for (int ii=0;ii<Nb;ii++){
+    //float gauss = xi*distribution(generator);       // Find random magnitude
+    //stoch_xb(0,ii) = gauss*cos(2*M_PI*stoch_xb(0,ii));// Use random angle to find magnitude in each dimension
+    //stoch_xb(1,ii) = gauss*sin(2*M_PI*stoch_xb(1,ii));// Use random angle to find magnitude in each dimension
+  //}
+  //fbglobal = fbglobal+stoch_xb/1000.0;
 }
 
 void tissue::UpdateSources(){
@@ -113,7 +114,7 @@ void tissue::UpdateSources(){
 }
 
 void tissue::AddCell(const float& len, const float& initialx, const float& initialy,float& tension){
-  Cells.push_back(cell(Nc,Nb,Nbcell,len,initialx,initialy,hg,tension));
+  Cells.push_back(cell(Nc,Nb,Nbcell,len,initialx,initialy,hg,tension));  
   Nc++;
   Nb=Nb+Nbcell;
   Nbs++;

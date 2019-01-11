@@ -10,11 +10,13 @@ SRCDIR := src
 BUILDDIR := build
 TARGET := basicIBM
 
+#MKLROOT := /opt/intel/compilers_and_libraries_2018.3.185/mac/compiler
+MKLROOT := /opt/intel/mkl
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := -c -Wall -std=c++11 -ggdb -O0 # -Wall
-LIB := -larmadillo
+CFLAGS := -c -Wall -std=c++11 -ggdb -O0 -fopenmp -mkl=parallel  # -Wall
+LIB := -larmadillo -L$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/../compiler/lib -mkl#-liomp5 -lpthread -lm -ldl -L$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/../compiler/lib -mkl
 INC := -I include
 
 $(TARGET): $(OBJECTS)

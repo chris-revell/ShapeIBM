@@ -36,7 +36,7 @@ public:
     arma::mat  fbglobal;          // Forces on all boundary points in the system
     arma::mat  ubglobal;          // Velocities of all boundary points in the system
     arma::mat  indices;           // Velocities of all boundary points in the system
-    arma::mat  stoch_xb;          // Array containing stochastic update values for element positions
+    //arma::mat  stoch_xb;          // Array containing stochastic update values for element positions
     int Ng;                       // Fluid grid dimensions of the system
     int Nc;                       // Number of cells in the system
     int Nbcell;                   // Number of boundary points per cell
@@ -51,8 +51,8 @@ public:
     float rho;                    // Fluid density
     float mu;                     // Fluid drag factor
     float xi;                   // Stochastic term magnitude
-    std::default_random_engine generator;         // Variables implementing normal distribution for stochastic dissipation
-    std::normal_distribution<double> distribution;// Variables implementing normal distribution for stochastic dissipation
+    //std::default_random_engine generator;         // Variables implementing normal distribution for stochastic dissipation
+    //std::normal_distribution<double> distribution;// Variables implementing normal distribution for stochastic dissipation
     ~tissue();                    // Destructor
 protected:
 
