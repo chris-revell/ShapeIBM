@@ -130,15 +130,11 @@ void NavierStokes(tissue& Tissue){
   vg1 = ifft2(fvgg);
 
   stoch_xb.randu(); // Set random angle for stochastic component
-  cout << stoch_xb(0,0) << endl;
   for (int ii=0; ii<Tissue.Ng; ii++){
     for (int jj=0; jj<Tissue.Ng; jj++){
       float gauss = Tissue.xi*distribution(generator); // Find random magnitude for stochastic component from normal distribution
       Tissue.vg(ii,jj,0)=real(vg0(ii,jj)) + gauss*cos(2*M_PI*stoch_xb(ii,jj));
-      Tissue.vg(ii,jj,1)=real(vg1(ii,jj)) + gauss*sin(2*M_PI*stoch_xb(ii,jj));
-      if (ii==0&&jj==0){
-        cout << gauss << endl;
-      }
+      Tissue.vg(ii,jj,1)=real(vg1(ii,jj)) + gauss*sin(2*M_PI*stoch_xb(ii,jj));      
     }
   }
 
