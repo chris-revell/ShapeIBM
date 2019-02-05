@@ -20,11 +20,11 @@ fig,ax=plt.subplots()
 
 if colourflag==1:
     M3 = np.sqrt(np.power(data0,2)+np.power(data1,2))
-    A = 5*np.divide(data0[::8,::8],M3[::8,::8],out=np.zeros_like(data0[::8,::8]),where=M3[::8,::8]!=0)
-    B = 5*np.divide(data1[::8,::8],M3[::8,::8],out=np.zeros_like(data1[::8,::8]),where=M3[::8,::8]!=0)
-    ax.quiver(grid0[::8,::8],grid1[::8,::8],A,B,M3[::8,::8],pivot='mid',cmap="Greys")
+    A = 5*np.divide(data0[::1,::1],M3[::1,::1],out=np.zeros_like(data0[::1,::1]),where=M3[::1,::1]!=0)
+    B = 5*np.divide(data1[::1,::1],M3[::1,::1],out=np.zeros_like(data1[::1,::1]),where=M3[::1,::1]!=0)
+    ax.quiver(grid0[::1,::1],grid1[::1,::1],A,B,M3[::1,::1],pivot='mid',cmap="Greys")
 else:
-    ax.quiver(grid0[::8,::8],grid1[::8,::8],data0[::8,::8],data1[::8,::8],pivot='mid')
+    ax.quiver(grid0[::1,::1],grid1[::1,::1],data0[::1,::1],data1[::1,::1],pivot='mid')
 ax.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
 ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
 ax.set_xlim([-5,5])

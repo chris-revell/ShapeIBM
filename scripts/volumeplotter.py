@@ -4,7 +4,6 @@ import numpy as np
 data = np.genfromtxt("output/volume.txt")
 fig,ax = plt.subplots()
 ax.plot(data[:,0],data[:,1])
-plt.ion()
 ax.set_ylim([0,np.max(data[:,1])])
 ax.set_ylabel("Volume /$\mu m^2$")
 ax.set_xlabel("Time /s")
