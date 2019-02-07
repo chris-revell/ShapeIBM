@@ -24,20 +24,20 @@ using namespace arma;
 
 // System parameters
 int   Numg     = 64;   // Fluid grid size
-int   Nb       = 64*4;    // Number of boundary points
+int   Nb       = 32;    // Number of boundary points
 int   dims     = 10;    // Fluid grid dimensions
 float cen      = 0;     // Fluid centre point
 float Src      = 0.0;   // Source strength
 float rho      = 1;     // Fluid density
-float mu       = 100000;     // Fluid viscosity
-float xi       = 0.0;  // Stochastic magnitude
-float len      = 1;     // Initial cell radius in micrometres
+float mu       = 10;     // Fluid viscosity
+//float xi       = 0.0;  // Stochastic magnitude
+float len      = 2;     // Initial cell radius in micrometres
 int   Numcells = 1;     // Number of cells
 float dt       = 1;     // Time step in seconds
 float t        = 0;     // Run time in seconds
-float t_max    = 1000000;  // Max run time in seconds
-float t_output = 10000.0;  // Output interval in seconds
-float tension  = 0.00001;   // Cell cortical tension
+float t_max    = 500;  // Max run time in seconds
+float t_output = 1.0;  // Output interval in seconds
+float tension  = 0.1;   // Cell cortical tension
 int   nloop    = 0;     // Just counts how many time steps there have been so far
 int   exitval;          // Dummy variable for system calls
 char  buffer[50];       // Dummy string for system calls
@@ -49,7 +49,7 @@ int main() {
   exitval = system("rm output/velocity*.png;rm output/velocityanimated.gif;rm grid*txt; rm fluid*txt");
   exitval = system("rm output/montage*.png;rm output/volume*.png;rm output/montageanimated.gif;rm grid*txt; rm fluid*txt");
 
-  tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu,xi,dt);
+  tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu,dt);
 
   for (int ii=0;ii<Numcells;ii++){
     Tissue.AddCell(len,0,0,tension);
@@ -92,6 +92,7 @@ int main() {
       Tissue.Cells[ii].AdjacentForces();
     }
     Tissue.CombineBoundaries();
+    Tissue.MatrixAdhesions();
     Tissue.ubglobal.zeros();
     //-- grid sources --//
     BoundToGrid1(Tissue);
@@ -111,7 +112,6 @@ int main() {
 
     if (fmod(t,t_output)<Tissue.dt){
       // Write data to file //
-      cout << t << endl;
       for (int ii=0;ii<Tissue.Nb;ii++){
         file1 << Tissue.xbglobal(0,ii) << ", ";
         file1 << Tissue.xbglobal(1,ii) << endl;
@@ -128,11 +128,11 @@ int main() {
       file4.flush();
       file5.flush();
       // Call plotter
-      exitval = sprintf(buffer,"python3 scripts/velocityplottersingle.py %d %d %d %d &",nloop,Tissue.Nb,Tissue.Ng,1);
-      exitval = system(buffer);
-      nloop = nloop+1;
+      //exitval = sprintf(buffer,"python3 scripts/velocityplottersingle.py %d %d %d %d &",nloop,Tissue.Nb,Tissue.Ng,1);
+      //exitval = system(buffer);
+      //nloop = nloop+1;
     }
-    //printf("%f/%f\n",t,t_max);
+    printf("%f/%f\n",t,t_max);
 
     t = t+Tissue.dt;
 
@@ -142,6 +142,6 @@ int main() {
   file3.close();
   file4.close();
   file5.close();
-  exitval = system("convert -delay 10 -loop 0 output/velocitytest*.png output/velocityanimated.gif");
+  //exitval = system("convert -delay 10 -loop 0 output/velocitytest*.png output/velocityanimated.gif");
   return 0;
 }

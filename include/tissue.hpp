@@ -19,13 +19,15 @@ class tissue {
 private:
 
 public:
-    tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength, const float& density, const float& viscocity, const float& stoch,const float& timestep); // Constructor
+    tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength, const float& density, const float& viscocity,const float& timestep); // Constructor
     void AddCell(const float& len, const float& initialx, const float& initialy,float& tension); // Function to add a cell object to the tissue
     void CombineBoundaries(void);
     void UpdateSources(void);
     void BoundaryRefinement(void);
     void UpdatePositions(void);
+    void MatrixAdhesions(void);
     arma::cube xg;                // Fluid grid
+    arma::cube xNb;               // Number of boundary elements within each fluid grid component
     arma::mat  sg;                // Grid source distribution
     arma::cube fg;                // Fluid forces
     arma::cube vg;                // Fluid velocities

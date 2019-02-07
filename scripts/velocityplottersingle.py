@@ -30,7 +30,7 @@ ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
 ax.set_xlim([-5,5])
 ax.set_ylim([-5,5])
 ax.axis('equal')
-ax.plot(np.append(data[:,0],data[0,0]),np.append(data[:,1],data[0,1]))
+ax.scatter(np.append(data[:,0],data[0,0]),np.append(data[:,1],data[0,1]))
 fig.savefig("output/velocitytest{:04d}.png".format(nplot),bbox_inches='tight',padding_inches=0,dpi=200)
 
 os.system("convert output/velocitytest{:04d}.png -shave 268x143 output/velocitytest{:04d}.png".format(nplot,nplot))

@@ -15,7 +15,7 @@
 using namespace arma;
 using namespace std;
 
-tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength,const float& density,const float& viscosity,const float& stoch,const float& timestep){
+tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength,const float& density,const float& viscosity,const float& timestep){
   Ng       = GridSize;
   Nbcell   = boundarypoints;
   Nb       = 0;
@@ -23,8 +23,9 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   Src      = sourcestrength;
   rho      = density;
   mu       = viscosity;
-  xi       = stoch;
+  //xi       = stoch;
   xg       = cube(Ng+1,Ng+1,2,fill::zeros);
+  xNb      = cube(Ng+1,Ng+1,Nbcell,fill::zeros);
   sg       = mat(Ng+1,Ng+1,fill::zeros);
   fg       = cube(Ng+1,Ng+1,2,fill::zeros);
   vg       = cube(Ng+1,Ng+1,2,fill::zeros);
@@ -82,8 +83,8 @@ void tissue::CombineBoundaries(void){
       fbglobal(1,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].internalforce(1);
       ubglobal(0,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].ub(0);
       ubglobal(1,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].ub(1);
-      indices(0,Cells[ii].Elements[jj].label) = ii;
-      indices(1,Cells[ii].Elements[jj].label) = jj;
+      indices(0,Cells[ii].Elements[jj].label)  = ii;
+      indices(1,Cells[ii].Elements[jj].label)  = jj;
     }
   }
 
@@ -114,7 +115,7 @@ void tissue::UpdateSources(){
 }
 
 void tissue::AddCell(const float& len, const float& initialx, const float& initialy,float& tension){
-  Cells.push_back(cell(Nc,Nb,Nbcell,len,initialx,initialy,hg,tension));  
+  Cells.push_back(cell(Nc,Nb,Nbcell,len,initialx,initialy,hg,tension));
   Nc++;
   Nb=Nb+Nbcell;
   Nbs++;
@@ -145,6 +146,34 @@ void tissue::UpdatePositions(){
   //stoch_xb.randn();
   xbglobal = xbglobal + dt*ubglobal;// + stoch_xb.tail_cols(xbglobal.n_cols-1)/1000;
   //xbglobal.tail_cols(xbglobal.n_cols-1) = xbglobal.tail_cols(xbglobal.n_cols-1) + dt*ubglobal.tail_cols(xbglobal.n_cols-1);// + stoch_xb.tail_cols(xbglobal.n_cols-1)/1000;
+}
+
+void tissue::MatrixAdhesions(){
+  int xindex,yindex,elementLabel;
+  float dx,dy,dr;
+  float adhesionmagnitude=0.1;
+  xNb.zeros();
+  if (t<100.0){
+  for (int ii=0; ii<Nb; ii++){
+    xindex = floor((xmax+xbglobal(0,ii))/hg);
+    yindex = floor((xmax+xbglobal(1,ii))/hg);
+    xNb(xindex,yindex,0)++;                       // 0th component of xNb stores number of boundary points at this grid point.
+    xNb(xindex,yindex,xNb(xindex,yindex,0))=ii;   // When considering the nth boundary element at grid location (x,y) make the value of xNb(x,y,n) equal to the label of the boundary element within matric xb.
+  }
+  for (int ii=0;ii<Ng+1;ii++){
+    for (int jj=0;jj<Ng+1;jj++){
+      for (int kk=1;kk<=xNb(ii,jj,0);kk++){
+        elementLabel = xNb(ii,jj,kk);
+        dx = xg(ii,jj,0)-xbglobal(0,elementLabel);
+        dy = xg(ii,jj,1)-xbglobal(1,elementLabel);
+        dr = sqrt(dx*dx+dy*dy);
+        fbglobal(0,elementLabel) = fbglobal(0,elementLabel) + dx*adhesionmagnitude/dr;
+        fbglobal(1,elementLabel) = fbglobal(1,elementLabel) + dy*adhesionmagnitude/dr;
+      }
+    }
+  }}
+  else{}
+
 }
 
 tissue::~tissue() {}
