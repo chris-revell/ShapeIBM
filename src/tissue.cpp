@@ -153,7 +153,6 @@ void tissue::MatrixAdhesions(){
   float dx,dy,dr;
   float adhesionmagnitude=0.1;
   xNb.zeros();
-  if (t<100.0){
   for (int ii=0; ii<Nb; ii++){
     xindex = floor((xmax+xbglobal(0,ii))/hg);
     yindex = floor((xmax+xbglobal(1,ii))/hg);
@@ -167,13 +166,13 @@ void tissue::MatrixAdhesions(){
         dx = xg(ii,jj,0)-xbglobal(0,elementLabel);
         dy = xg(ii,jj,1)-xbglobal(1,elementLabel);
         dr = sqrt(dx*dx+dy*dy);
-        fbglobal(0,elementLabel) = fbglobal(0,elementLabel) + dx*adhesionmagnitude/dr;
-        fbglobal(1,elementLabel) = fbglobal(1,elementLabel) + dy*adhesionmagnitude/dr;
+        if (dr<hg){
+          fbglobal(0,elementLabel) = fbglobal(0,elementLabel) + dx*adhesionmagnitude/dr;
+          fbglobal(1,elementLabel) = fbglobal(1,elementLabel) + dy*adhesionmagnitude/dr;
+        }
       }
     }
-  }}
-  else{}
-
+  }
 }
 
 tissue::~tissue() {}

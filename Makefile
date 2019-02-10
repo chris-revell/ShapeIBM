@@ -5,7 +5,7 @@
 #CLibs=-larmadillo
 #LDFLAGS=-ggdb -std=c++11 -O0 -Wall
 
-CC := icpc
+CC := clang++
 SRCDIR := src
 BUILDDIR := build
 TARGET := basicIBM
@@ -15,8 +15,8 @@ MKLROOT := /opt/intel/mkl
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := -c -Wall -std=c++11 -ggdb -O0 -fopenmp -mkl=parallel  # -Wall
-LIB := -larmadillo -L$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/../compiler/lib -mkl#-liomp5 -lpthread -lm -ldl -L$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/../compiler/lib -mkl
+CFLAGS := -c -Wall -std=c++11 -ggdb -O0 #-fopenmp -mkl=parallel  # -Wall
+LIB := -larmadillo -L$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/../compiler/lib #-mkl#-liomp5 -lpthread -lm -ldl -L$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/lib -Wl,-rpath,$(MKLROOT)/../compiler/lib -mkl
 INC := -I include
 
 $(TARGET): $(OBJECTS)

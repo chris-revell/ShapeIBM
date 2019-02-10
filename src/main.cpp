@@ -16,8 +16,10 @@
 #include "NavierStokes.hpp"
 #include "GlobalToLocal.hpp"
 #include "ReadParams.hpp"
-#include <mkl.h>
-#include <omp.h>
+//#include <mkl.h>
+//#include <omp.h>
+#include "OpenCloseFiles.hpp"
+#include "OutputData.hpp"
 
 using namespace std;
 using namespace arma;
@@ -35,53 +37,34 @@ float len      = 2;     // Initial cell radius in micrometres
 int   Numcells = 1;     // Number of cells
 float dt       = 1;     // Time step in seconds
 float t        = 0;     // Run time in seconds
-float t_max    = 500;  // Max run time in seconds
+float t_max    = 200;  // Max run time in seconds
 float t_output = 1.0;  // Output interval in seconds
 float tension  = 0.1;   // Cell cortical tension
 int   nloop    = 0;     // Just counts how many time steps there have been so far
 int   exitval;          // Dummy variable for system calls
 char  buffer[50];       // Dummy string for system calls
+vector<ofstream> files;
 
 
 int main() {
 
   //ReadParams(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,t_max,tension);
-  exitval = system("rm output/velocity*.png;rm output/velocityanimated.gif;rm grid*txt; rm fluid*txt");
-  exitval = system("rm output/montage*.png;rm output/volume*.png;rm output/montageanimated.gif;rm grid*txt; rm fluid*txt");
+  //exitval = system("rm output/velocity*.png;rm output/velocityanimated.gif;rm grid*txt; rm fluid*txt");
+  //exitval = system("rm output/montage*.png;rm output/volume*.png;rm output/montageanimated.gif;rm grid*txt; rm fluid*txt");
 
   tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu,dt);
 
   for (int ii=0;ii<Numcells;ii++){
     Tissue.AddCell(len,0,0,tension);
   }
-  //Tissue.UpdateSources();
-  //Tissue.CombineBoundaries();
 
-  ofstream file1;
-  file1.open ("output/boundarypositions.txt", ofstream::out);
-  ofstream file2;
-  file2.open ("output/nbounds.txt", ofstream::out);
-  ofstream file3;
-  file3.open ("output/volume.txt", ofstream::out);
-  ofstream file4;
-  file4.open ("output/fluidvelocities0.txt", ios::out);
-  ofstream file5;
-  file5.open ("output/fluidvelocities1.txt", ios::out);
-  ofstream file6;
-  file6.open ("output/gridpositions0.txt", ios::out);
-  ofstream file7;
-  file7.open ("output/gridpositions1.txt", ios::out);
+  OpenCloseFiles(files);
+
   // Write grid positions to file
   for (int ii=0;ii<Numg+1;ii++){
-    file6 << Tissue.xg.slice(0).row(ii);
-    file7 << Tissue.xg.slice(1).row(ii);
+    files[5] << Tissue.xg.slice(0).row(ii);
+    files[6] << Tissue.xg.slice(1).row(ii);
   }
-  // Write initial data to file //
-  //for (int ii=0;ii<Tissue.Nb;ii++){
-  //  file1 << Tissue.xbglobal(0,ii) << ", ";
-  //  file1 << Tissue.xbglobal(1,ii) << endl;
-  //}
-  //file1.flush();
 
   while (t<t_max) {
 
@@ -92,7 +75,9 @@ int main() {
       Tissue.Cells[ii].AdjacentForces();
     }
     Tissue.CombineBoundaries();
-    Tissue.MatrixAdhesions();
+    if (t<100){
+      Tissue.MatrixAdhesions();
+    }
     Tissue.ubglobal.zeros();
     //-- grid sources --//
     BoundToGrid1(Tissue);
@@ -112,21 +97,7 @@ int main() {
 
     if (fmod(t,t_output)<Tissue.dt){
       // Write data to file //
-      for (int ii=0;ii<Tissue.Nb;ii++){
-        file1 << Tissue.xbglobal(0,ii) << ", ";
-        file1 << Tissue.xbglobal(1,ii) << endl;
-      }
-      file2 << Tissue.Nb << endl;
-      file3 << t << " " << Tissue.Cells[0].CalculateVolume() << endl;
-      for (int ii=0;ii<Numg+1;ii++){
-        file4 << Tissue.vg.slice(0).row(ii);
-        file5 << Tissue.vg.slice(1).row(ii);
-      }
-      file1.flush();
-      file2.flush();
-      file3.flush();
-      file4.flush();
-      file5.flush();
+      OutputData(files,t,Tissue);
       // Call plotter
       //exitval = sprintf(buffer,"python3 scripts/velocityplottersingle.py %d %d %d %d &",nloop,Tissue.Nb,Tissue.Ng,1);
       //exitval = system(buffer);
@@ -137,11 +108,8 @@ int main() {
     t = t+Tissue.dt;
 
   }   // for loop_num
-  file1.close();
-  file2.close();
-  file3.close();
-  file4.close();
-  file5.close();
+
+  OpenCloseFiles(files);
   //exitval = system("convert -delay 10 -loop 0 output/velocitytest*.png output/velocityanimated.gif");
   return 0;
 }

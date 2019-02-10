@@ -35,14 +35,14 @@ void NavierStokes(tissue& Tissue){
   cube fvg1       = cube(Tissue.Ng,Tissue.Ng,2,fill::zeros);
   cx_mat vg0      = cx_mat(Tissue.Ng,Tissue.Ng,fill::zeros);
   cx_mat vg1      = cx_mat(Tissue.Ng,Tissue.Ng,fill::zeros);
-  mat  stoch_xb;          // Array containing stochastic update values for element positions
-  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count(); // Variables implementing normal distribution for stochastic dissipation
-  default_random_engine generator(seed);         // Variables implementing normal distribution for stochastic dissipation
-  normal_distribution<double> distribution;// Variables implementing normal distribution for stochastic dissipation
+  //mat  stoch_xb;          // Array containing stochastic update values for element positions
+  //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count(); // Variables implementing normal distribution for stochastic dissipation
+  //default_random_engine generator(seed);         // Variables implementing normal distribution for stochastic dissipation
+  //normal_distribution<double> distribution;// Variables implementing normal distribution for stochastic dissipation
 
-  arma_rng::set_seed_random();
-  stoch_xb = mat(Tissue.Ng,Tissue.Ng,fill::zeros);
-  distribution = normal_distribution<double>(0.0,1.0);
+  //arma_rng::set_seed_random();
+  //stoch_xb = mat(Tissue.Ng,Tissue.Ng,fill::zeros);
+  //distribution = normal_distribution<double>(0.0,1.0);
 
 
   // stage n terms: force density Tissue.fg, source distribution Tissue.sg and current
@@ -129,12 +129,12 @@ void NavierStokes(tissue& Tissue){
   fvgg.set_imag(dummymat(span(0,Tissue.Ng-1),span(0,Tissue.Ng-1)));
   vg1 = ifft2(fvgg);
 
-  stoch_xb.randu(); // Set random angle for stochastic component
+  //stoch_xb.randu(); // Set random angle for stochastic component
   for (int ii=0; ii<Tissue.Ng; ii++){
     for (int jj=0; jj<Tissue.Ng; jj++){
-      float gauss = Tissue.xi*distribution(generator); // Find random magnitude for stochastic component from normal distribution
-      Tissue.vg(ii,jj,0)=real(vg0(ii,jj)) + gauss*cos(2*M_PI*stoch_xb(ii,jj));
-      Tissue.vg(ii,jj,1)=real(vg1(ii,jj)) + gauss*sin(2*M_PI*stoch_xb(ii,jj));      
+      //float gauss = Tissue.xi*distribution(generator); // Find random magnitude for stochastic component from normal distribution
+      Tissue.vg(ii,jj,0)=real(vg0(ii,jj));// + gauss*cos(2*M_PI*stoch_xb(ii,jj));
+      Tissue.vg(ii,jj,1)=real(vg1(ii,jj));// + gauss*sin(2*M_PI*stoch_xb(ii,jj));      
     }
   }
 
