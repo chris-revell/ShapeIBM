@@ -16,7 +16,10 @@
 
 using namespace std;
 
-void OutputData(vector<ofstream>& files,float& t,tissue& Tissue)  {
+void OutputData(vector<ofstream>& files,float& t,tissue& Tissue, int& nloop,int& realtimeplot)  {
+  int   exitval;          // Dummy variable for system calls
+  char  buffer[50];       // Dummy string for system calls
+
   for (int ii=0;ii<Tissue.Nb;ii++){
     files[0] << Tissue.xbglobal(0,ii) << ", ";
     files[0] << Tissue.xbglobal(1,ii) << endl;
@@ -32,4 +35,10 @@ void OutputData(vector<ofstream>& files,float& t,tissue& Tissue)  {
   files[2].flush();
   files[3].flush();
   files[4].flush();
+  if (realtimeplot==1) {
+    // Call plotter
+    exitval = sprintf(buffer,"python3 scripts/velocityplottersingle.py %d %d %d %d &",nloop,Tissue.Nb,Tissue.Ng,1);
+    exitval = system(buffer);
+    nloop = nloop+1;
+  }
 }

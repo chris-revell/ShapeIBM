@@ -52,9 +52,6 @@ public:
     float dt;                     // Time interval between steps
     float rho;                    // Fluid density
     float mu;                     // Fluid drag factor
-    float xi;                   // Stochastic term magnitude
-    //std::default_random_engine generator;         // Variables implementing normal distribution for stochastic dissipation
-    //std::normal_distribution<double> distribution;// Variables implementing normal distribution for stochastic dissipation
     ~tissue();                    // Destructor
 protected:
 

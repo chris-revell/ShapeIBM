@@ -16,8 +16,6 @@
 #include "NavierStokes.hpp"
 #include "GlobalToLocal.hpp"
 #include "ReadParams.hpp"
-//#include <mkl.h>
-//#include <omp.h>
 #include "OpenCloseFiles.hpp"
 #include "OutputData.hpp"
 
@@ -25,22 +23,22 @@ using namespace std;
 using namespace arma;
 
 // System parameters
-int   Numg     = 64;   // Fluid grid size
-int   Nb       = 32;    // Number of boundary points
+int   Numg     = 512;   // Fluid grid size
+int   Nb       = 64;    // Number of boundary points
 int   dims     = 10;    // Fluid grid dimensions
 float cen      = 0;     // Fluid centre point
 float Src      = 0.0;   // Source strength
 float rho      = 1;     // Fluid density
 float mu       = 10;     // Fluid viscosity
-//float xi       = 0.0;  // Stochastic magnitude
 float len      = 2;     // Initial cell radius in micrometres
 int   Numcells = 1;     // Number of cells
-float dt       = 1;     // Time step in seconds
+float dt       = 10;     // Time step in seconds
 float t        = 0;     // Run time in seconds
-float t_max    = 200;  // Max run time in seconds
-float t_output = 1.0;  // Output interval in seconds
+float t_max    = 400;  // Max run time in seconds
+float t_output = 10.0;  // Output interval in seconds
 float tension  = 0.1;   // Cell cortical tension
 int   nloop    = 0;     // Just counts how many time steps there have been so far
+int   realtimeplot=0;    // Flag for real time plotting
 int   exitval;          // Dummy variable for system calls
 char  buffer[50];       // Dummy string for system calls
 vector<ofstream> files;
@@ -49,8 +47,8 @@ vector<ofstream> files;
 int main() {
 
   //ReadParams(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,t_max,tension);
-  //exitval = system("rm output/velocity*.png;rm output/velocityanimated.gif;rm grid*txt; rm fluid*txt");
-  //exitval = system("rm output/montage*.png;rm output/volume*.png;rm output/montageanimated.gif;rm grid*txt; rm fluid*txt");
+  exitval = system("rm output/velocity*.png;rm output/velocityanimated.gif;rm grid*txt; rm fluid*txt");
+  exitval = system("rm output/montage*.png;rm output/volume*.png;rm output/montageanimated.gif;rm grid*txt; rm fluid*txt");
 
   tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu,dt);
 
@@ -75,7 +73,7 @@ int main() {
       Tissue.Cells[ii].AdjacentForces();
     }
     Tissue.CombineBoundaries();
-    if (t<100){
+    if (t<200){
       Tissue.MatrixAdhesions();
     }
     Tissue.ubglobal.zeros();
@@ -97,12 +95,9 @@ int main() {
 
     if (fmod(t,t_output)<Tissue.dt){
       // Write data to file //
-      OutputData(files,t,Tissue);
-      // Call plotter
-      //exitval = sprintf(buffer,"python3 scripts/velocityplottersingle.py %d %d %d %d &",nloop,Tissue.Nb,Tissue.Ng,1);
-      //exitval = system(buffer);
-      //nloop = nloop+1;
+      OutputData(files,t,Tissue,nloop,realtimeplot);
     }
+
     printf("%f/%f\n",t,t_max);
 
     t = t+Tissue.dt;

@@ -16,6 +16,6 @@
 #include <armadillo>
 #include <tissue.hpp>
 
-void OutputData(std::vector<std::ofstream>& files,float& t,tissue& Tissue);
+void OutputData(std::vector<std::ofstream>& files,float& t,tissue& Tissue,int& nloop,int& realtimeplot);
 
 #endif

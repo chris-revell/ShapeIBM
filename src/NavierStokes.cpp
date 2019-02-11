@@ -129,12 +129,10 @@ void NavierStokes(tissue& Tissue){
   fvgg.set_imag(dummymat(span(0,Tissue.Ng-1),span(0,Tissue.Ng-1)));
   vg1 = ifft2(fvgg);
 
-  //stoch_xb.randu(); // Set random angle for stochastic component
   for (int ii=0; ii<Tissue.Ng; ii++){
     for (int jj=0; jj<Tissue.Ng; jj++){
-      //float gauss = Tissue.xi*distribution(generator); // Find random magnitude for stochastic component from normal distribution
-      Tissue.vg(ii,jj,0)=real(vg0(ii,jj));// + gauss*cos(2*M_PI*stoch_xb(ii,jj));
-      Tissue.vg(ii,jj,1)=real(vg1(ii,jj));// + gauss*sin(2*M_PI*stoch_xb(ii,jj));      
+      Tissue.vg(ii,jj,0)=real(vg0(ii,jj));
+      Tissue.vg(ii,jj,1)=real(vg1(ii,jj));
     }
   }
 
@@ -144,5 +142,4 @@ void NavierStokes(tissue& Tissue){
     Tissue.vg(Tissue.Ng,ii,1)=Tissue.vg(0,ii,1);
     Tissue.vg(ii,Tissue.Ng,1)=Tissue.vg(ii,0,1);
   }
-} // function NavierStokes
-//-----------------------------------------------------------------------//
+} 

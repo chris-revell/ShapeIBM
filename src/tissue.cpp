@@ -23,7 +23,6 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   Src      = sourcestrength;
   rho      = density;
   mu       = viscosity;
-  //xi       = stoch;
   xg       = cube(Ng+1,Ng+1,2,fill::zeros);
   xNb      = cube(Ng+1,Ng+1,Nbcell,fill::zeros);
   sg       = mat(Ng+1,Ng+1,fill::zeros);
@@ -34,8 +33,6 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   ubglobal = mat(2,0,fill::zeros);
   fbglobal = mat(2,0,fill::zeros);
   indices  = mat(2,0,fill::zeros);
-  //stoch_xb = mat(2,0,arma::fill::zeros);
-//  vector<cell> Cells;
   Nc  = 0;
   Nbs = 4;
   xmin=-static_cast<float>(dimensions);
@@ -51,7 +48,6 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   sb(1,2) = 0.0;
   sb(0,3) = xmax;
   sb(1,3) = 0.0;
-  //distribution = std::normal_distribution<double>(0.0,2.0);
 
   hg  =float(xmax-xmin)/float(Ng);
   //-- define fluid grid --//
@@ -88,13 +84,6 @@ void tissue::CombineBoundaries(void){
     }
   }
 
-  //stoch_xb.randu(); // Set random angle
-  //for (int ii=0;ii<Nb;ii++){
-    //float gauss = xi*distribution(generator);       // Find random magnitude
-    //stoch_xb(0,ii) = gauss*cos(2*M_PI*stoch_xb(0,ii));// Use random angle to find magnitude in each dimension
-    //stoch_xb(1,ii) = gauss*sin(2*M_PI*stoch_xb(1,ii));// Use random angle to find magnitude in each dimension
-  //}
-  //fbglobal = fbglobal+stoch_xb/1000.0;
 }
 
 void tissue::UpdateSources(){
@@ -143,9 +132,7 @@ void tissue::BoundaryRefinement(){
 }
 
 void tissue::UpdatePositions(){
-  //stoch_xb.randn();
-  xbglobal = xbglobal + dt*ubglobal;// + stoch_xb.tail_cols(xbglobal.n_cols-1)/1000;
-  //xbglobal.tail_cols(xbglobal.n_cols-1) = xbglobal.tail_cols(xbglobal.n_cols-1) + dt*ubglobal.tail_cols(xbglobal.n_cols-1);// + stoch_xb.tail_cols(xbglobal.n_cols-1)/1000;
+  xbglobal = xbglobal + dt*ubglobal;
 }
 
 void tissue::MatrixAdhesions(){
