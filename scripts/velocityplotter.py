@@ -1,9 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+from sys import argv
 
-Numg=512
-colourflag=1
+Numg=int(argv[1])
+arraystep=int(Numg/64)
+colourflag=int(argv[2])
 
 os.system("rm output/velocity*.png;rm output/velocityanimated.gif;")
 
@@ -15,17 +17,17 @@ data = np.genfromtxt("output/boundarypositions.txt",delimiter=", ")
 nbounds = np.genfromtxt("output/nbounds.txt",dtype=int)
 
 fig,ax=plt.subplots()
-nsteps = int(np.shape(data0)[0]/(Numg+1))
 drawn = 0
-for i in range(nsteps):
+M3 = np.sqrt(np.power(data0,2)+np.power(data1,2))
+maxspeed=np.amax(M3[::arraystep,::arraystep])
+for i in range(np.shape(nbounds)[0]):
     fig,ax=plt.subplots()
     if colourflag==1:
-        M3 = np.sqrt(np.power(data0,2)+np.power(data1,2))
-        A = 5*np.divide(data0[i*(Numg+1):(i+1)*(Numg+1):8,::8],M3[i*(Numg+1):(i+1)*(Numg+1):8,::8],out=np.zeros_like(data0[i*(Numg+1):(i+1)*(Numg+1):8,::8]), where=M3[i*(Numg+1):(i+1)*(Numg+1):8,::8]!=0)
-        B = 5*np.divide(data1[i*(Numg+1):(i+1)*(Numg+1):8,::8],M3[i*(Numg+1):(i+1)*(Numg+1):8,::8],out=np.zeros_like(data1[i*(Numg+1):(i+1)*(Numg+1):8,::8]), where=M3[i*(Numg+1):(i+1)*(Numg+1):8,::8]!=0)
-        ax.quiver(grid0[::8,::8],grid1[::8,::8],A,B,M3[i*(Numg+1):(i+1)*(Numg+1):8,::8],pivot='mid',cmap="Greys")
+        A = 5*np.divide(data0[i*(Numg+1):(i+1)*(Numg+1):arraystep,::arraystep],M3[i*(Numg+1):(i+1)*(Numg+1):arraystep,::arraystep],out=np.zeros_like(data0[i*(Numg+1):(i+1)*(Numg+1):arraystep,::arraystep]), where=M3[i*(Numg+1):(i+1)*(Numg+1):arraystep,::arraystep]!=0)
+        B = 5*np.divide(data1[i*(Numg+1):(i+1)*(Numg+1):arraystep,::arraystep],M3[i*(Numg+1):(i+1)*(Numg+1):arraystep,::arraystep],out=np.zeros_like(data1[i*(Numg+1):(i+1)*(Numg+1):arraystep,::arraystep]), where=M3[i*(Numg+1):(i+1)*(Numg+1):arraystep,::arraystep]!=0)
+        ax.quiver(grid0[::arraystep,::arraystep],grid1[::arraystep,::arraystep],A,B,M3[i*(Numg+1):(i+1)*(Numg+1):arraystep,::arraystep],pivot='mid',cmap="Greys",clim=(-maxspeed,maxspeed))
     else:
-        ax.quiver(grid0[::8,::8],grid1[::8,::8],data0[i*(Numg+1):(i+1)*(Numg+1):8,::8],data1[i*(Numg+1):(i+1)*(Numg+1):8,::8],pivot='mid')
+        ax.quiver(grid0[::arraystep,::arraystep],grid1[::arraystep,::arraystep],data0[i*(Numg+1):(i+1)*(Numg+1):arraystep,::arraystep]/maxspeed,data1[i*(Numg+1):(i+1)*(Numg+1):arraystep,::arraystep]/maxspeed,pivot='mid')
     ax.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
     ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
     ax.set_xlim([-5,5])

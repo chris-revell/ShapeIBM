@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-void OpenCloseFiles(std::vector<std::ofstream>& files);
+void OpenCloseFiles(std::vector<std::ofstream>& files,int& realtimeplot);
 
 
 #endif

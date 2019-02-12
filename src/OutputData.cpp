@@ -16,7 +16,7 @@
 
 using namespace std;
 
-void OutputData(vector<ofstream>& files,float& t,tissue& Tissue, int& nloop,int& realtimeplot)  {
+void OutputData(vector<ofstream>& files,float& t,tissue& Tissue,int& nloop,int& realtimeplot)  {
   int   exitval;          // Dummy variable for system calls
   char  buffer[50];       // Dummy string for system calls
 

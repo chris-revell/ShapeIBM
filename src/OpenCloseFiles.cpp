@@ -15,8 +15,8 @@
 
 using namespace std;
 
-void OpenCloseFiles(vector<ofstream>& files){
-
+void OpenCloseFiles(vector<ofstream>& files,int& realtimeplot){
+  int   exitval;          // Dummy variable for system calls
   vector<string> names;// = {"boundarypositions.txt","nbounds.txt","volume.txt","fluidvelocities0.txt","fluidvelocities1.txt","gridpositions0.txt","gridpositions1.txt"};
 
   names.push_back("boundarypositions.txt");
@@ -31,6 +31,9 @@ void OpenCloseFiles(vector<ofstream>& files){
   if (files[0].is_open()){
     for (int ii=0;ii<files.size();ii++){
       files[ii].close();
+    }
+    if (realtimeplot==1){
+      exitval = system("convert -delay 10 -loop 0 output/velocitytest*.png output/velocityanimated.gif");
     }
   }
   else{

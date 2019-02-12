@@ -33,23 +33,22 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   ubglobal = mat(2,0,fill::zeros);
   fbglobal = mat(2,0,fill::zeros);
   indices  = mat(2,0,fill::zeros);
-  Nc  = 0;
-  Nbs = 4;
-  xmin=-static_cast<float>(dimensions);
-  xmax=static_cast<float>(dimensions);
-  sb  = mat(2,Nbs,fill::zeros);
-  sbb = mat(2,Nbs,fill::zeros);
-  // One sink point at the centre of each fluid grid edge
-  sb(0,0) = 0.0;
-  sb(1,0) = xmin;
-  sb(0,1) = 0.0;
-  sb(1,1) = xmax;
-  sb(0,2) = xmin;
-  sb(1,2) = 0.0;
-  sb(0,3) = xmax;
-  sb(1,3) = 0.0;
+  Nc       = 0;
+  Nbs      = 4;
+  xmin     =-static_cast<float>(dimensions);
+  xmax     =static_cast<float>(dimensions);
+  sb       = mat(2,Nbs,fill::zeros);
+  sbb      = mat(2,Nbs,fill::zeros);
+  sb(0,0)  = 0.0; // One sink point at the centre of each fluid grid edge
+  sb(1,0)  = xmin;
+  sb(0,1)  = 0.0;
+  sb(1,1)  = xmax;
+  sb(0,2)  = xmin;
+  sb(1,2)  = 0.0;
+  sb(0,3)  = xmax;
+  sb(1,3)  = 0.0;
 
-  hg  =float(xmax-xmin)/float(Ng);
+  hg       = float(xmax-xmin)/float(Ng);
   //-- define fluid grid --//
   for (int ii=0;ii<Ng+1;ii++){
     for (int jj=0;jj<Ng+1;jj++){
@@ -69,7 +68,6 @@ void tissue::CombineBoundaries(void){
     fbglobal.resize(2,Nb);
     ubglobal.resize(2,Nb);
     indices.resize(2,Nb);
-    //stoch_xb.resize(2,Nb);
   }
   for (int ii=0;ii<Nc;ii++){
     for (int jj=0; jj<Cells[ii].Nb;jj++){
@@ -77,13 +75,11 @@ void tissue::CombineBoundaries(void){
       xbglobal(1,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].pos(1);
       fbglobal(0,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].internalforce(0);
       fbglobal(1,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].internalforce(1);
-      ubglobal(0,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].ub(0);
-      ubglobal(1,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].ub(1);
       indices(0,Cells[ii].Elements[jj].label)  = ii;
       indices(1,Cells[ii].Elements[jj].label)  = jj;
     }
   }
-
+  ubglobal.zeros();
 }
 
 void tissue::UpdateSources(){
@@ -114,7 +110,6 @@ void tissue::BoundaryRefinement(){
   float dx1,dy1,r1,newposx,newposy;
   for (int kk=0;kk<Nc;kk++){
     for (int ii=0;ii<Cells[kk].Nb;ii++){
-
       dx1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[1]].pos(0)-Cells[kk].Elements[ii].pos(0);
       dy1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[1]].pos(1)-Cells[kk].Elements[ii].pos(1);
       // Find separation distances from x and y values.
@@ -126,6 +121,8 @@ void tissue::BoundaryRefinement(){
         Cells[kk].Elements[ii].neighbours[1]=Cells[kk].Nb;
         Nb++;
         Cells[kk].Nb = Cells[kk].Nb+1;
+      }else if (r1<0.5*hg){
+
       }
     }
   }
