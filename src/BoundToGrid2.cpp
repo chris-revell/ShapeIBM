@@ -31,26 +31,28 @@ void BoundToGrid2(tissue& Tissue){
   int y2=0;
   int Nx,Ny;
 
+  Tissue.fg.zeros();
+
   for (int n3=0; n3<Tissue.Nb; n3++){
     // move points into the domain
     xbb0=Tissue.xbglobal(0,n3);//IntoDom(Tissue.xbglobal(0,n3),Tissue.xmin,Tissue.xmax);
-    xbb1=Tissue.xbglobal(1,n3);//IntoDom(Tissue.xbglobal(1,n3),Tissue.xmin,Tissue.xmax);    
+    xbb1=Tissue.xbglobal(1,n3);//IntoDom(Tissue.xbglobal(1,n3),Tissue.xmin,Tissue.xmax);
     // determine indices of the nearest lower-down grid point
     Nx=floor((xbb0-Tissue.xmin)/Tissue.hg);
-    Ny=floor((xbb1-Tissue.xmin)/Tissue.hg);    
+    Ny=floor((xbb1-Tissue.xmin)/Tissue.hg);
     // tests all 16 possible grid points
     for (int ii=-1; ii<3;ii++){
-      for (int jj=-1;jj<3;jj++){        
+      for (int jj=-1;jj<3;jj++){
         // compute the interpolation Delta function
         llx=Tissue.xmin+Nx*Tissue.hg+ii*Tissue.hg;
         rr= abs(xbb0-llx);
-        dx= DeltaFun(rr,Tissue.hg);        
+        dx= DeltaFun(rr,Tissue.hg);
         lly=Tissue.xmin+Ny*Tissue.hg+jj*Tissue.hg;
         rr= abs(xbb1-lly);
         dy= DeltaFun(rr,Tissue.hg);
         // determine indices of the grid points to update
         IndDel(x1,x2,llx,ii,Nx,Tissue.Ng,Tissue.xmin,Tissue.xmax);
-        IndDel(y1,y2,lly,jj,Ny,Tissue.Ng,Tissue.xmin,Tissue.xmax);        
+        IndDel(y1,y2,lly,jj,Ny,Tissue.Ng,Tissue.xmin,Tissue.xmax);
         // update the values if points are not pasive
         if (dx*dy > 0){
           Tissue.fg(x1,y1,0)=Tissue.fg(x1,y1,0)+Tissue.fbglobal(0,n3)*dx*dy*0.5*Tissue.hg;

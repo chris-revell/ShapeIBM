@@ -25,6 +25,8 @@ void BoundToGrid1(tissue& Tissue){
   int y2=0;
   int Nx,Ny;
 
+  Tissue.sg.zeros();
+
   for (int n3=0;n3<Tissue.Nbs;n3++){
     // Move points into the domain. xbb0 and xbb1 are the coordinates of the point in the square domain.
     xbb0=Tissue.sb(0,n3);//IntoDom(Tissue.sb(0,n3),Tissue.xmin,Tissue.xmax);
