@@ -11,6 +11,7 @@
 #include <vector>
 #include "cell.hpp"
 #include <random>
+#include <element.hpp>
 
 using namespace arma;
 using namespace std;
@@ -47,6 +48,8 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   sb(1,2)  = 0.0;
   sb(0,3)  = xmax;
   sb(1,3)  = 0.0;
+  //vector<element> Elements;
+  vector<cell> Cells;
 
   hg       = float(xmax-xmin)/float(Ng);
   //-- define fluid grid --//
@@ -56,30 +59,6 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
       xg(ii,jj,1)=xmin+jj*hg+hg/2;
     }
   }
-}
-
-void tissue::CombineBoundaries(void){
-  Nb = 0;
-  for (int ii=0;ii<Nc;ii++){
-    Nb = Nb+Cells[ii].Nb;
-  }
-  if (xbglobal.n_cols < Nb){
-    xbglobal.resize(2,Nb);
-    fbglobal.resize(2,Nb);
-    ubglobal.resize(2,Nb);
-    indices.resize(2,Nb);
-  }
-  for (int ii=0;ii<Nc;ii++){
-    for (int jj=0; jj<Cells[ii].Nb;jj++){
-      xbglobal(0,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].pos(0);
-      xbglobal(1,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].pos(1);
-      fbglobal(0,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].internalforce(0);
-      fbglobal(1,Cells[ii].Elements[jj].label) = Cells[ii].Elements[jj].internalforce(1);
-      indices(0,Cells[ii].Elements[jj].label)  = ii;
-      indices(1,Cells[ii].Elements[jj].label)  = jj;
-    }
-  }
-  ubglobal.zeros();
 }
 
 void tissue::UpdateSources(){
@@ -106,57 +85,30 @@ void tissue::AddCell(const float& len, const float& initialx, const float& initi
   Nbs++;
 }
 
-void tissue::BoundaryRefinement(){
-  float dx1,dy1,r1,newposx,newposy;
-  for (int kk=0;kk<Nc;kk++){
-    for (int ii=0;ii<Cells[kk].Nb;ii++){
-      dx1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[1]].pos(0)-Cells[kk].Elements[ii].pos(0);
-      dy1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[1]].pos(1)-Cells[kk].Elements[ii].pos(1);
-      // Find separation distances from x and y values.
-      r1=sqrt(pow(dx1,2)+pow(dy1,2));
-      if (r1>hg){
-        newposx = Cells[kk].Elements[ii].pos(0)+0.5*dx1;
-        newposy = Cells[kk].Elements[ii].pos(1)+0.5*dy1;
-        Cells[kk].Elements.push_back(element(Cells[kk].Elements[ii].ub(0),Cells[kk].Elements[ii].ub(1),kk,Nb,newposx,newposy,ii,((Cells[kk].Elements[ii].neighbours[1])%(Cells[kk].Nb+1)+(Cells[kk].Nb+1))%(Cells[kk].Nb+1)));
-        Cells[kk].Elements[ii].neighbours[1]=Cells[kk].Nb;
-        Nb++;
-        Cells[kk].Nb = Cells[kk].Nb+1;
-      }else if (r1<0.5*hg){
-
-      }
-    }
-  }
-}
+//void tissue::BoundaryRefinement(){
+//  float dx1,dy1,r1,newposx,newposy;
+//  for (int kk=0;kk<Nc;kk++){
+//    for (int ii=0;ii<Cells[kk].Nb;ii++){
+//      dx1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[1]].pos(0)-Cells[kk].Elements[ii].pos(0);
+//      dy1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[1]].pos(1)-Cells[kk].Elements[ii].pos(1);
+//      // Find separation distances from x and y values.
+//      r1=sqrt(pow(dx1,2)+pow(dy1,2));
+//      if (r1>hg){
+//        newposx = Cells[kk].Elements[ii].pos(0)+0.5*dx1;
+//        newposy = Cells[kk].Elements[ii].pos(1)+0.5*dy1;
+//        Cells[kk].Elements.push_back(element(Cells[kk].Elements[ii].ub(0),Cells[kk].Elements[ii].ub(1),kk,Nb,newposx,newposy,ii,((Cells[kk].Elements[ii].neighbours[1])%(Cells[kk].Nb+1)+(Cells[kk].Nb+1))%(Cells[kk].Nb+1)));
+//        Cells[kk].Elements[ii].neighbours[1]=Cells[kk].Nb;
+//        Nb++;
+//        Cells[kk].Nb = Cells[kk].Nb+1;
+//      }else if (r1<0.5*hg){
+//
+//      }
+//    }
+//  }
+//}
 
 void tissue::UpdatePositions(){
   xbglobal = xbglobal + dt*ubglobal;
-}
-
-void tissue::MatrixAdhesions(){
-  int xindex,yindex,elementLabel;
-  float dx,dy,dr;
-  float adhesionmagnitude=0.1;
-  xNb.zeros();
-  for (int ii=0; ii<Nb; ii++){
-    xindex = floor((xmax+xbglobal(0,ii))/hg);
-    yindex = floor((xmax+xbglobal(1,ii))/hg);
-    xNb(xindex,yindex,0)++;                       // 0th component of xNb stores number of boundary points at this grid point.
-    xNb(xindex,yindex,xNb(xindex,yindex,0))=ii;   // When considering the nth boundary element at grid location (x,y) make the value of xNb(x,y,n) equal to the label of the boundary element within matric xb.
-  }
-  for (int ii=0;ii<Ng+1;ii++){
-    for (int jj=0;jj<Ng+1;jj++){
-      for (int kk=1;kk<=xNb(ii,jj,0);kk++){
-        elementLabel = xNb(ii,jj,kk);
-        dx = xg(ii,jj,0)-xbglobal(0,elementLabel);
-        dy = xg(ii,jj,1)-xbglobal(1,elementLabel);
-        dr = sqrt(dx*dx+dy*dy);
-        if (dr<hg){
-          fbglobal(0,elementLabel) = fbglobal(0,elementLabel) + dx*adhesionmagnitude/dr;
-          fbglobal(1,elementLabel) = fbglobal(1,elementLabel) + dy*adhesionmagnitude/dr;
-        }
-      }
-    }
-  }
 }
 
 tissue::~tissue() {}

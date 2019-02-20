@@ -12,7 +12,7 @@ SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 BUILDDIR := build
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 TARGET := basicIBM
-CFLAGS := -c -Wall -std=c++11 -g -O3
+CFLAGS := -c -Wall -std=c++11 -g -O0
 LIB := -larmadillo
 INC := -I include
 

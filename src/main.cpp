@@ -18,6 +18,8 @@
 //#include "ReadParams.hpp"
 #include "OpenCloseFiles.hpp"
 #include "OutputData.hpp"
+#include "MatrixAdhesion.hpp"
+#include "LocalToGlobal.hpp"
 
 using namespace std;
 using namespace arma;
@@ -32,10 +34,10 @@ float rho         = 1;    // Fluid density
 float mu          = 10;   // Fluid viscosity
 float len         = 2;    // Initial cell radius in micrometres
 int   Numcells    = 1;    // Number of cells
-float dt          = 0.1;   // Time step in seconds
+float dt          = 1;   // Time step in seconds
 float t           = 0;    // Run time in seconds
-float t_max       = 1000;  // Max run time in seconds
-float t_output    = 100.0;  // Output interval in seconds
+float t_max       = 400;  // Max run time in seconds
+float t_output    = 10.0;  // Output interval in seconds
 float tension     = 0;  // Cell cortical tension
 int   nloop       = 0;    // Just counts how many time steps there have been so far
 int   realtimeplot= 0;    // Flag for real time plotting
@@ -67,14 +69,18 @@ int main() {
 
     //Tissue.BoundaryRefinement();
     Tissue.UpdateSources();
+    //Tissue.CombineBoundaries();
     //-- boundary forces --//
     for (int ii=0;ii<Tissue.Nc;ii++){
       Tissue.Cells[ii].AdjacentForces();
     }
-    Tissue.CombineBoundaries();
-    //if (t<500){
-    Tissue.MatrixAdhesions();
-    //}
+    if (t<200){
+      for (int ii=0;ii<Tissue.Nc;ii++){
+        MatrixAdhesion(Tissue.Cells[ii]);
+      }
+    }
+    LocalToGlobal(Tissue);
+
     //Tissue.ubglobal.zeros();
     //-- grid sources --//
     BoundToGrid1(Tissue);

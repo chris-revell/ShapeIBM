@@ -14,14 +14,13 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
   Nb = NumBounds;
   label = cellnum;
   hb=2*M_PI/static_cast<float>(Nb); // Typical angular spacing between boundary elements given typical radius len
-  xb = mat(2,Nb,arma::fill::zeros); // Positions of all boundary points in cell
-  fb = mat(2,Nb,arma::fill::zeros); // Forces on all boundary points in cell arising from interactions with other boundary points
-  com= vec(2,arma::fill::zeros);    // Cell centre of mass
+  com= vec(2,fill::zeros);    // Cell centre of mass
   ctension = tension; // Spring constant of boundary forces
   len=radius;
   hg=mesh;
   e=0.75;
   // Loop over initial element angles to set cartesian coordinates of all boundary points. Add constant value to set initial cell position.
+
   for (int ii=0;ii<Nb;ii++){
     r = len/sqrt(1-pow(e*cos(ii*hb),2));
     //r=len;
@@ -34,10 +33,6 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
 // Function to calculate forces between neighbouring boundary elements within a cell.
 void cell::AdjacentForces() {
   float dx1,dy1,dx2,dy2,r1,r2;
-  if (xb.n_cols < Nb){
-    xb.resize(2,Nb);
-    fb.resize(2,Nb);
-  }
   for (int ii=0;ii<Nb;ii++){
     // Access the labels of the neighbours for element ii and extract the corresponding element positions.
     // Use these to find the separation of ii from its neighbours in the x and y directions.
@@ -49,10 +44,10 @@ void cell::AdjacentForces() {
     r1=sqrt(pow(dx1,2)+pow(dy1,2));
     r2=sqrt(pow(dx2,2)+pow(dy2,2));
     // Calculate forces on element ii from
-    //Elements[ii].internalforce(0) = ctension*((r1-hb)*dx1/r1+(r2-hb)*dx2/r2);
-    //Elements[ii].internalforce(1) = ctension*((r1-hb)*dy1/r1+(r2-hb)*dy2/r2);
-    Elements[ii].internalforce(0) = ctension*(dx1/r1+dx2/r2);
-    Elements[ii].internalforce(1) = ctension*(dy1/r1+dy2/r2);
+    //Elements[ii].fb(0) = ctension*((r1-hb)*dx1/r1+(r2-hb)*dx2/r2);
+    //Elements[ii].fb(1) = ctension*((r1-hb)*dy1/r1+(r2-hb)*dy2/r2);
+    Elements[ii].fb(0) = ctension*(dx1/r1+dx2/r2);
+    Elements[ii].fb(1) = ctension*(dy1/r1+dy2/r2);
   }
 }
 
@@ -110,6 +105,32 @@ float cell::CalculateVolume(){
   return volume;
 }
 
-
+//void cell::MatrixAdhesions(){
+//  int xindex,yindex,elementLabel;
+//  float dx,dy,dr;
+//  float adhesionmagnitude=0.1;
+//
+//  vec R = vec(2,fill::zeros);
+//  vec A = vec(2,fill::zeros);
+//  vec B = vec(2,fill::zeros);
+//
+//  for (int ii=0; ii<Nb; ii++){
+//    n1
+//    R = Elements(ii).pos.col(ii)-com;
+//    if (ii==0){
+//      A = Elements(ii).pos.col(0)-Elements(ii).pos.col(Nb-1);
+//      B = Elements(ii).pos.col(1)-Elements(ii).pos.col(0);
+//    }elseif (ii==Nb-1){
+//      A = Elements(ii).pos.col(Nb-1)-Elements(ii).pos.col(Nb-2);
+//      B = Elements(ii).pos.col(0)-Elements(ii).pos.col(Nb-1);
+//    }else{
+//      A = Elements(ii).pos.col(ii)-Elements(ii).pos.col(ii-1);
+//      B = Elements(ii).pos.col(ii+1)-Elements(ii).pos.col(ii);
+//    }
+//
+//
+//  }
+//
+//}
 
 cell::~cell() {}

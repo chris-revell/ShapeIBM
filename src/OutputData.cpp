@@ -22,13 +22,15 @@ void OutputData(vector<ofstream>& files,float& t,tissue& Tissue,int& nloop,int& 
 
   for (int ii=0;ii<Tissue.Nb;ii++){
     files[0] << Tissue.xbglobal(0,ii) << ", ";
-    files[0] << Tissue.xbglobal(1,ii) << endl;
+    files[0] << Tissue.xbglobal(1,ii) << ", ";
+    files[0] << Tissue.fbglobal(0,ii) << ", ";
+    files[0] << Tissue.fbglobal(1,ii) << endl;
   }
   files[1] << Tissue.Nb << endl;
   files[2] << t << " " << Tissue.Cells[0].CalculateVolume() << endl;
   for (int ii=0;ii<Tissue.Ng+1;ii++){
-    files[3] << Tissue.vg.slice(0).row(ii);
-    files[4] << Tissue.vg.slice(1).row(ii);
+    files[3] << Tissue.fg.slice(0).row(ii);
+    files[4] << Tissue.fg.slice(1).row(ii);
   }
   files[0].flush();
   files[1].flush();
