@@ -32,9 +32,8 @@ void GridToBound(tissue& Tissue){
   int y2 = 0;
   for (int n3=0; n3<Tissue.Nb; n3++){
     // moves points into the domain
-    xbb0=Tissue.xbglobal(0,n3);//IntoDom(Tissue.xbglobal(0,n3),Tissue.xmin,Tissue.xmax);
-    xbb1=Tissue.xbglobal(1,n3);//IntoDom(Tissue.xbglobal(1,n3),Tissue.xmin,Tissue.xmax);
-
+    xbb0=Tissue.xbglobal(0,n3);                                                   //IntoDom(Tissue.xbglobal(0,n3),Tissue.xmin,Tissue.xmax);
+    xbb1=Tissue.xbglobal(1,n3);                                                   //IntoDom(Tissue.xbglobal(1,n3),Tissue.xmin,Tissue.xmax);
     Nx=floor((xbb0-Tissue.xmin)/Tissue.hg); // Indices of grid points containing boundary point n3
     Ny=floor((xbb1-Tissue.xmin)/Tissue.hg); // Indices of grid points containing boundary point n3
     // test all 16 neighboring points
@@ -53,9 +52,7 @@ void GridToBound(tissue& Tissue){
         // update the values if inside the impact domain
         if (dx*dy > 0){
           Tissue.ubglobal(0,n3)=Tissue.ubglobal(0,n3)+Tissue.vg(x1,y1,0)*dx*dy*Tissue.hg*Tissue.hg;
-          Tissue.ubglobal(1,n3)=Tissue.ubglobal(1,n3)+Tissue.vg(x1,y1,1)*dx*dy*Tissue.hg*Tissue.hg;
-          //Tissue.ubglobal(0,n3)=Tissue.vg(x1,y1,0)*dx*dy*Tissue.hg*Tissue.hg;
-          //Tissue.ubglobal(1,n3)=Tissue.vg(x1,y1,1)*dx*dy*Tissue.hg*Tissue.hg;
+          Tissue.ubglobal(1,n3)=Tissue.ubglobal(1,n3)+Tissue.vg(x1,y1,1)*dx*dy*Tissue.hg*Tissue.hg;          
         }
       } // for jj
     } // for ii

@@ -33,7 +33,7 @@ void MatrixAdhesion(cell& Cell){
   vec A = vec(2,fill::zeros);
   vec B = vec(2,fill::zeros);
   vec F = vec(2,fill::zeros);
-  float FdotR,magA,magB,magF,theta,phi,zeta,gamma;
+  float FdotR,theta,phi,gamma;
 
   for (int ii=0; ii<Cell.Nb; ii++){
     // Locally store references to element under consideration and its neighbours by evaluating pointers in Tissue.Elements array
@@ -44,45 +44,17 @@ void MatrixAdhesion(cell& Cell){
     R = elementii.pos-Cell.com;
     A = elementii.pos-n0.pos;
     B = elementii.pos-n1.pos;
-    magA = sqrt(dot(A,A));
-    magB = sqrt(dot(B,B));
     // Force is colinear with the sum of unit vectors from neighbours to element.
-//    cout << "elementii.pos " << elementii.pos(0) << elementii.pos(1) << endl;
-//    cout << "n0.pos " << n0.pos(0) << n0.pos(1) << endl;
-//    cout << "n1.pos " << n1.pos(0) << n1.pos(1) << endl;
-//    cout << "Cell.com " << Cell.com(0) << Cell.com(1) << endl;
-//    cout << "A " << A(0) << " " << A(1) << endl;
-//    cout << "B " << B(0) << " " << B(1) << endl;
-//    cout << "R " << R(0) << " " << R(1) << endl;
-//    cout << "dot(A,B) " << dot(A,B) << endl;
-//    cout << "magA " << magA << endl;
-//    cout << "magB " << magB << endl;
-//    cout << "dot(A,B)/(magA*magB)" << dot(A,B)/(magA*magB) << endl;
-//    cout << "acos(dot(A,B)/(magA*magB)) " << SafeAcos(dot(A,B)/(magA*magB)) << endl;
-    theta = M_PI - 0.5*SafeAcos(dot(A,B)/(magA*magB));
+    theta = M_PI - 0.5*SafeAcos(dot(A,B)/(sqrt(dot(A,A))*sqrt(dot(B,B))));
     phi = safeatan2(B(0),B(1));
-    if (phi>=0 && phi<=M_PI){
-      zeta = phi-M_PI;
-    }else{
-      zeta = phi+M_PI;
-    }
-    gamma = theta+zeta;
-//    cout << "B(0)/magB" << B(0)/magB << endl;
-//    cout << "theta" << theta << endl;
-//    cout << "gamma" << gamma << endl;
+    gamma = theta+phi+M_PI;
     F(0) = sin(gamma);
     F(1) = cos(gamma);
-    magF = dot(F,F);
     FdotR = dot(F,R);
-//    cout << "F " << F(0) << " " << F(1) << endl;
-//    cout << "FdotR " << FdotR << endl;
-//    cout << "magF " << magF << endl;
-//    cout << "F*elementii.adhesionmagnitude/magF " << F(0)*elementii.adhesionmagnitude/magF << F(1)*elementii.adhesionmagnitude/magF << endl;
     if (FdotR<0){
-      elementii.fb += ((-1.0)*F*elementii.adhesionmagnitude/magF);
+      elementii.fb += ((-1.0)*F*elementii.adhesionmagnitude);
     }else{
-      elementii.fb += (F*elementii.adhesionmagnitude/magF);
+      elementii.fb += (F*elementii.adhesionmagnitude);
     }
-//    elementii.fb.print();
   }
 }

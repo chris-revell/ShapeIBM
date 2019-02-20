@@ -20,7 +20,6 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
   hg=mesh;
   e=0.75;
   // Loop over initial element angles to set cartesian coordinates of all boundary points. Add constant value to set initial cell position.
-
   for (int ii=0;ii<Nb;ii++){
     r = len/sqrt(1-pow(e*cos(ii*hb),2));
     //r=len;
@@ -51,32 +50,6 @@ void cell::AdjacentForces() {
   }
 }
 
-//--------------------------------------------------------------------//
-// define opposite forces between opposite boundary points            //
-// Again Hookean springs with spring constant tension and this time       //
-// equilibrium radius Lrest=2*len where len is the tyM_PIcal cell radius//
-//--------------------------------------------------------------------//
-//void cell::OppositeForces(){
-//  float Lrest;
-//  float dx1;
-//  float dy1;
-//  float r1;
-//  int Nb2;
-//
-//  Lrest=2*len;
-//  Nb2=floor(Nb/4);
-//  for (int ii=0; ii<Nb2; ii++){
-//    dx1=xb(0,3*Nb2-ii)-xb(0,ii);
-//    dy1=xb(1,3*Nb2-ii)-xb(1,ii);
-//    r1 = sqrt(pow(dx1,2)+pow(dy1,2));
-//    fb(0,ii)       = fb(0,ii)      +ctension*abs(r1-Lrest)*dx1/r1;
-//    fb(1,ii)       = fb(1,ii)      +ctension*abs(r1-Lrest)*dy1/r1;
-//    fb(0,3*Nb2-ii) = fb(0,3*Nb2-ii)-ctension*abs(r1-Lrest)*dx1/r1;
-//    fb(1,3*Nb2-ii) = fb(1,3*Nb2-ii)-ctension*abs(r1-Lrest)*dy1/r1;
-//  }
-//}// function OppositeForces
-//--------------------------------------------------------------------//
-
 // Function to update cell centre of mass from boundary positions
 void cell::UpdateCom(){
   float xsum=0;
@@ -104,33 +77,5 @@ float cell::CalculateVolume(){
   }
   return volume;
 }
-
-//void cell::MatrixAdhesions(){
-//  int xindex,yindex,elementLabel;
-//  float dx,dy,dr;
-//  float adhesionmagnitude=0.1;
-//
-//  vec R = vec(2,fill::zeros);
-//  vec A = vec(2,fill::zeros);
-//  vec B = vec(2,fill::zeros);
-//
-//  for (int ii=0; ii<Nb; ii++){
-//    n1
-//    R = Elements(ii).pos.col(ii)-com;
-//    if (ii==0){
-//      A = Elements(ii).pos.col(0)-Elements(ii).pos.col(Nb-1);
-//      B = Elements(ii).pos.col(1)-Elements(ii).pos.col(0);
-//    }elseif (ii==Nb-1){
-//      A = Elements(ii).pos.col(Nb-1)-Elements(ii).pos.col(Nb-2);
-//      B = Elements(ii).pos.col(0)-Elements(ii).pos.col(Nb-1);
-//    }else{
-//      A = Elements(ii).pos.col(ii)-Elements(ii).pos.col(ii-1);
-//      B = Elements(ii).pos.col(ii+1)-Elements(ii).pos.col(ii);
-//    }
-//
-//
-//  }
-//
-//}
 
 cell::~cell() {}

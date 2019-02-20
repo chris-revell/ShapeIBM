@@ -29,8 +29,8 @@ void BoundToGrid1(tissue& Tissue){
 
   for (int n3=0;n3<Tissue.Nbs;n3++){
     // Move points into the domain. xbb0 and xbb1 are the coordinates of the point in the square domain.
-    xbb0=Tissue.sb(0,n3);//IntoDom(Tissue.sb(0,n3),Tissue.xmin,Tissue.xmax);
-    xbb1=Tissue.sb(1,n3);//IntoDom(Tissue.sb(1,n3),Tissue.xmin,Tissue.xmax);
+    xbb0=Tissue.sb(0,n3);                                                 //IntoDom(Tissue.sb(0,n3),Tissue.xmin,Tissue.xmax);
+    xbb1=Tissue.sb(1,n3);                                                 //IntoDom(Tissue.sb(1,n3),Tissue.xmin,Tissue.xmax);
     // determine indices of the nearest lower-down grid point
     Nx=floor((xbb0-Tissue.xmin)/Tissue.hg);
     Ny=floor((xbb1-Tissue.xmin)/Tissue.hg);

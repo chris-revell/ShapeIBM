@@ -18,7 +18,7 @@ public:
     element(const float& v0, const float& v1, const int& cell, const int& Totalb,const float& initialx, const float& initialy, const int& n1, const int& n2);
     arma::vec pos = arma::vec(2,arma::fill::zeros);              // Element position
     arma::vec fb  = arma::vec(2,arma::fill::zeros);              // Forces on element
-    arma::vec ub  = arma::vec(2,arma::fill::zeros);              // Previous velocity of element
+    arma::vec ub  = arma::vec(2,arma::fill::zeros);              // Velocity of element
     int label;                  // Global element label in xbglobal and fbglobal arrays
     int parent;                 // Label of cell to which element belongs
     float adhesionmagnitude;    // Adhesion magnitude of element

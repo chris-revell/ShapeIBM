@@ -36,7 +36,7 @@ float len         = 2;    // Initial cell radius in micrometres
 int   Numcells    = 1;    // Number of cells
 float dt          = 1;   // Time step in seconds
 float t           = 0;    // Run time in seconds
-float t_max       = 400;  // Max run time in seconds
+float t_max       = 100;  // Max run time in seconds
 float t_output    = 10.0;  // Output interval in seconds
 float tension     = 0;  // Cell cortical tension
 int   nloop       = 0;    // Just counts how many time steps there have been so far
@@ -81,7 +81,6 @@ int main() {
     }
     LocalToGlobal(Tissue);
 
-    //Tissue.ubglobal.zeros();
     //-- grid sources --//
     BoundToGrid1(Tissue);
     //-- grid forces --//

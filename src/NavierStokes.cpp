@@ -35,18 +35,7 @@ void NavierStokes(tissue& Tissue){
   cube fvg1       = cube(Tissue.Ng,Tissue.Ng,2,fill::zeros);
   cx_mat vg0      = cx_mat(Tissue.Ng,Tissue.Ng,fill::zeros);
   cx_mat vg1      = cx_mat(Tissue.Ng,Tissue.Ng,fill::zeros);
-  //mat  stoch_xb;          // Array containing stochastic update values for element positions
-  //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count(); // Variables implementing normal distribution for stochastic dissipation
-  //default_random_engine generator(seed);         // Variables implementing normal distribution for stochastic dissipation
-  //normal_distribution<double> distribution;// Variables implementing normal distribution for stochastic dissipation
 
-  //arma_rng::set_seed_random();
-  //stoch_xb = mat(Tissue.Ng,Tissue.Ng,fill::zeros);
-  //distribution = normal_distribution<double>(0.0,1.0);
-
-
-  // stage n terms: force density Tissue.fg, source distribution Tissue.sg and current
-  // velocity Tissue.ug
   for (int n1=0; n1<Tissue.Ng+1; n1++){
     for (int n2=0; n2<Tissue.Ng+1; n2++){
       for (int ik=0; ik<2; ik++){
@@ -142,4 +131,4 @@ void NavierStokes(tissue& Tissue){
     Tissue.vg(Tissue.Ng,ii,1)=Tissue.vg(0,ii,1);
     Tissue.vg(ii,Tissue.Ng,1)=Tissue.vg(ii,0,1);
   }
-} 
+}
