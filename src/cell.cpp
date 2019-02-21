@@ -29,27 +29,6 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
   com(1) = initialy;
 }
 
-// Function to calculate forces between neighbouring boundary elements within a cell.
-void cell::AdjacentForces() {
-  float dx1,dy1,dx2,dy2,r1,r2;
-  for (int ii=0;ii<Nb;ii++){
-    // Access the labels of the neighbours for element ii and extract the corresponding element positions.
-    // Use these to find the separation of ii from its neighbours in the x and y directions.
-    dx1 = Elements[Elements[ii].neighbours[0]].pos(0)-Elements[ii].pos(0);
-    dy1 = Elements[Elements[ii].neighbours[0]].pos(1)-Elements[ii].pos(1);
-    dx2 = Elements[Elements[ii].neighbours[1]].pos(0)-Elements[ii].pos(0);
-    dy2 = Elements[Elements[ii].neighbours[1]].pos(1)-Elements[ii].pos(1);
-    // Find separation distances from x and y values.
-    r1=sqrt(pow(dx1,2)+pow(dy1,2));
-    r2=sqrt(pow(dx2,2)+pow(dy2,2));
-    // Calculate forces on element ii from
-    //Elements[ii].fb(0) = ctension*((r1-hb)*dx1/r1+(r2-hb)*dx2/r2);
-    //Elements[ii].fb(1) = ctension*((r1-hb)*dy1/r1+(r2-hb)*dy2/r2);
-    Elements[ii].fb(0) = ctension*(dx1/r1+dx2/r2);
-    Elements[ii].fb(1) = ctension*(dy1/r1+dy2/r2);
-  }
-}
-
 // Function to update cell centre of mass from boundary positions
 void cell::UpdateCom(){
   float xsum=0;
