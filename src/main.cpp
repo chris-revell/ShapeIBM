@@ -48,29 +48,20 @@ vector<ofstream> files;   // Set of output files
 
 
 int main() {
-
   //ReadParams(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,t_max,tension);
   exitval = system("rm output/grid*txt; rm output/fluid*txt;rm output/nbounds.txt;rm output/boundarypositions.txt;rm output/volume.txt;");//rm output/montageanimated.gif;");
-
+  // Create whole tissue system
   tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu,dt);
-
+  // Add cell objects to tissue system
   for (int ii=0;ii<Numcells;ii++){
     Tissue.AddCell(len,0,0,tension);
   }
-
+  // Set up data output files
   OpenCloseFiles(files,realtimeplot);
-
-  // Write grid positions to file
-  for (int ii=0;ii<Numg+1;ii++){
-    files[5] << Tissue.xg.slice(0).row(ii);
-    files[6] << Tissue.xg.slice(1).row(ii);
-  }
-
+  // Iterate system over time
   while (t<t_max) {
-
     //Tissue.BoundaryRefinement();
     Tissue.UpdateSources();
-    //-- boundary forces --//
     //-- Tension --
     for (int ii=0;ii<Tissue.Nc;ii++){
       AdjacentForces(Tissue.Cells[ii]);
@@ -80,34 +71,30 @@ int main() {
       MatrixAdhesion(Tissue.Cells[ii]);
     }
     LocalToGlobal(Tissue);
-    //-- grid sources --//
+    //-- grid sources
     BoundToGrid1(Tissue);
-    //-- grid forces --//
+    //-- grid forces
     BoundToGrid2(Tissue);
-    //-- compute grid velocity from NavierStokes --//
+    //-- compute grid velocity from NavierStokes
     NavierStokes(Tissue);
-    Tissue.ug = Tissue.vg;
-    //-- boundary velocities --//
+    //-- boundary velocities
     GridToBound(Tissue);
-    //-- new position of boundary points --//
+    //-- new position of boundary points
     Tissue.UpdatePositions();
+    //-- Update cell centres of mass
     for (int ii=0;ii<Tissue.Nc;ii++){
       Tissue.Cells[ii].UpdateCom();
     }
     GlobalToLocal(Tissue);
-
+    // Write data to file
     if (fmod(t,t_output)<Tissue.dt){
-      // Write data to file //
       OutputData(files,t,Tissue,nloop,realtimeplot);
+      printf("%f/%f\n",t,t_max);
     }
-
-    printf("%f/%f\n",t,t_max);
-
+    // Increment time
     t = t+Tissue.dt;
-
-  }   // for loop_num
-
+  }
+  // Close data files
   OpenCloseFiles(files,realtimeplot);
-
   return 0;
 }

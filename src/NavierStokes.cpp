@@ -131,4 +131,5 @@ void NavierStokes(tissue& Tissue){
     Tissue.vg(Tissue.Ng,ii,1)=Tissue.vg(0,ii,1);
     Tissue.vg(ii,Tissue.Ng,1)=Tissue.vg(ii,0,1);
   }
+  Tissue.ug = Tissue.vg;
 }

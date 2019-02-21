@@ -20,7 +20,7 @@ element::element(const float& v0, const float& v1,const int& cell, const int& To
   ub(1)             = v1;
   label             = Totalb;
   parent            = cell;
-  adhesionmagnitude = 0.1;
+  adhesionmagnitude = 1;
   neighbours.push_back(n1);
   neighbours.push_back(n2);
 }

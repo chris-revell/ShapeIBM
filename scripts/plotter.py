@@ -38,6 +38,7 @@ for i in range(np.shape(nbounds)[0]):
     ax.axis('equal')
     if colourflag==3:
         ax.quiver(data[drawn:drawn+nbounds[i]:arraystep,0],data[drawn:drawn+nbounds[i]:arraystep,1],data[drawn:drawn+nbounds[i]:arraystep,2],data[drawn:drawn+nbounds[i]:arraystep,3],width=0.001)
+        ax.plot(np.append(data[drawn:drawn+nbounds[i],0],data[drawn,0]),np.append(data[drawn:drawn+nbounds[i],1],data[drawn,1]))
     else:
         ax.plot(np.append(data[drawn:drawn+nbounds[i],0],data[drawn,0]),np.append(data[drawn:drawn+nbounds[i],1],data[drawn,1]))
     fig.savefig("output/velocitytest{:04d}.png".format(i),bbox_inches='tight',padding_inches=0,dpi=200)
