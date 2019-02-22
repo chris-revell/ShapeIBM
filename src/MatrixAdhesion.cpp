@@ -37,7 +37,7 @@ void MatrixAdhesion(cell& Cell){
 
   for (int ii=0; ii<Cell.Nb; ii++){
     // Locally store references to element under consideration and its neighbours by evaluating pointers in Tissue.Elements array
-    element& elementii = Cell.Elements[ii];
+    element& elementii = Cell.Elements[Cell.ElementLabels[ii]];
     //element& n0        = Cell.Elements[Cell.Elements[ii].neighbours[0]];
     //element& n1        = Cell.Elements[Cell.Elements[ii].neighbours[1]];
     // Find vectors from cell centre of mass to element and from neighbours to element.
