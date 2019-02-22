@@ -17,6 +17,6 @@
 #include <tissue.hpp>
 #include "tissue.hpp"
 
-void OutputData(std::vector<std::ofstream>& files,float& t,tissue& Tissue,int& nloop,int& realtimeplot,tissue& Tissue);
+void OutputData(std::vector<std::ofstream>& files,float& t,tissue& Tissue,int& nloop,int& realtimeplot);
 
 #endif

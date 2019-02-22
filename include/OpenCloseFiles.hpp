@@ -14,8 +14,9 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include "tissue.hpp"
 
-void OpenCloseFiles(std::vector<std::ofstream>& files,int& realtimeplot);
+void OpenCloseFiles(std::vector<std::ofstream>& files,const int& realtimeplot,const tissue& Tissue);
 
 
 #endif

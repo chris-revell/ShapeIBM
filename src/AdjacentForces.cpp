@@ -17,21 +17,23 @@ using namespace arma;
 
 // Function to calculate forces between neighbouring boundary elements within a cell.
 void AdjacentForces(cell& Cell) {
-  float dx1,dy1,dx2,dy2,r1,r2;
+  float r0,r1;
+  vec d0 = vec(2,fill::zeros);
+  vec d1 = vec(2,fill::zeros);
+  vector<element>& Elements  = Cell.Elements;
+  vector<int>& ElementLabels = Cell.ElementLabels;
   for (int ii=0;ii<Cell.Nb;ii++){
+    element& elementii = Elements[ElementLabels[ii]];
+    element& n0 = Elements[elementii.neighbours[0]];
+    element& n1 = Elements[elementii.neighbours[1]];
     // Access the labels of the neighbours for element ii and extract the corresponding element positions.
     // Use these to find the separation of ii from its neighbours in the x and y directions.
-    dx1 = Cell.Elements[Cell.Elements[ii].neighbours[0]].pos(0)-Cell.Elements[ii].pos(0);
-    dy1 = Cell.Elements[Cell.Elements[ii].neighbours[0]].pos(1)-Cell.Elements[ii].pos(1);
-    dx2 = Cell.Elements[Cell.Elements[ii].neighbours[1]].pos(0)-Cell.Elements[ii].pos(0);
-    dy2 = Cell.Elements[Cell.Elements[ii].neighbours[1]].pos(1)-Cell.Elements[ii].pos(1);
+    d0 = n0.pos-elementii.pos;
+    d1 = n1.pos-elementii.pos;
     // Find separation distances from x and y values.
-    r1=sqrt(pow(dx1,2)+pow(dy1,2));
-    r2=sqrt(pow(dx2,2)+pow(dy2,2));
+    r0=sqrt(dot(d0,d0));
+    r1=sqrt(dot(d1,d1));
     // Calculate forces on element ii from
-    //Elements[ii].fb(0) = ctension*((r1-hb)*dx1/r1+(r2-hb)*dx2/r2);
-    //Elements[ii].fb(1) = ctension*((r1-hb)*dy1/r1+(r2-hb)*dy2/r2);
-    Cell.Elements[ii].fb(0) = Cell.ctension*(dx1/r1+dx2/r2);
-    Cell.Elements[ii].fb(1) = Cell.ctension*(dy1/r1+dy2/r2);
+    elementii.fb = Cell.ctension*(d0/r0+d1/r1);
   }
 }

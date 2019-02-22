@@ -10,7 +10,7 @@
 #include <armadillo>
 #include <vector>
 #include "cell.hpp"
-#include <random>
+//#include <random>
 #include <element.hpp>
 
 using namespace arma;
@@ -77,8 +77,8 @@ void tissue::UpdateSources(){
   }
 }
 
-void tissue::AddCell(const float& len, const float& initialx, const float& initialy,float& tension){
-  Cells.push_back(cell(Nc,Nb,Nbcell,len,initialx,initialy,hg,tension));
+void tissue::AddCell(const float& len, const float& initialx, const float& initialy,const float& tension,const float& adhesion){
+  Cells.push_back(cell(Nc,Nb,Nbcell,len,initialx,initialy,hg,tension,adhesion));
   Nc++;
   Nb=Nb+Nbcell;
   Nbs++;

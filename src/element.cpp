@@ -13,14 +13,14 @@
 using namespace std;
 using namespace arma;
 
-element::element(const float& v0, const float& v1,const int& cell, const int& Totalb, const float& initialx, const float& initialy,const int& n1,const int& n2)  {
+element::element(const int& cell, const int& Label, const float& initialx, const float& initialy,const int& n1,const int& n2,const float& adhesion)  {
   pos(0)            =initialx;
   pos(1)            =initialy;
-  ub(0)             = v0;
-  ub(1)             = v1;
-  label             = Totalb;
+  //ub(0)             = v0;
+  //ub(1)             = v1;
+  label             = Label;
   parent            = cell;
-  adhesionmagnitude = 1;
+  adhesionmagnitude = adhesion;
   neighbours.push_back(n1);
   neighbours.push_back(n2);
 }

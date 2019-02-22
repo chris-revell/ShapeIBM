@@ -12,11 +12,11 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#inclus "tissue.hpp"
+#include "tissue.hpp"
 
 using namespace std;
 
-void OpenCloseFiles(vector<ofstream>& files,int& realtimeplot,tissue& Tissue){
+void OpenCloseFiles(vector<ofstream>& files,const int& realtimeplot,const tissue& Tissue){
   int   exitval;          // Dummy variable for system calls
   vector<string> names;// = {"boundarypositions.txt","nbounds.txt","volume.txt","fluidvelocities0.txt","fluidvelocities1.txt","gridpositions0.txt","gridpositions1.txt"};
 
@@ -42,7 +42,7 @@ void OpenCloseFiles(vector<ofstream>& files,int& realtimeplot,tissue& Tissue){
       files[ii].open("output/"+names[ii],ofstream::out);
     }
     // Write grid positions to file
-    for (int ii=0;ii<Numg+1;ii++){
+    for (int ii=0;ii<Tissue.Ng+1;ii++){
       files[5] << Tissue.xg.slice(0).row(ii);
       files[6] << Tissue.xg.slice(1).row(ii);
     }

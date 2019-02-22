@@ -54,10 +54,10 @@ int main() {
   tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu,dt);
   // Add cell objects to tissue system
   for (int ii=0;ii<Numcells;ii++){
-    Tissue.AddCell(len,0,0,tension);
+    Tissue.AddCell(len,0,0,tension,adhesion);
   }
   // Set up data output files
-  OpenCloseFiles(files,realtimeplot);
+  OpenCloseFiles(files,realtimeplot,Tissue);
   // Iterate system over time
   while (t<t_max) {
     //Tissue.BoundaryRefinement();
@@ -95,6 +95,6 @@ int main() {
     t = t+Tissue.dt;
   }
   // Close data files
-  OpenCloseFiles(files,realtimeplot);
+  OpenCloseFiles(files,realtimeplot,Tissue);
   return 0;
 }
