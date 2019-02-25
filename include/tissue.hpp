@@ -20,7 +20,7 @@ class tissue {
 private:
 
 public:
-    tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength, const float& density, const float& viscocity,const float& timestep); // Constructor
+    tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength, const float& density, const float& viscocity,const float& timestep,const float& cen); // Constructor
     void AddCell(const float& len, const float& initialx, const float& initialy,const float& tension, const float& adhesion); // Function to add a cell object to the tissue
     void UpdateSources(void);
     void BoundaryRefinement(void);

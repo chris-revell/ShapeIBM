@@ -16,7 +16,7 @@
 using namespace arma;
 using namespace std;
 
-tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength,const float& density,const float& viscosity,const float& timestep){
+tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength,const float& density,const float& viscosity,const float& timestep,const float& cen){
   Ng       = GridSize;
   Nbcell   = boundarypoints;
   Nb       = 0;
@@ -25,7 +25,7 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   rho      = density;
   mu       = viscosity;
   xg       = cube(Ng+1,Ng+1,2,fill::zeros);
-//xNb      = cube(Ng+1,Ng+1,Nbcell,fill::zeros);
+  xNb      = cube(Ng+1,Ng+1,Nbcell,fill::zeros);
   sg       = mat(Ng+1,Ng+1,fill::zeros);
   fg       = cube(Ng+1,Ng+1,2,fill::zeros);
   vg       = cube(Ng+1,Ng+1,2,fill::zeros);
@@ -36,8 +36,8 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   indices  = mat(2,0,fill::zeros);
   Nc       = 0;
   Nbs      = 4;
-  xmin     =-static_cast<float>(dimensions);
-  xmax     =static_cast<float>(dimensions);
+  xmin     =cen-static_cast<float>(dimensions);
+  xmax     =cen+static_cast<float>(dimensions);
   sb       = mat(2,Nbs,fill::zeros);
   sbb      = mat(2,Nbs,fill::zeros);
   sb(0,0)  = 0.0; // One sink point at the centre of each fluid grid edge

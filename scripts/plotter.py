@@ -33,8 +33,8 @@ for i in range(np.shape(nbounds)[0]):
         ax.quiver(grid0[::arraystep,::arraystep],grid1[::arraystep,::arraystep],np.zeros(np.shape(grid0[::arraystep,::arraystep])),np.zeros(np.shape(grid0[::arraystep,::arraystep])),pivot='mid')
     ax.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
     ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-    ax.set_xlim([-5,5])
-    ax.set_ylim([-5,5])
+    ax.set_xlim([5,15])
+    ax.set_ylim([5,15])
     ax.axis('equal')
     if colourflag==3:
         ax.quiver(data[drawn:drawn+nbounds[i]:arraystep,0],data[drawn:drawn+nbounds[i]:arraystep,1],data[drawn:drawn+nbounds[i]:arraystep,2],data[drawn:drawn+nbounds[i]:arraystep,3],width=0.001)

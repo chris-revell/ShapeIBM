@@ -17,6 +17,7 @@ public:
   void AdjacentForces(void);
   void OppositeForces(void);
   void UpdateCom(void);
+  void NormaliseAdhesion(void);
   std::vector<element> Elements; // Vector containing all element objects within this cell object. *Includes deleted elements*
   std::vector<int> ElementLabels;// Vector containing all element objects *that currently exist*
   arma::vec com;                 // Cell centre of mass

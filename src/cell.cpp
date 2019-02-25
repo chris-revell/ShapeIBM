@@ -25,7 +25,7 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
   for (int ii=0;ii<Nb;ii++){
     r = len/sqrt(1-pow(e*cos(ii*hb),2));
     //r=len;
-    Elements.push_back(element(label,ii,r*cos(ii*hb)+initialx,r*sin(ii*hb)+initialy,((ii-1)%Nb+Nb)%Nb,((ii+1)%Nb+Nb)%Nb,adhesion));
+    Elements.push_back(element(label,ii,r*cos(ii*hb+M_PI)+initialx,r*sin(ii*hb+M_PI)+initialy,((ii-1)%Nb+Nb)%Nb,((ii+1)%Nb+Nb)%Nb,adhesion));
     ElementLabels.push_back(ii);
   }
   com(0) = initialx;
@@ -55,6 +55,19 @@ float cell::CalculateVolume(){
     volume = volume + 0.5*dot(r3,r3);
   }
   return volume;
+}
+
+void cell::NormaliseAdhesion(void){
+  for (int ii=0;ii<Nb;ii++){
+    element& elementii = Elements[ElementLabels[ii]];
+    element& n0 = Elements[elementii.neighbours[0]];
+    element& n1 = Elements[elementii.neighbours[1]];
+    vec d0 = elementii.pos-n0.pos;
+    vec d1 = elementii.pos-n1.pos;
+    float r0 = sqrt(dot(d0,d0));
+    float r1 = sqrt(dot(d1,d1));
+    elementii.normalisationfactor = (r0+r1)/2.0;
+  }
 }
 
 cell::~cell() {}
