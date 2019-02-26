@@ -16,52 +16,27 @@
 using namespace std;
 using namespace arma;
 
-double SafeAcos (double x){
-  if (x < -1.0) x = -1.0 ;
-  else if (x > 1.0) x = 1.0 ;
-  return acos (x) ;
-  }
-double safeatan2 (double x,double y){
-  if (x < -1.0) x = -1.0 ;
-  else if (x > 1.0) x = 1.0 ;
-  return atan2 (x,y) ;
-  }
+void MatrixAdhesion(tissue& Tissue){
 
-void MatrixAdhesion(cell& Cell){
+  int xindex,yindex;
+  float dr,Fmag;
+  vec dvec = vec(2,fill::zeros);
 
-  vec R = vec(2,fill::zeros);
-  //vec A = vec(2,fill::zeros);
-  //vec B = vec(2,fill::zeros);
-  vec F = vec(2,fill::zeros);
-  float magF,FdotR;//,theta,phi,gamma;
-
-  Cell.NormaliseAdhesion();
-
-  for (int ii=0; ii<Cell.Nb; ii++){
-    // Locally store references to element under consideration and its neighbours by evaluating pointers in Tissue.Elements array
-    element& elementii = Cell.Elements[Cell.ElementLabels[ii]];
-    elementii.SetAdhesion();
-    R = elementii.pos-Cell.com;
-    F = -elementii.fb;
-    magF = sqrt(dot(F,F));
-    FdotR = dot(F,R);
-    if (magF>elementii.adhesionmagnitude){
-      //F = F*elementii.adhesionmagnitude/magF;
-      F(0) = 0;
-      F(1) = 0;
-    }//else if (FdotR<0){
-      //F(0) = 0;
-      //F(1) = 0;
-    //}
-    //cout << "normalisationfactor " << elementii.normalisationfactor << endl;
-    //cout << "F " << endl;
-    //F.print();
-    //cout << "F*normalisationfactor " << endl;
-    //(F*elementii.normalisationfactor).print();
-    //cout << "elementii.fb 0" << endl;
-    //elementii.fb.print();
-    elementii.fb = elementii.fb + F;//*elementii.normalisationfactor;
-    //cout << "elementii.fb 1" << endl;
-    //elementii.fb.print();
+  for (int jj=0;jj<Tissue.Nc;jj++){
+    cell& Cell = Tissue.Cells[jj];
+    Cell.NormaliseAdhesion();
+    for (int ii=0; ii<Cell.Nb; ii++){
+      element& elementii = Cell.Elements[Cell.ElementLabels[ii]];
+      elementii.SetAdhesion();
+      xindex = floor((elementii.pos(0)-Tissue.xmin)/Tissue.hg);
+      yindex = floor((elementii.pos(1)-Tissue.xmin)/Tissue.hg);
+      dvec = vec(Tissue.xg(span(xindex),span(yindex),span::all))-elementii.pos;
+      dr = sqrt(dot(dvec,dvec));
+      //if (dr<Tissue.hg){
+        Fmag = elementii.adhesionmagnitude/dr;//*dr/Tissue.hg;
+        elementii.fb = elementii.fb + Fmag*dvec;
+      //}else{
+      //}
+    }
   }
 }

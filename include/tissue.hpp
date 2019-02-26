@@ -26,7 +26,6 @@ public:
     void BoundaryRefinement(void);
     void UpdatePositions(void);
     arma::cube xg;                // Fluid grid
-//    arma::cube xNb;               // Number of boundary elements within each fluid grid component
     arma::mat  sg;                // Grid source distribution
     arma::cube fg;                // Fluid forces
     arma::cube vg;                // Fluid velocities

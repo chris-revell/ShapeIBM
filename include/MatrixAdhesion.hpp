@@ -16,9 +16,7 @@
 #include "element.hpp"
 #include <cmath>
 
-double SafeAcos (double x);
-double safeatan2 (double x,double y);
-void MatrixAdhesion(cell& Cell);
+void MatrixAdhesion(tissue& Tissue);
 
 
 #endif /* MatrixAdhesion_hpp */

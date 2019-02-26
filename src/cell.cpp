@@ -24,7 +24,6 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
   // Loop over initial element angles to set cartesian coordinates of all boundary points. Add constant value to set initial cell position.
   for (int ii=0;ii<Nb;ii++){
     r = len/sqrt(1-pow(e*cos(ii*hb),2));
-    //r=len;
     Elements.push_back(element(label,ii,r*cos(ii*hb+M_PI)+initialx,r*sin(ii*hb+M_PI)+initialy,((ii-1)%Nb+Nb)%Nb,((ii+1)%Nb+Nb)%Nb,adhesion));
     ElementLabels.push_back(ii);
   }
@@ -47,10 +46,12 @@ float cell::CalculateVolume(){
   vec r3 = vec(3,fill::zeros);
   float volume = 0;
   for(int ii=0;ii<Nb;ii++){
-    r1(0) = Elements[ElementLabels[ii]].pos(0)-com(0);
-    r1(1) = Elements[ElementLabels[ii]].pos(1)-com(1);
-    r2(0) = Elements[ElementLabels[(ii+1)%Nb]].pos(0)-com(0);
-    r2(1) = Elements[ElementLabels[(ii+1)%Nb]].pos(1)-com(1);
+    //r1(0) = Elements[ElementLabels[ii]].pos(0)-com(0);
+    //r1(1) = Elements[ElementLabels[ii]].pos(1)-com(1);
+    r1 = Elements[ElementLabels[ii]].pos-com;
+    //r2(0) = Elements[ElementLabels[(ii+1)%Nb]].pos(0)-com(0);
+    //r2(1) = Elements[ElementLabels[(ii+1)%Nb]].pos(1)-com(1);
+    r2 = Elements[ElementLabels[(ii+1)%Nb]].pos-com;
     r3 = cross(r1,r2);
     volume = volume + 0.5*dot(r3,r3);
   }

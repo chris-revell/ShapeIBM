@@ -25,7 +25,6 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   rho      = density;
   mu       = viscosity;
   xg       = cube(Ng+1,Ng+1,2,fill::zeros);
-  xNb      = cube(Ng+1,Ng+1,Nbcell,fill::zeros);
   sg       = mat(Ng+1,Ng+1,fill::zeros);
   fg       = cube(Ng+1,Ng+1,2,fill::zeros);
   vg       = cube(Ng+1,Ng+1,2,fill::zeros);
