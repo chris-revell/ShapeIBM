@@ -19,11 +19,11 @@ data = np.genfromtxt("output/boundarypositions.txt",delimiter=", ",skip_header=(
 
 fig,ax=plt.subplots()
 
-grad1D = np.linspace(1,0,Numg+1)
-grad2D = np.zeros((Numg+1,Numg+1))
-for j in range(Numg+1):
+grad1D = np.linspace(1,0,Numg)
+grad2D = np.zeros((Numg,Numg))
+for j in range(Numg):
     grad2D[:,j] = grad1D
-ax.contourf(grid0,grid1,grad2D,cmap='inferno',levels=Numg+1)
+ax.contourf(grid0,grid1,grad2D,cmap='inferno',levels=Numg)
 
 if colourflag==1:
     M3 = np.sqrt(np.power(data0,2)+np.power(data1,2))
@@ -38,6 +38,6 @@ ax.set_xlim([-5,5])
 ax.set_ylim([-5,5])
 ax.axis('equal')
 ax.plot(np.append(data[:,0],data[0,0]),np.append(data[:,1],data[0,1]))
-fig.savefig("output/{:04d}.png".format(nplot),bbox_inches='tight',padding_inches=0,dpi=200)
+fig.savefig("output/plot{:04d}.png".format(nplot),bbox_inches='tight',padding_inches=0,dpi=200)
 
-os.system("convert output/{:04d}.png -shave 268x143 output/{:04d}.png".format(nplot,nplot))
+os.system("convert output/plot{:04d}.png -shave 268x143 output/plot{:04d}.png".format(nplot,nplot))

@@ -26,8 +26,8 @@ using namespace std;
 using namespace arma;
 
 // System parameters
-int   Numg        = 512;  // Fluid grid size
-int   Nb          = 512;   // Number of boundary points
+int   Numg        = 128;  // Fluid grid size
+int   Nb          = 128;   // Number of boundary points
 int   dims        = 10;   // Fluid grid dimensions
 float cen         = 10;    // Fluid centre point
 float Src         = 0.0;  // Source strength
@@ -37,10 +37,10 @@ float len         = 2;    // Initial cell radius in micrometres
 int   Numcells    = 1;    // Number of cells
 float dt          = 1;   // Time step in seconds
 float t           = 0;    // Run time in seconds
-float t_max       = 10000;  // Max run time in seconds
-float t_output    = 100.0;  // Output interval in seconds
+float t_max       = 20000;  // Max run time in seconds
+float t_output    = 500.0;  // Output interval in seconds
 float tension     = 1.0;    // Cell cortical tension
-float adhesion    = 1;
+float adhesion    = 0.5;
 int   nloop       = 0;    // Just counts how many time steps there have been so far
 int   realtimeplot= 1;    // Flag for real time plotting
 int   exitval;            // Dummy variable for system calls

@@ -34,7 +34,8 @@ void OpenCloseFiles(vector<ofstream>& files,const int& realtimeplot,const tissue
       files[ii].close();
     }
     if (realtimeplot==1){
-      exitval = system("convert -delay 10 -loop 0 output/velocitytest*.png output/velocityanimated.gif");
+      exitval = system("convert -delay 10 -loop 0 output/plot*.png output/velocityanimated.gif &");
+      exitval = system("python3 scripts/volumeplotter.py &");
     }
   }
   else{

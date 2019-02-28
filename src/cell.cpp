@@ -46,14 +46,16 @@ float cell::CalculateVolume(){
   vec r3 = vec(3,fill::zeros);
   float volume = 0;
   for(int ii=0;ii<Nb;ii++){
-    //r1(0) = Elements[ElementLabels[ii]].pos(0)-com(0);
-    //r1(1) = Elements[ElementLabels[ii]].pos(1)-com(1);
-    r1 = Elements[ElementLabels[ii]].pos-com;
-    //r2(0) = Elements[ElementLabels[(ii+1)%Nb]].pos(0)-com(0);
-    //r2(1) = Elements[ElementLabels[(ii+1)%Nb]].pos(1)-com(1);
-    r2 = Elements[ElementLabels[(ii+1)%Nb]].pos-com;
+    element& elementii = Elements[ElementLabels[ii]];
+    element& n1 = Elements[elementii.neighbours[1]];
+    r1(0) = elementii.pos(0)-com(0);
+    r1(1) = elementii.pos(1)-com(1);
+    //r1 = Elements[ElementLabels[ii]].pos-com;
+    r2(0) = n1.pos(0)-com(0);
+    r2(1) = n1.pos(1)-com(1);
+    //r2 = Elements[ElementLabels[(ii+1)%Nb]].pos-com;
     r3 = cross(r1,r2);
-    volume = volume + 0.5*dot(r3,r3);
+    volume = volume + 0.5*sqrt(dot(r3,r3));
   }
   return volume;
 }
