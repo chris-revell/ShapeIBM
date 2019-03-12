@@ -41,16 +41,17 @@ float t_max       = 20000;  // Max run time in seconds
 float t_output    = 500.0;  // Output interval in seconds
 float tension     = 1.0;    // Cell cortical tension
 float adhesion    = 0.5;
+float diffusionconstant = 0.03;
 int   nloop       = 0;    // Just counts how many time steps there have been so far
 int   realtimeplot= 1;    // Flag for real time plotting
-int   exitval;            // Dummy variable for system calls
+//int   exitval;            // Dummy variable for system calls
 char  buffer[50];         // Dummy string for system calls
 vector<ofstream> files;   // Set of output files
 
 
 int main() {
   //ReadParams(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,t_max,tension);
-  exitval = system("rm output/grid*txt; rm output/fluid*txt;rm output/nbounds.txt;rm output/boundarypositions.txt;rm output/volume.txt;");//rm output/montageanimated.gif;");
+  system("rm output/grid*txt; rm output/fluid*txt;rm output/nbounds.txt;rm output/boundarypositions.txt;rm output/volume.txt;");//rm output/montageanimated.gif;");
   // Create whole tissue system
   tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu,dt,cen);
   // Add cell objects to tissue system
@@ -64,9 +65,9 @@ int main() {
     //Tissue.BoundaryRefinement();
     Tissue.UpdateSources();
     //-- Tension --
-    Tissue.Cells[0].ctension = t*tension/t_max;
+    //Tissue.Cells[0].ctension = t*tension/t_max;
     for (int ii=0;ii<Tissue.Nc;ii++){
-      AdjacentForces(Tissue.Cells[ii]);
+      AdjacentForces(Tissue.Cells[ii],t,diffusionconstant);
     }
     //-- Adhesion
     MatrixAdhesion(Tissue);
@@ -90,7 +91,7 @@ int main() {
     GlobalToLocal(Tissue);
     // Write data to file
     if (fmod(t,t_output)<Tissue.dt){
-      OutputData(files,t,Tissue,nloop,realtimeplot);
+      OutputData(files,t,Tissue,nloop,realtimeplot,diffusionconstant);
       printf("%f/%f\n",t,t_max);
     }
     // Increment time
@@ -98,7 +99,7 @@ int main() {
   }
   // Write data to file
   if (fmod(t,t_output)<Tissue.dt){
-    OutputData(files,t,Tissue,nloop,realtimeplot);
+    OutputData(files,t,Tissue,nloop,realtimeplot,diffusionconstant);
     printf("%f/%f\n",t,t_max);
   }
   // Close data files

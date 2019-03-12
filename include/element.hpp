@@ -18,6 +18,7 @@ public:
     element(const int& cell, const int& Totalb,const float& initialx, const float& initialy, const int& n1, const int& n2,const float& adhesion);
     void SetAdhesion(void);
     arma::vec pos = arma::vec(2,arma::fill::zeros);              // Element position
+    arma::vec initialpos = arma::vec(2,arma::fill::zeros);       // Initial element position
     arma::vec fb  = arma::vec(2,arma::fill::zeros);              // Forces on element
     //arma::vec ub  = arma::vec(2,arma::fill::zeros);              // Velocity of element
     int label;                  // Global element label in xbglobal and fbglobal arrays

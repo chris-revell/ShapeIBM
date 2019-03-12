@@ -4,12 +4,15 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import os
 from sys import argv
+from math import sqrt
 
 nplot = int(argv[1])
 nbounds = int(argv[2])
 Numg=int(argv[3])+1
 colourflag=int(argv[4])
 arraystep=int(Numg/64)
+time = float(argv[5])
+diffusionconstant = float(argv[6])
 
 grid0 = np.genfromtxt("output/gridpositions0.txt")
 grid1 = np.genfromtxt("output/gridpositions1.txt")
@@ -19,7 +22,7 @@ data = np.genfromtxt("output/boundarypositions.txt",delimiter=", ",skip_header=(
 
 fig,ax=plt.subplots()
 
-grad1D = np.linspace(1,0,Numg)
+grad1D = np.linspace(0,0,Numg)
 grad2D = np.zeros((Numg,Numg))
 for j in range(Numg):
     grad2D[:,j] = grad1D
@@ -38,6 +41,8 @@ ax.set_xlim([-5,5])
 ax.set_ylim([-5,5])
 ax.axis('equal')
 ax.plot(np.append(data[:,0],data[0,0]),np.append(data[:,1],data[0,1]))
+diffusioncircle=plt.Circle((13,10),diffusionconstant*sqrt(time),color="black")
+ax.add_artist(diffusioncircle)
 fig.savefig("output/plot{:04d}.png".format(nplot),bbox_inches='tight',padding_inches=0,dpi=200)
 
 os.system("convert output/plot{:04d}.png -shave 268x143 output/plot{:04d}.png".format(nplot,nplot))

@@ -17,7 +17,7 @@
 using namespace std;
 
 void OpenCloseFiles(vector<ofstream>& files,const int& realtimeplot,const tissue& Tissue){
-  int   exitval;          // Dummy variable for system calls
+  //int   exitval;          // Dummy variable for system calls
   vector<string> names;// = {"boundarypositions.txt","nbounds.txt","volume.txt","fluidvelocities0.txt","fluidvelocities1.txt","gridpositions0.txt","gridpositions1.txt"};
 
   names.push_back("boundarypositions.txt");
@@ -34,8 +34,8 @@ void OpenCloseFiles(vector<ofstream>& files,const int& realtimeplot,const tissue
       files[ii].close();
     }
     if (realtimeplot==1){
-      exitval = system("convert -delay 10 -loop 0 output/plot*.png output/velocityanimated.gif &");
-      exitval = system("python3 scripts/volumeplotter.py &");
+      system("convert -delay 10 -loop 0 output/plot*.png output/plotanimated.gif &");
+      system("python3 scripts/volumeplotter.py &");
     }
   }
   else{

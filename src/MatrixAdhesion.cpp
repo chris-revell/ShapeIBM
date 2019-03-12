@@ -37,6 +37,10 @@ void MatrixAdhesion(tissue& Tissue){
         elementii.fb = elementii.fb + Fmag*dvec;
       //}else{
       //}
+      if (elementii.label==0){
+        dvec = elementii.initialpos-elementii.pos;
+        elementii.fb = elementii.fb + 100.0*dvec;
+      }
     }
   }
 }
