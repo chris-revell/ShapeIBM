@@ -1,9 +1,4 @@
-# Compile basicIBM with Intel c++ compiler
-
-#CC=icpc
-#CFlags=-c -Wall -std=c++11 -ggdb -O0
-#CLibs=-larmadillo
-#LDFLAGS=-ggdb -std=c++11 -O0 -Wall
+# Compile basicIBM with clang++ compiler
 
 CC := clang++
 SRCDIR := src

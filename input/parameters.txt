@@ -1,11 +1,16 @@
-256
-128
-10
-0
-0
-0.1
-100
-0.1
-1
-5
-0.2
+Numg              = 256
+Nb                = 256
+dims              = 10
+cen               = 10
+Src               = 0.0
+rho               = 1
+mu                = 10
+len               = 2
+Numcells          = 1
+dt                = 1.0
+t_max             = 80000
+t_output          = 500.0
+tension           = 1.0
+adhesion          = 0.5
+diffusionconstant = 0.03
+realtimeplot      = 1
