@@ -16,7 +16,7 @@
 
 using namespace std;
 
-void OutputData(vector<ofstream>& files,const float& t,tissue& Tissue,int& nloop,const int& realtimeplot,const float& diffusionconstant)  {
+void OutputData(vector<ofstream>& files,const float& t,tissue& Tissue,int& nloop,const int& realtimeplot)  {
   //int   exitval;          // Dummy variable for system calls
   char  buffer[75];       // Dummy string for system calls
   for (int ii=0;ii<Tissue.Nb;ii++){
@@ -38,7 +38,7 @@ void OutputData(vector<ofstream>& files,const float& t,tissue& Tissue,int& nloop
   files[4].flush();
   if (realtimeplot==1) {
     // Call plotter
-    sprintf(buffer,"python3 scripts/plottersingle.py %d %d %d %d %.4f %.4f &",nloop,Tissue.Nb,Tissue.Ng,2,t,diffusionconstant);
+    sprintf(buffer,"python3 scripts/plottersingle.py %d %d %d %d %.4f &",nloop,Tissue.Nb,Tissue.Ng,2,t);
     system(buffer);
     nloop = nloop+1;
   }

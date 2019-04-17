@@ -16,7 +16,7 @@
 #include "element.hpp"
 #include <cmath>
 
-void MatrixAdhesion(tissue& Tissue, const float& diffusionconstant, const float& time);
+void MatrixAdhesion(tissue& Tissue, const float& time);
 
 
 #endif /* MatrixAdhesion_hpp */

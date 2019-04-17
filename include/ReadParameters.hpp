@@ -16,6 +16,6 @@
 #include <vector>
 #include <string>
 
-void ReadParameters(int& Numg,int& Nb,float& dims,float& cen,float& Src,float& rho,float& mu,float& len,int& Numcells,float& dt,float& t_max,float& t_output,float& tension,float& adhesion,float& diffusionconstant,int& realtimeplot);
+void ReadParameters(int& Numg,int& Nb,float& dims,float& cen,float& Src,float& rho,float& mu,float& len,int& Numcells,float& dt,float& t_max,float& t_output,float& tension,float& adhesion,int& realtimeplot);
 
 #endif /* ReadParameters_hpp */

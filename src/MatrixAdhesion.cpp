@@ -16,7 +16,7 @@
 using namespace std;
 using namespace arma;
 
-void MatrixAdhesion(tissue& Tissue, const float& diffusionconstant, const float& time){
+void MatrixAdhesion(tissue& Tissue, const float& time){
 
   int xindex,yindex;
   float dr,Fmag;
@@ -32,18 +32,8 @@ void MatrixAdhesion(tissue& Tissue, const float& diffusionconstant, const float&
       yindex = floor((elementii.pos(1)-Tissue.xmin)/Tissue.hg);
       dvec = vec(Tissue.xg(span(xindex),span(yindex),span::all))-elementii.pos;
       dr = sqrt(dot(dvec,dvec));
-
-      float diffusiondistance = diffusionconstant*sqrt(time);
-      float s1 = sqrt(dot(elementii.pos-vec({13,10}),elementii.pos-vec({13,10})));
-      if (s1>diffusiondistance){
-        Fmag = elementii.adhesionmagnitude/dr;//*dr/Tissue.hg;
-        elementii.fb = elementii.fb + Fmag*dvec;
-      }else{
-      }
-      if (elementii.label==0){
-        dvec = elementii.initialpos-elementii.pos;
-        elementii.fb = elementii.fb + 100.0*dvec;
-      }
+      Fmag = elementii.adhesionmagnitude/dr;
+      elementii.fb = elementii.fb + Fmag*dvec;
     }
   }
 }

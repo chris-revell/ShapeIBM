@@ -12,5 +12,4 @@ t_max             = 80000
 t_output          = 500.0
 tension           = 1.0
 adhesion          = 0.5
-diffusionconstant = 0.03
 realtimeplot      = 1

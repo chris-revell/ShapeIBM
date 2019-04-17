@@ -15,7 +15,7 @@
 #include "element.hpp"
 #include "cell.hpp"
 
-void AdjacentForces(cell& Cell, const float& time, const float& diffusionconstant);
+void AdjacentForces(cell& Cell, const float& time);
 
 
 #endif /* AdjacentForces_hpp */

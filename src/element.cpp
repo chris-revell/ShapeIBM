@@ -27,7 +27,7 @@ element::element(const int& cell, const int& Label, const float& initialx, const
 }
 
 void element::SetAdhesion(void){
-  adhesionmagnitude = baselineadhesion;//(baselineadhesion*(20 - pos(0))/20)*normalisationfactor;
+  adhesionmagnitude = baselineadhesion;
 }
 
 element::~element() {}

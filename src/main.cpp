@@ -42,7 +42,6 @@ float t_max             = 80000; // Max run time in seconds
 float t_output          = 500.0; // Output interval in seconds
 float tension           = 1.0;   // Cell cortical tension
 float adhesion          = 0.5;
-float diffusionconstant = 0.03;
 
 float t                 = 0;     // Run time in seconds
 int   nloop       = 0;     // Just counts how many time steps there have been so far
@@ -57,7 +56,7 @@ int main() {
   //ReadParams(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,t_max,tension);
   system("rm output/grid*txt; rm output/fluid*txt;rm output/nbounds.txt;rm output/boundarypositions.txt;rm output/volume.txt;");//rm output/montageanimated.gif;");
 
-  ReadParameters(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,dt,t_max,t_output,tension,adhesion,diffusionconstant,realtimeplot);
+  ReadParameters(Numg,Nb,dims,cen,Src,rho,mu,len,Numcells,dt,t_max,t_output,tension,adhesion,realtimeplot);
 
   // Create whole tissue system
   tissue Tissue = tissue(Numg,dims,Nb,Src,rho,mu,dt,cen);
@@ -74,10 +73,10 @@ int main() {
     //-- Tension --
     //Tissue.Cells[0].ctension = t*tension/t_max;
     for (int ii=0;ii<Tissue.Nc;ii++){
-      AdjacentForces(Tissue.Cells[ii],t,diffusionconstant);
+      AdjacentForces(Tissue.Cells[ii],t);
     }
     //-- Adhesion
-    MatrixAdhesion(Tissue,diffusionconstant,t);
+    MatrixAdhesion(Tissue,t);
     //-- Local and global array book keeping
     LocalToGlobal(Tissue);
     //-- grid sources
@@ -98,7 +97,7 @@ int main() {
     GlobalToLocal(Tissue);
     // Write data to file
     if (fmod(t,t_output)<Tissue.dt){
-      OutputData(files,t,Tissue,nloop,realtimeplot,diffusionconstant);
+      OutputData(files,t,Tissue,nloop,realtimeplot);
       printf("%f/%f\n",t,t_max);
     }
     // Increment time
@@ -106,7 +105,7 @@ int main() {
   }
   // Write data to file
   if (fmod(t,t_output)<Tissue.dt){
-    OutputData(files,t,Tissue,nloop,realtimeplot,diffusionconstant);
+    OutputData(files,t,Tissue,nloop,realtimeplot);
     printf("%f/%f\n",t,t_max);
   }
   // Close data files

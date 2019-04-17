@@ -24,7 +24,7 @@
 
 using namespace std;
 
-void ReadParameters(int& Numg,int& Nb,float& dims,float& cen,float& Src,float& rho,float& mu,float& len,int& Numcells,float& dt,float& t_max,float& t_output,float& tension,float& adhesion,float& diffusionconstant,int& realtimeplot){
+void ReadParameters(int& Numg,int& Nb,float& dims,float& cen,float& Src,float& rho,float& mu,float& len,int& Numcells,float& dt,float& t_max,float& t_output,float& tension,float& adhesion,int& realtimeplot){
 	static const std::streamsize max = std::numeric_limits<std::streamsize>::max();
 	std::vector<float> values;
 	string input;
@@ -50,8 +50,7 @@ void ReadParameters(int& Numg,int& Nb,float& dims,float& cen,float& Src,float& r
   t_output           = values[11];
   tension            = values[12];
   adhesion           = values[13];
-  diffusionconstant  = values[14];
-  realtimeplot       = values[15];
+  realtimeplot       = values[14];
 
 	cout << "Numg               " << Numg               << endl;
   cout << "Nb                 " << Nb                 << endl;
@@ -67,7 +66,6 @@ void ReadParameters(int& Numg,int& Nb,float& dims,float& cen,float& Src,float& r
   cout << "t_output           " << t_output           << endl;
   cout << "tension            " << tension            << endl;
   cout << "adhesion           " << adhesion           << endl;
-  cout << "diffusionconstant  " << diffusionconstant  << endl;
   cout << "realtimeplot       " << realtimeplot       << endl;
 
 }
