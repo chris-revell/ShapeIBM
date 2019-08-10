@@ -27,26 +27,26 @@ using namespace std;
 using namespace arma;
 
 // System parameters
-int   Numg              = 256;   // Fluid grid size
-int   Nb                = 256;   // Number of boundary points
-float dims              = 10;    // Fluid grid dimensions
-float cen               = 10;    // Fluid centre point
-float Src               = 0.0;   // Source strength (= cell growth rate)
-float rho               = 1;     // Fluid density
-float mu                = 10;    // Fluid viscosity
-float len               = 2;     // Typical cell radius in micrometres
-int   Numcells          = 1;     // Number of cells
-float dt                = 1;     // Time step in seconds
-
-float t_max             = 80000; // Max run time in seconds
-float t_output          = 500.0; // Output interval in seconds
-float tension           = 1.0;   // Cell cortical tension
-float adhesion          = 0.5;
+int   Numg     ;       //  = 256;   // Fluid grid size
+int   Nb       ;       //  = 256;   // Number of boundary points
+float dims     ;       //  = 10;    // Fluid grid dimensions
+float cen      ;       //  = 10;    // Fluid centre point
+float Src      ;       //  = 0.0;   // Source strength (= cell growth rate)
+float rho      ;       //  = 1;     // Fluid density
+float mu       ;       //  = 10;    // Fluid viscosity
+float len      ;       //  = 2;     // Typical cell radius in micrometres
+int   Numcells ;       //  = 1;     // Number of cells
+float dt       ;       //  = 1;     // Time step in seconds
+//;
+float t_max    ;       //  = 80000; // Max run time in seconds
+float t_output ;       //  = 500.0; // Output interval in seconds
+float tension  ;       //  = 1.0;   // Cell cortical tension
+float adhesion ;       //  = 0.0;
 
 float t                 = 0;     // Run time in seconds
 int   nloop       = 0;     // Just counts how many time steps there have been so far
 // System control flags
-int   realtimeplot= 1;     // Flag for real time plotting
+int   realtimeplot;//= 1;     // Flag for real time plotting
 //int   exitval;           // Dummy variable for system calls
 char  buffer[50];          // Dummy string for system calls
 vector<ofstream> files;    // Set of output files
@@ -76,7 +76,7 @@ int main() {
       AdjacentForces(Tissue.Cells[ii],t);
     }
     //-- Adhesion
-    MatrixAdhesion(Tissue,t);
+    //MatrixAdhesion(Tissue,t);
     //-- Local and global array book keeping
     LocalToGlobal(Tissue);
     //-- grid sources
@@ -106,8 +106,9 @@ int main() {
   // Write data to file
   if (fmod(t,t_output)<Tissue.dt){
     OutputData(files,t,Tissue,nloop,realtimeplot);
-    printf("%f/%f\n",t,t_max);
+
   }
+  printf("%f/%f\n",t,t_max);
   // Close data files
   OpenCloseFiles(files,realtimeplot,Tissue);
   return 0;

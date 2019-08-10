@@ -15,8 +15,8 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
   NbT = Nb;
   label = cellnum;
   hb=2*M_PI/static_cast<float>(Nb); // Typical angular spacing between boundary elements given typical radius len
-  com= vec(2,fill::zeros);    // Cell centre of mass
-  ctension = tension; // Spring constant of boundary forces
+  com= vec(2,fill::zeros);          // Cell centre of mass
+  ctension = tension;               // Spring constant of boundary forces
   len=radius;
   hg=mesh;
   e=0.9;
@@ -25,7 +25,6 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
   for (int ii=0;ii<Nb;ii++){
     r = len/sqrt(1-pow(e*cos(ii*hb),2));
     Elements.push_back(element(label,ii,r*cos(ii*hb)+initialx,r*sin(ii*hb)+initialy,((ii-1)%Nb+Nb)%Nb,((ii+1)%Nb+Nb)%Nb,adhesion));
-    ElementLabels.push_back(ii);
   }
   com(0) = initialx;
   com(1) = initialy;
@@ -35,7 +34,7 @@ cell::cell(const int& cellnum, const int& Totalb, const int& NumBounds, const fl
 void cell::UpdateCom(){
   vec sum = vec(2,fill::zeros);
   for(int ii=0;ii<Nb;ii++){
-    sum = sum + Elements[ElementLabels[ii]].pos;
+    sum = sum + Elements[ii].pos;
   }
   com = sum/Nb;
 }
@@ -46,7 +45,7 @@ float cell::CalculateVolume(){
   vec r3 = vec(3,fill::zeros);
   float volume = 0;
   for(int ii=0;ii<Nb;ii++){
-    element& elementii = Elements[ElementLabels[ii]];
+    element& elementii = Elements[ii];
     element& n1 = Elements[elementii.neighbours[1]];
     r1(0) = elementii.pos(0)-com(0);
     r1(1) = elementii.pos(1)-com(1);
@@ -62,7 +61,7 @@ float cell::CalculateVolume(){
 
 void cell::NormaliseAdhesion(void){
   for (int ii=0;ii<Nb;ii++){
-    element& elementii = Elements[ElementLabels[ii]];
+    element& elementii = Elements[ii];
     element& n0 = Elements[elementii.neighbours[0]];
     element& n1 = Elements[elementii.neighbours[1]];
     vec d0 = elementii.pos-n0.pos;

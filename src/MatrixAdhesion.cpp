@@ -26,7 +26,7 @@ void MatrixAdhesion(tissue& Tissue, const float& time){
     cell& Cell = Tissue.Cells[jj];
     Cell.NormaliseAdhesion();
     for (int ii=0; ii<Cell.Nb; ii++){
-      element& elementii = Cell.Elements[Cell.ElementLabels[ii]];
+      element& elementii = Cell.Elements[ii];
       elementii.SetAdhesion();
       xindex = floor((elementii.pos(0)-Tissue.xmin)/Tissue.hg);
       yindex = floor((elementii.pos(1)-Tissue.xmin)/Tissue.hg);

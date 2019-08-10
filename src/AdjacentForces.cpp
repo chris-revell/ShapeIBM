@@ -21,9 +21,8 @@ void AdjacentForces(cell& Cell,const float& time) {
   vec d0 = vec(2,fill::zeros);
   vec d1 = vec(2,fill::zeros);
   vector<element>& Elements  = Cell.Elements;
-  vector<int>& ElementLabels = Cell.ElementLabels;
   for (int ii=0;ii<Cell.Nb;ii++){
-    element& elementii = Elements[ElementLabels[ii]];
+    element& elementii = Elements[ii];
     element& n0 = Elements[elementii.neighbours[0]];
     element& n1 = Elements[elementii.neighbours[1]];
     // Access the labels of the neighbours for element ii and extract the corresponding element positions.
@@ -33,6 +32,6 @@ void AdjacentForces(cell& Cell,const float& time) {
     // Find separation distances from x and y values.
     r0=sqrt(dot(d0,d0));
     r1=sqrt(dot(d1,d1));
-    elementii.fb = Cell.ctension*(d0/r0+d1/r1);
+    elementii.fb = (d0/r0+d1/r1);
   }
 }
