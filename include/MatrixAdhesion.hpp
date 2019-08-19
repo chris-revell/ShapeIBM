@@ -12,11 +12,11 @@
 #include <stdio.h>
 #include "tissue.hpp"
 #include <armadillo>
-#include <vector>
 #include "element.hpp"
-#include <cmath>
+#include <vector>
+#include <math.h>
 
-void MatrixAdhesion(tissue& Tissue, const float& time);
+void MatrixAdhesion(tissue& Tissue);
 
 
 #endif /* MatrixAdhesion_hpp */

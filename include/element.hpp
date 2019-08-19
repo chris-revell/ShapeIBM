@@ -15,18 +15,21 @@
 class element {
 private:
 public:
-    element(const int& cell, const int& Totalb,const float& initialx, const float& initialy, const int& n1, const int& n2,const float& adhesion);
+    element(const int& Label, const float& initialx, const float& initialy, const float& accum);
     void SetAdhesion(void);
-    arma::vec pos = arma::vec(2,arma::fill::zeros);              // Element position
+    arma::vec pos        = arma::vec(2,arma::fill::zeros);       // Element position
     arma::vec initialpos = arma::vec(2,arma::fill::zeros);       // Initial element position
-    arma::vec fb  = arma::vec(2,arma::fill::zeros);              // Forces on element
+    arma::vec fb         = arma::vec(2,arma::fill::zeros);       // Forces on element
+    int n0;
+    int n1;
+    float accumulatedEffector;
     //arma::vec ub  = arma::vec(2,arma::fill::zeros);              // Velocity of element
-    int label;                  // Global element label in xbglobal and fbglobal arrays
-    int parent;                 // Label of cell to which element belongs
-    float adhesionmagnitude;    // Adhesion magnitude of element
-    float baselineadhesion;     // Baseline adhesion for cell
-    float normalisationfactor;  // Factor to normalise adhesion by area
-    std::vector<int> neighbours;// Indices of spatial neighbour elements in Cells[parent].Elements vector
+    //int label;                  // Global element label in xbglobal and fbglobal arrays
+    //int parent;                 // Label of cell to which element belongs
+    //float adhesionmagnitude;    // Adhesion magnitude of element
+    //float baselineadhesion;     // Baseline adhesion for cell
+    //float normalisationfactor;  // Factor to normalise adhesion by area
+    //std::vector<int> neighbours;// Indices of spatial neighbour elements in Cells[parent].Elements vector
     ~element();
 protected:
 

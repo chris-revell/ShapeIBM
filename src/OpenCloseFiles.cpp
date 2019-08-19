@@ -12,43 +12,37 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "tissue.hpp"
+#include <chrono>
+#include <ctime>
 
 using namespace std;
 
-void OpenCloseFiles(vector<ofstream>& files,const int& realtimeplot,const tissue& Tissue){
-  //int   exitval;          // Dummy variable for system calls
-  vector<string> names;// = {"boundarypositions.txt","nbounds.txt","volume.txt","fluidvelocities0.txt","fluidvelocities1.txt","gridpositions0.txt","gridpositions1.txt"};
+void OpenCloseFiles(char* buffer,vector<ofstream>& files,const int& realtimeplot,const int& endflag){
 
-  names.push_back("boundarypositions.txt");
-  names.push_back("nbounds.txt");
-  names.push_back("volume.txt");
-  names.push_back("fluidvelocities0.txt");
-  names.push_back("fluidvelocities1.txt");
-  names.push_back("gridpositions0.txt");
-  names.push_back("gridpositions1.txt");
+  vector<string> names;
+  std::time_t result = std::time(nullptr);
+  struct tm * timeinfo;
+  timeinfo = localtime (&result);
 
-  files.resize(names.size());
-  if (files[0].is_open()){
+  if (endflag  == 1){
     for (int ii=0;ii<files.size();ii++){
       files[ii].close();
     }
-    if (realtimeplot==1){
-      system("convert -delay 10 -loop 0 output/plot*.png output/plotanimated.gif &");
-      system("python3 scripts/volumeplotter.py &");
-    }
   }
   else{
+    strftime (buffer,26, "output/%F-%H-%M-%S",timeinfo);
+    system(("mkdir "+string(buffer)).c_str());
+    names.push_back((string(buffer)+"/initialconditions.txt").c_str());
+    names.push_back((string(buffer)+"/boundarypositions.txt").c_str());
+    names.push_back((string(buffer)+"/nbounds.txt").c_str());
+    names.push_back((string(buffer)+"/fluidvelocities0.txt").c_str());
+    names.push_back((string(buffer)+"/fluidvelocities1.txt").c_str());
+    names.push_back((string(buffer)+"/gridpositions0.txt").c_str());
+    names.push_back((string(buffer)+"/gridpositions1.txt").c_str());
+    files.resize(names.size());
     for (int ii=0;ii<names.size();ii++){
-      files[ii].open("output/"+names[ii],ofstream::out);
+      files[ii].open(names[ii],ofstream::out);
     }
-    // Write grid positions to file
-    for (int ii=0;ii<Tissue.Ng+1;ii++){
-      files[5] << Tissue.xg.slice(0).row(ii);
-      files[6] << Tissue.xg.slice(1).row(ii);
-    }
-    files[5].close();
-    files[6].close();
   }
 
 }

@@ -24,7 +24,7 @@
 
 using namespace std;
 
-void ReadParameters(int& Numg,int& Nb,float& dims,float& cen,float& Src,float& rho,float& mu,float& len,int& Numcells,float& dt,float& t_max,float& t_output,float& tension,float& adhesion,int& realtimeplot){
+void ReadParameters(ofstream& file,int& Numg,int& Nb,float& dims,float& cen,float& Src,float& rho,float& mu,float& len,float& dt,float& t_max,float& t_output,float& tension,float& adhesion,int& realtimeplot,float& h,float& A,float& alpha,float& D,float& tdif_max,float& re){
 	static const std::streamsize max = std::numeric_limits<std::streamsize>::max();
 	std::vector<float> values;
 	string input;
@@ -44,28 +44,38 @@ void ReadParameters(int& Numg,int& Nb,float& dims,float& cen,float& Src,float& r
   rho                = values[5];
   mu                 = values[6];
   len                = values[7];
-  Numcells           = values[8];
-  dt                 = values[9];
-  t_max              = values[10];
-  t_output           = values[11];
-  tension            = values[12];
-  adhesion           = values[13];
-  realtimeplot       = values[14];
+  dt                 = values[8];
+  t_max              = values[9];
+  t_output           = values[10];
+  tension            = values[11];
+  adhesion           = values[12];
+  realtimeplot       = values[13];
+	h									 = values[14];
+	A									 = values[15];
+	alpha							 = values[16];
+	D									 = values[17];
+	tdif_max					 = values[18];
+	re								 = values[19];
 
-	cout << "Numg               " << Numg               << endl;
-  cout << "Nb                 " << Nb                 << endl;
-  cout << "dims               " << dims               << endl;
-  cout << "cen                " << cen                << endl;
-  cout << "Src                " << Src                << endl;
-  cout << "rho                " << rho                << endl;
-  cout << "mu                 " << mu                 << endl;
-  cout << "len                " << len                << endl;
-  cout << "Numcells           " << Numcells           << endl;
-  cout << "dt                 " << dt                 << endl;
-  cout << "t_max              " << t_max              << endl;
-  cout << "t_output           " << t_output           << endl;
-  cout << "tension            " << tension            << endl;
-  cout << "adhesion           " << adhesion           << endl;
-  cout << "realtimeplot       " << realtimeplot       << endl;
+	file << "Numg               " << Numg               << endl;
+  file << "Nb                 " << Nb                 << endl;
+  file << "dims               " << dims               << endl;
+  file << "cen                " << cen                << endl;
+  file << "Src                " << Src                << endl;
+  file << "rho                " << rho                << endl;
+  file << "mu                 " << mu                 << endl;
+  file << "len                " << len                << endl;
+  file << "dt                 " << dt                 << endl;
+  file << "t_max              " << t_max              << endl;
+  file << "t_output           " << t_output           << endl;
+  file << "tension            " << tension            << endl;
+  file << "adhesion           " << adhesion           << endl;
+  file << "realtimeplot       " << realtimeplot       << endl;
+  file << "h                  " << h    			        << endl;
+  file << "A                  " << A    			        << endl;
+  file << "alpha              " << alpha			        << endl;
+	file << "D			            " << D				          << endl;
+	file << "tdif_max           " << tdif_max           << endl;
+	file << "re			            " << re			            << endl;
 
 }

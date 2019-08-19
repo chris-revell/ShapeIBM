@@ -9,21 +9,21 @@
 #include "tissue.hpp"
 #include <armadillo>
 #include <vector>
-#include "cell.hpp"
-//#include <random>
-#include <element.hpp>
 
 using namespace arma;
 using namespace std;
 
-tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoints,const float& sourcestrength,const float& density,const float& viscosity,const float& timestep,const float& cen){
+tissue::tissue(const int& GridSize,const int& dimensions,const float& sourcestrength,const float& density,const float& viscosity,const float& timestep,const float& cen,const float& adhesion,const float& tension,const float& cellheight,const float& re){
   Ng       = GridSize;
-  Nbcell   = boundarypoints;
+  //Nbcell   = boundarypoints;
   Nb       = 0;
   dt       = timestep;
   Src      = sourcestrength;
   rho      = density;
   mu       = viscosity;
+  adhesionmagnitude = adhesion;
+  ctension = tension;
+  r_e      = re;
   xg       = cube(Ng+1,Ng+1,2,fill::zeros);
   sg       = mat(Ng+1,Ng+1,fill::zeros);
   fg       = cube(Ng+1,Ng+1,2,fill::zeros);
@@ -32,8 +32,6 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   xbglobal = mat(2,0,fill::zeros);
   ubglobal = mat(2,0,fill::zeros);
   fbglobal = mat(2,0,fill::zeros);
-  indices  = mat(2,0,fill::zeros);
-  Nc       = 0;
   Nbs      = 4;
   xmin     =cen-static_cast<float>(dimensions);
   xmax     =cen+static_cast<float>(dimensions);
@@ -47,7 +45,8 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
   sb(1,2)  = 0.0;
   sb(0,3)  = xmax;
   sb(1,3)  = 0.0;
-  vector<cell> Cells;
+  vector<element> Elements;
+  h = cellheight;
 
   hg       = float(xmax-xmin)/float(Ng);
   //-- define fluid grid --//
@@ -58,52 +57,6 @@ tissue::tissue(const int& GridSize,const int& dimensions,const int& boundarypoin
     }
   }
 }
-
-void tissue::UpdateSources(){
-  // Resize arrays if more sources have been added
-  if(sb.n_cols<(Nbs)){
-    sb.resize(2,Nbs);
-    sbb.resize(2,Nbs);
-  }
-  for (int ii=0; ii<Nbs; ii++){
-    if (ii<4){
-      sbb(0,ii)= -Src*Nc/4;
-    }else {
-      sbb(0,ii)= Src;
-      sb(0,ii) = Cells[ii-4].com(0);
-      sb(1,ii) = Cells[ii-4].com(1);
-    }
-  }
-}
-
-void tissue::AddCell(const float& len, const float& initialx, const float& initialy,const float& tension,const float& adhesion){
-  Cells.push_back(cell(Nc,Nb,Nbcell,len,initialx,initialy,hg,tension,adhesion));
-  Nc++;
-  Nb=Nb+Nbcell;
-  Nbs++;
-}
-
-//void tissue::BoundaryRefinement(){
-//  float dx1,dy1,r1,newposx,newposy;
-//  for (int kk=0;kk<Nc;kk++){
-//    for (int ii=0;ii<Cells[kk].Nb;ii++){
-//      dx1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[1]].pos(0)-Cells[kk].Elements[ii].pos(0);
-//      dy1 = Cells[kk].Elements[Cells[kk].Elements[ii].neighbours[1]].pos(1)-Cells[kk].Elements[ii].pos(1);
-//      // Find separation distances from x and y values.
-//      r1=sqrt(pow(dx1,2)+pow(dy1,2));
-//      if (r1>hg){
-//        newposx = Cells[kk].Elements[ii].pos(0)+0.5*dx1;
-//        newposy = Cells[kk].Elements[ii].pos(1)+0.5*dy1;
-//        Cells[kk].Elements.push_back(element(Cells[kk].Elements[ii].ub(0),Cells[kk].Elements[ii].ub(1),kk,Nb,newposx,newposy,ii,((Cells[kk].Elements[ii].neighbours[1])%(Cells[kk].Nb+1)+(Cells[kk].Nb+1))%(Cells[kk].Nb+1)));
-//        Cells[kk].Elements[ii].neighbours[1]=Cells[kk].Nb;
-//        Nb++;
-//        Cells[kk].Nb = Cells[kk].Nb+1;
-//      }else if (r1<0.5*hg){
-//
-//      }
-//    }
-//  }
-//}
 
 void tissue::UpdatePositions(){
   xbglobal = xbglobal + dt*ubglobal;

@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include "LocalToGlobal.hpp"
 #include "element.hpp"
-#include "cell.hpp"
 #include "tissue.hpp"
 #include <armadillo>
 #include <vector>

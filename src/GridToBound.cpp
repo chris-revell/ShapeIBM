@@ -10,7 +10,6 @@
 #include "tissue.hpp"
 #include <armadillo>
 #include <vector>
-#include "cell.hpp"
 #include "smallfunctions.hpp"
 
 using namespace arma;
@@ -52,7 +51,7 @@ void GridToBound(tissue& Tissue){
         // update the values if inside the impact domain
         if (dx*dy > 0){
           Tissue.ubglobal(0,n3)=Tissue.ubglobal(0,n3)+Tissue.vg(x1,y1,0)*dx*dy*Tissue.hg*Tissue.hg;
-          Tissue.ubglobal(1,n3)=Tissue.ubglobal(1,n3)+Tissue.vg(x1,y1,1)*dx*dy*Tissue.hg*Tissue.hg;          
+          Tissue.ubglobal(1,n3)=Tissue.ubglobal(1,n3)+Tissue.vg(x1,y1,1)*dx*dy*Tissue.hg*Tissue.hg;
         }
       } // for jj
     } // for ii

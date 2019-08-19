@@ -13,21 +13,19 @@
 using namespace std;
 using namespace arma;
 
-element::element(const int& cell, const int& Label, const float& initialx, const float& initialy,const int& n1,const int& n2,const float& adhesion)  {
-  pos(0)            =initialx;
-  pos(1)            =initialy;
-  initialpos(0)     =initialx;
-  initialpos(1)     =initialy;
-  label             = Label;
-  parent            = cell;
-  baselineadhesion = adhesion;
+element::element(const int& Label, const float& initialx, const float& initialy, const float& accum){
+  pos(0)              = initialx;
+  pos(1)              = initialy;
+  fb.zeros();
+  accumulatedEffector = accum;
+  initialpos(0)       = initialx;
+  initialpos(1)       = initialy;
+  //label             = Label;
+  //parent            = cell;
+  //baselineadhesion = adhesion;
   //adhesionmagnitude = adhesion;
-  neighbours.push_back(n1);
-  neighbours.push_back(n2);
-}
-
-void element::SetAdhesion(void){
-  adhesionmagnitude = baselineadhesion;
+  //neighbours.push_back(n1);
+  //neighbours.push_back(n2);
 }
 
 element::~element() {}

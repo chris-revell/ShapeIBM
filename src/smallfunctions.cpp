@@ -3,7 +3,7 @@
 // Declaration of IBM functions
 
 #include "smallfunctions.hpp"
-#include <cmath>
+#include <math.h>
 
 using namespace std;
 

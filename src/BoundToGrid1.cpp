@@ -10,7 +10,6 @@
 #include "tissue.hpp"
 #include <armadillo>
 #include <vector>
-#include "cell.hpp"
 #include "smallfunctions.hpp"
 
 using namespace arma;

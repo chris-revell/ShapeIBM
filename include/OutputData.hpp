@@ -17,6 +17,6 @@
 #include <tissue.hpp>
 #include "tissue.hpp"
 
-void OutputData(std::vector<std::ofstream>& files,const float& t,tissue& Tissue,int& nloop,const int& realtimeplot);
+void OutputData(char* buffer2,std::vector<std::ofstream>& files,const float& t,tissue& Tissue,int& nloop,const int& realtimeplot,const int& startflag);
 
 #endif
