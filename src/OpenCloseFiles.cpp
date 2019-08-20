@@ -17,19 +17,22 @@
 
 using namespace std;
 
-void OpenCloseFiles(char* buffer,vector<ofstream>& files,const int& realtimeplot,const int& endflag){
+void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& realtimeplot,const int& endflag){
 
   vector<string> names;
   std::time_t result = std::time(nullptr);
   struct tm * timeinfo;
   timeinfo = localtime (&result);
 
-  if (endflag  == 1){
+  if (endflag==1){
     for (int ii=0;ii<files.size();ii++){
       files[ii].close();
+      cout << "closed" << endl;
     }
-  }
-  else{
+    if (realtimeplot==1){
+      system(("convert -delay 10 -loop 0 "+string(buffer)+"/plot*.png "+string(buffer)+"/plotanimated.gif").c_str());
+    }
+  }else{
     strftime (buffer,26, "output/%F-%H-%M-%S",timeinfo);
     system(("mkdir "+string(buffer)).c_str());
     names.push_back((string(buffer)+"/initialconditions.txt").c_str());
@@ -41,7 +44,9 @@ void OpenCloseFiles(char* buffer,vector<ofstream>& files,const int& realtimeplot
     names.push_back((string(buffer)+"/gridpositions1.txt").c_str());
     files.resize(names.size());
     for (int ii=0;ii<names.size();ii++){
-      files[ii].open(names[ii],ofstream::out);
+      cout << names[ii] << endl;
+      files[ii].open("output/"+names[ii],ofstream::out);
+
     }
   }
 

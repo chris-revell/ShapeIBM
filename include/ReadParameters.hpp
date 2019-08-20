@@ -16,6 +16,6 @@
 #include <vector>
 #include <string>
 
-void ReadParameters(std::ofstream& file,int& Numg,int& Nb,float& dims,float& cen,float& Src,float& rho,float& mu,float& len,float& dt,float& t_max,float& t_output,float& tension,float& adhesion,int& realtimeplot,float& h,float& A,float& alpha,float& D,float& tdif_max,float& re);
+void ReadParameters(std::ofstream& file,int& Ng,float& rho,float& mu,float& len,float& h,float& zeta,float& re,float& tension,float& adhesion,float& D,float& tdif_max,float& dt,float& t_max,float& t_output,int& realtimeplot);
 
 #endif /* ReadParameters_hpp */

@@ -1,23 +1,18 @@
-Numg              = 512
-Nb                = 256
-dims              = 1
-cen               = 0
-Src               = 0.0
-rho               = 0.1
-mu                = 0.1
-len               = 2
-dt                = 0.1
-t_max             = 1500
-t_output          = 100.0
-tension           = 15.0
-adhesion          = 2.0
-realtimeplot      = 1
-h                 = 1.5
-A                 = 0.25
-alpha             = 1
-D                 = 20
-tdif_max          = 1
-re                = 0.2
+Ng            = 128
+rho           = 1.0
+mu            = 1.0
+len           = 1.0
+h             = 0.2
+zeta          = 0.2
+re            = 0.2
+tension       = 1.0
+adhesion      = 1.0
+D             = 20
+tdif_max      = 1
+dt            = 0.1
+t_max         = 100
+t_output      = 10
+realtimeplot  = 0
 
 Units:
 micrometres

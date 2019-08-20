@@ -13,9 +13,8 @@
 #include "element.hpp"
 #include <armadillo>
 #include <vector>
-#include <tissue.hpp>
 #include <math.h>
 
-tissue Initialise(int& plotflag,float& t_m,float& t_out,std::ofstream& file);
+void Initialise(std::vector<std::ofstream>& files,std::vector<element>& Elements,int& Nb,int& Ng,float& rho,float& mu,float& re,float& tension,float& adhesion,float& dt,float& t_max,float& t_output,int& realtimeplot,float& xmin,float& xmax,float& hg,arma::mat& sb,arma::cube& xg,arma::mat& sg,arma::cube& fg,arma::cube& vg,arma::cube& ug,arma::mat& xbglobal,arma::mat& ubglobal,arma::mat& fbglobal);
 
 #endif /* Initialise_hpp */

@@ -19,13 +19,7 @@ element::element(const int& Label, const float& initialx, const float& initialy,
   fb.zeros();
   accumulatedEffector = accum;
   initialpos(0)       = initialx;
-  initialpos(1)       = initialy;
-  //label             = Label;
-  //parent            = cell;
-  //baselineadhesion = adhesion;
-  //adhesionmagnitude = adhesion;
-  //neighbours.push_back(n1);
-  //neighbours.push_back(n2);
+  initialpos(1)       = initialy;  
 }
 
 element::~element() {}

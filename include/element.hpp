@@ -22,14 +22,7 @@ public:
     arma::vec fb         = arma::vec(2,arma::fill::zeros);       // Forces on element
     int n0;
     int n1;
-    float accumulatedEffector;
-    //arma::vec ub  = arma::vec(2,arma::fill::zeros);              // Velocity of element
-    //int label;                  // Global element label in xbglobal and fbglobal arrays
-    //int parent;                 // Label of cell to which element belongs
-    //float adhesionmagnitude;    // Adhesion magnitude of element
-    //float baselineadhesion;     // Baseline adhesion for cell
-    //float normalisationfactor;  // Factor to normalise adhesion by area
-    //std::vector<int> neighbours;// Indices of spatial neighbour elements in Cells[parent].Elements vector
+    float accumulatedEffector;    
     ~element();
 protected:
 
