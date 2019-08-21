@@ -12,7 +12,7 @@ tdif_max      = 1
 dt            = 0.1
 t_max         = 100
 t_output      = 10
-realtimeplot  = 0
+realtimeplot  = 1
 
 Units:
 micrometres

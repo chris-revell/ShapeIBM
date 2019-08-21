@@ -12,10 +12,9 @@
 #include <stdio.h>
 #include "LocalToGlobal.hpp"
 #include "element.hpp"
-#include "tissue.hpp"
 #include <armadillo>
 #include <vector>
 
-void LocalToGlobal(tissue& Tissue);
+void LocalToGlobal(const std::vector<element>& Elements,arma::mat& xbglobal,arma::mat& fbglobal,arma::mat& ubglobal,const int& Nb);
 
 #endif /* LocalToGlobal_hpp */

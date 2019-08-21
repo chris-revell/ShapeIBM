@@ -9,8 +9,9 @@
 #define GLOBALTOLOCAL_H
 
 #include "GlobalToLocal.hpp"
-#include "tissue.hpp"
-void GlobalToLocal(tissue& Tissue);
+#include <armadillo>
+#include <vector>
 
+void GlobalToLocal(std::vector<element>& Elements,const arma::mat& xbglobal,const int& Nb);
 
 #endif

@@ -56,7 +56,7 @@ int   Nbs      = 4;
 float xmin;
 float xmax;
 mat sb       = mat(2,Nbs,fill::zeros);
-//mat sbb      = mat(2,Nbs,fill::zeros);
+mat sbb      = mat(2,Nbs,fill::zeros);
 vector<element> Elements;
 float hg;
 char outputfolder[26];
@@ -72,23 +72,23 @@ int main() {
   cout << "Initialising shape evolution" << endl;
   while (t<t_max) {
     // Calculate tension forces
-    //AdjacentForces(Tissue);
-    //// Calculate adhesion forces
-    //MatrixAdhesion(Tissue);
-    //// Convert from local data to global arrays
-    //LocalToGlobal(Tissue);
-    //// Calculate contributions of fluid sources
-    //BoundToGrid1(Tissue);
-    //// Calculate contributions of boundary forces on fluid
-    //BoundToGrid2(Tissue);
-    //// Compute grid velocity from NavierStokes
-    //NavierStokes(Tissue);
-    //// Calculate contributions of fluid velocity to boundary point velocities
-    //GridToBound(Tissue);
-    //// Update positions of boundary points according to calculated velocities
-    //Tissue.UpdatePositions();
-    //// Convert global arrays back to local data
-    //GlobalToLocal(Tissue);
+    AdjacentForces(Elements,re,Nb,tension);
+    // Calculate adhesion forces
+    MatrixAdhesion(Elements,Nb,adhesion,hg);
+    // Convert from local data to global arrays
+    LocalToGlobal(Elements,xbglobal,fbglobal,ubglobal,Nb);
+    // Calculate contributions of fluid sources
+    BoundToGrid1(sg,Nbs,sb,sbb,xmin,xmax,hg,Ng);
+    // Calculate contributions of boundary forces on fluid
+    BoundToGrid2(fg,Nb,fbglobal,xbglobal,xmin,xmax,hg,Ng);
+    // Compute grid velocity from NavierStokes
+    NavierStokes(ug,vg,fg,sg,Ng,mu,rho,hg,dt);
+    // Calculate contributions of fluid velocity to boundary point velocities
+    GridToBound(ubglobal,xbglobal,vg,hg,xmin,xmax,Nb,Ng);
+    // Update positions of boundary points according to calculated velocities
+    xbglobal = xbglobal + dt*ubglobal;
+    // Convert global arrays back to local data
+    GlobalToLocal(Elements,xbglobal,Nb);
     // Write data to file at every output interval
     if (fmod(t,t_output)<dt){
       OutputData(outputfolder,files,Elements,xbglobal,xg,fg,t,Nb,Ng,nloop,realtimeplot,static_cast<int>(t+1-dt),xmin,xmax);

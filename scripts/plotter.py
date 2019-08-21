@@ -9,12 +9,12 @@ colourflag=int(argv[2])
 
 os.system("rm output/velocity*.png;rm output/velocityanimated.gif;")
 
-grid0 = np.genfromtxt("output/gridpositions0.txt")
-grid1 = np.genfromtxt("output/gridpositions1.txt")
-data0 = np.genfromtxt("output/fluidvelocities0.txt")
-data1 = np.genfromtxt("output/fluidvelocities1.txt")
-data = np.genfromtxt("output/boundarypositions.txt",delimiter=", ")
-nbounds = np.genfromtxt("output/nbounds.txt",dtype=int)
+grid0 = np.genfromtxt(argv[3]+"/gridpositions0.txt")
+grid1 = np.genfromtxt(argv[3]+"/gridpositions1.txt")
+data0 = np.genfromtxt(argv[3]+"/fluidvelocities0.txt")
+data1 = np.genfromtxt(argv[3]+"/fluidvelocities1.txt")
+data = np.genfromtxt(argv[3]+"/boundarypositions.txt",delimiter=", ")
+nbounds = np.genfromtxt(argv[3]+"/nbounds.txt",dtype=int)
 
 fig,ax=plt.subplots()
 drawn = 0

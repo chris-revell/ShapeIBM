@@ -12,11 +12,10 @@
 #include <stdio.h>
 #include <armadillo>
 #include <math.h>
-#include "tissue.hpp"
 #include "element.hpp"
 #include <vector>
 
-void AdjacentForces(tissue& Tissue);
+void AdjacentForces(std::vector<element>& Elements,const float& re,const int& Nb,const float& tension);
 
 
 #endif /* AdjacentForces_hpp */

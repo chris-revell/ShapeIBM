@@ -27,7 +27,6 @@ void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& realtimeplo
   if (endflag==1){
     for (int ii=0;ii<files.size();ii++){
       files[ii].close();
-      cout << "closed" << endl;
     }
     if (realtimeplot==1){
       system(("convert -delay 10 -loop 0 "+string(buffer)+"/plot*.png "+string(buffer)+"/plotanimated.gif").c_str());
@@ -45,8 +44,7 @@ void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& realtimeplo
     files.resize(names.size());
     for (int ii=0;ii<names.size();ii++){
       cout << names[ii] << endl;
-      files[ii].open("output/"+names[ii],ofstream::out);
-
+      files[ii].open(names[ii],fstream::out);
     }
   }
 

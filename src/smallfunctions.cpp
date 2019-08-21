@@ -11,19 +11,19 @@ using namespace std;
 // transforms the real coordinate xy of the body into the correspon-  //
 // ding coordinate pom inside the periodic domain (xmn,xmx)x(xmn,xmx) //                             //
 //--------------------------------------------------------------------//
-float IntoDom(const float& xy,const float& xmin,const float& xmax){
-    float len;
-    float pom;
-    len=xmax-xmin;
-    pom=xy;
-    while (pom>xmax){
-        pom=pom-len;
-    }
-    while (pom<xmin){
-        pom=pom+len;
-    }
-    return pom;
-} // function IntoDom
+//float IntoDom(const float& xy,const float& xmin,const float& xmax){
+//    float len;
+//    float pom;
+//    len=xmax-xmin;
+//    pom=xy;
+//    while (pom>xmax){
+//        pom=pom-len;
+//    }
+//    while (pom<xmin){
+//        pom=pom+len;
+//    }
+//    return pom;
+//} // function IntoDom
 //-------------------------------------------------------------------//
 
 //-------------------------------------------------------------------//

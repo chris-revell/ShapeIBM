@@ -19,12 +19,12 @@ using namespace arma;
 void OutputData(const char* buffer2,vector<ofstream>& files,const vector<element>& Elements,const mat& xbglobal,const cube& xg,const cube& fg,const float& t,const int& Nb, const int& Ng,int& nloop,const int& realtimeplot,const int& startflag,const float& xmin,const float& xmax){
 
   char  buffer[100];       // Dummy string for system calls
-  cout << Nb << endl;
+
   for (int ii=0;ii<Nb;ii++){
-    files[1] << xbglobal(0,ii) << ", ";
-    files[1] << xbglobal(1,ii) << ", ";
+    files[1] << Elements[ii].pos(0) << ", ";
+    files[1] << Elements[ii].pos(1) << ", ";
     files[1] << Elements[ii].accumulatedEffector << endl;
-    cout << "output" << endl;
+
     //files[1] << Tissue.fbglobal(0,ii) << ", ";
     //files[1] << Tissue.fbglobal(1,ii) << endl;
   }
@@ -49,7 +49,7 @@ void OutputData(const char* buffer2,vector<ofstream>& files,const vector<element
   if (realtimeplot==1) {
     // Call plotter
     sprintf(buffer,"python3 scripts/plottersingle.py %d %d %d %d %.3f %.3f %.4f ",nloop,Nb,Ng,2,xmin,xmax,t);
-    system((string(buffer)+string(buffer2)+" &").c_str());
+    system((string(buffer)+string(buffer2)).c_str());//system((string(buffer)+string(buffer2)+" &").c_str());
     nloop = nloop+1;
   }
   if (startflag<0 && realtimeplot==1){

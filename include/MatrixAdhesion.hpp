@@ -10,13 +10,12 @@
 #define MatrixAdhesion_hpp
 
 #include <stdio.h>
-#include "tissue.hpp"
 #include <armadillo>
 #include "element.hpp"
 #include <vector>
 #include <math.h>
 
-void MatrixAdhesion(tissue& Tissue);
+void MatrixAdhesion(std::vector<element>& Elements,const int& Nb,const float& adhesion,const float& hg);
 
 
 #endif /* MatrixAdhesion_hpp */
