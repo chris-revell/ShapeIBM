@@ -9,8 +9,6 @@
 #ifndef LocalToGlobal_hpp
 #define LocalToGlobal_hpp
 
-#include <stdio.h>
-#include "LocalToGlobal.hpp"
 #include "element.hpp"
 #include <armadillo>
 #include <vector>

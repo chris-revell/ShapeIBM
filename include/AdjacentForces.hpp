@@ -9,7 +9,6 @@
 #ifndef AdjacentForces_hpp
 #define AdjacentForces_hpp
 
-#include <stdio.h>
 #include <armadillo>
 #include <math.h>
 #include "element.hpp"

@@ -10,8 +10,9 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <stdlib.h>
 #include <armadillo>
+#include "element.hpp"
+#include <string>
 
 using namespace std;
 using namespace arma;

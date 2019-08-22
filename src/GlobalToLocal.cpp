@@ -6,9 +6,10 @@
 //
 //
 
-#include "tissue.hpp"
+#include "GlobalToLocal.hpp"
 #include <armadillo>
 #include <vector>
+#include "element.hpp"
 
 using namespace std;
 using namespace arma;

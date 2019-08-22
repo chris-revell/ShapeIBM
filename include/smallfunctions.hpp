@@ -5,6 +5,8 @@
 #ifndef SMALLFUNCTIONS_H
 #define SMALLFUNCTIONS_H
 
+#include <math.h>
+
 int PeriodInd(const int& nn,const int& Ng,const int& which);
 //float IntoDom(const float& xy,const float& xmin,const float& xmax);
 float DeltaFun(const float& r,const float& h);

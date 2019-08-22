@@ -148,7 +148,7 @@ void Initialise(vector<ofstream>& files,vector<element>& Elements,int& Nb,int& N
       Elements[ii].n0 = indices[0];
       Elements[ii].n1 = indices[1];
     }
-  }  
+  }
 
   // Check neighbour results for errors
   for (int ii=0; ii<elementCount; ii++){

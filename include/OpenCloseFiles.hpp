@@ -11,9 +11,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <stdlib.h>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <ctime>
 
 void OpenCloseFiles(char* buffer,std::vector<std::ofstream>& files,const int& realtimeplot,const int& endflag);
 

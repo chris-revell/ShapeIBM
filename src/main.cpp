@@ -5,10 +5,8 @@
 #include <math.h>
 #include <armadillo>
 #include <vector>
-#include <stdlib.h>
-//#include "cell.hpp"
+//#include <stdlib.h>
 #include "element.hpp"
-#include <tissue.hpp>
 #include "BoundToGrid1.hpp"
 #include "BoundToGrid2.hpp"
 #include "smallfunctions.hpp"

@@ -9,11 +9,10 @@
 #ifndef MatrixAdhesion_hpp
 #define MatrixAdhesion_hpp
 
-#include <stdio.h>
 #include <armadillo>
-#include "element.hpp"
 #include <vector>
 #include <math.h>
+#include "element.hpp"
 
 void MatrixAdhesion(std::vector<element>& Elements,const int& Nb,const float& adhesion,const float& hg);
 

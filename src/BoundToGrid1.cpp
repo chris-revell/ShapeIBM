@@ -7,9 +7,7 @@
 //
 
 #include "BoundToGrid1.hpp"
-#include "tissue.hpp"
 #include <armadillo>
-#include <vector>
 #include "smallfunctions.hpp"
 
 using namespace arma;

@@ -8,7 +8,6 @@
 #ifndef GRIDTOBOUND_H
 #define GRIDTOBOUND_H
 
-#include "tissue.hpp"
 #include <armadillo>
 #include "smallfunctions.hpp"
 

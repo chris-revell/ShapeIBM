@@ -11,7 +11,6 @@
 #include <vector>
 #include <math.h>
 #include "element.hpp"
-#include <vector>
 
 using namespace std;
 using namespace arma;
@@ -39,7 +38,7 @@ void MatrixAdhesion(vector<element>& Elements,const int& Nb,const float& adhesio
     if (dr < 0.000000001 || dr > 2*hg){
       Fmag=0;
     }else{
-      Fmag = normalisationfactor*adhesion/dr;
+      Fmag = normalisationfactor*adhesion;
     }
     elementii.fb = elementii.fb + Fmag*dvec;
   }

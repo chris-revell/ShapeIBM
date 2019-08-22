@@ -1,19 +1,15 @@
-Ng            = 128
+Ng            = 256
 rho           = 1.0
 mu            = 1.0
-len           = 1.0
-h             = 0.2
+len           = 0.75
+h             = 0.15
 zeta          = 0.2
-re            = 0.2
+re            = 0.5
 tension       = 1.0
-adhesion      = 1.0
+adhesion      = 5.0
 D             = 20
 tdif_max      = 1
 dt            = 0.1
-t_max         = 100
+t_max         = 1000
 t_output      = 10
 realtimeplot  = 1
-
-Units:
-micrometres
-seconds

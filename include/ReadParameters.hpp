@@ -9,7 +9,6 @@
 #ifndef ReadParameters_hpp
 #define ReadParameters_hpp
 
-#include <stdio.h>
 #include "ReadParameters.hpp"
 #include <iostream>
 #include <fstream>
