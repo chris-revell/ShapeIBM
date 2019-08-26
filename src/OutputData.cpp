@@ -49,7 +49,7 @@ void OutputData(const char* buffer2,vector<ofstream>& files,const vector<element
   }
   if (realtimeplot==1) {
     // Call plotter
-    sprintf(buffer,"python3 scripts/plottersingle.py %d %d %d %d %.3f %.3f %.4f ",nloop,Nb,Ng,2,xmin,xmax,t);
+    sprintf(buffer,"python3 scripts/plottersingle.py %d %d %d %d %.3f %.3f %.4f &",nloop,Nb,Ng,2,xmin,xmax,t);
     system((string(buffer)+string(buffer2)).c_str());//system((string(buffer)+string(buffer2)+" &").c_str());
     nloop = nloop+1;
   }
