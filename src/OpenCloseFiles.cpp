@@ -42,7 +42,6 @@ void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& realtimeplo
     names.push_back((string(buffer)+"/gridpositions1.txt").c_str());
     files.resize(names.size());
     for (int ii=0;ii<names.size();ii++){
-      cout << names[ii] << endl;
       files[ii].open(names[ii],fstream::out);
     }
   }

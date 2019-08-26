@@ -90,9 +90,11 @@ int main() {
     // Write data to file at every output interval
     if (fmod(t,t_output)<dt){
       OutputData(outputfolder,files,Elements,xbglobal,xg,fg,t,Nb,Ng,nloop,realtimeplot,static_cast<int>(t+1-dt),xmin,xmax);
-      system("clear");
-      printf("IBM progress: %f/%f\n",t,t_max);
+      //system("clear");
+      //printf("IBM progress: %f/%f\n",t,t_max);
     }
+    system("clear");
+    printf("IBM progress: %f/%f\n",t,t_max);
     // Increment time
     t = t+dt;
   }
