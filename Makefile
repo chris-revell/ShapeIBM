@@ -7,7 +7,7 @@ SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 BUILDDIR := build
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 TARGET := shapeIBM
-#CFLAGS := -c -Wall -std=c++11 -g -O0
+#CFLAGS := -c -Wall -std=c++11 -g -O0 #-v
 CFLAGS := -c -O3 -std=c++11
 LIB := -larmadillo
 INC := -I include

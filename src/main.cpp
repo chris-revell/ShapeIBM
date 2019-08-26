@@ -64,7 +64,7 @@ int main() {
   // Set up data output files
   OpenCloseFiles(outputfolder,files,realtimeplot,0);
 
-  Initialise(files,Elements,Nb,Ng,rho,mu,re,tension,adhesion,dt,t_max,t_output,realtimeplot,xmin,xmax,hg,sb,xg,sg,fg,vg,ug,xbglobal,ubglobal,fbglobal);
+  Initialise(files,Elements,Nb,Ng,rho,mu,re,tension,adhesion,dt,t_max,t_output,realtimeplot,xmin,xmax,hg,xg,sg,fg,vg,ug,xbglobal,ubglobal,fbglobal);
 
   // Iterate system over time
   cout << "Initialising shape evolution" << endl;

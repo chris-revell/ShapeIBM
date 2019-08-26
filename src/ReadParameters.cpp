@@ -14,7 +14,7 @@
 
 using namespace std;
 
-void ReadParameters(ofstream& file,int& Ng,float& rho,float& mu,float& len,float& h,float& zeta,float& re,float& tension,float& adhesion,float& D,float& tdif_max,float& dt,float& t_max,float& t_output,int& realtimeplot){
+void ReadParameters(ofstream& file,int& Ng,float& rho,float& mu,float& len,float& h,float& zeta,float& re,float& tension,float& adhesion,float& D,float& conc,float& tdif_max,float& dt,float& t_max,float& t_output,int& realtimeplot){
 	static const std::streamsize max = std::numeric_limits<std::streamsize>::max();
 	std::vector<float> values;
 	string input;
@@ -37,11 +37,12 @@ void ReadParameters(ofstream& file,int& Ng,float& rho,float& mu,float& len,float
   tension       = values[7];
   adhesion      = values[8];
   D             = values[9];
-  tdif_max      = values[10];
-  dt            = values[11];
-  t_max         = values[12];
-	t_output      = values[13];
-	realtimeplot  = values[14];
+	conc 					= values[10];
+  tdif_max      = values[11];
+  dt            = values[12];
+  t_max         = values[13];
+	t_output      = values[14];
+	realtimeplot  = values[15];
 
 	cout << "Ng                 " << Ng              << endl;
   cout << "rho                " << rho             << endl;
