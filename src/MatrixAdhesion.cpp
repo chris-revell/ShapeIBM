@@ -40,6 +40,6 @@ void MatrixAdhesion(vector<element>& Elements,const int& Nb,const float& adhesio
     }else{
       Fmag = normalisationfactor*adhesion;
     }
-    elementii.fb = elementii.fb + Fmag*dvec;
+    elementii.fb = elementii.fb + Fmag*dvec/dr;
   }
 }
