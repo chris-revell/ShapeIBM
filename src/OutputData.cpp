@@ -24,9 +24,9 @@ void OutputData(const char* buffer2,vector<ofstream>& files,const vector<element
   for (int ii=0;ii<Nb;ii++){
     files[1] << Elements[ii].pos(0) << ", ";
     files[1] << Elements[ii].pos(1) << ", ";
-    files[1] << Elements[ii].accumulatedEffector << endl;
-    //files[1] << Tissue.fbglobal(0,ii) << ", ";
-    //files[1] << Tissue.fbglobal(1,ii) << endl;
+    files[1] << Elements[ii].accumulatedEffector << ", ";
+    files[1] << Elements[ii].n0 << ", ";
+    files[1] << Elements[ii].n1 << endl;
   }
   files[2] << Nb << endl;
   files[1].flush();

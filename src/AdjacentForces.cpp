@@ -16,7 +16,7 @@ using namespace std;
 using namespace arma;
 
 // Function to calculate forces between neighbouring boundary elements within a cell.
-void AdjacentForces(vector<element>& Elements,const float& re,const int& Nb,const float& tension){
+void AdjacentForces(vector<element>& Elements,const float& hg,const float& re,const int& Nb,const float& tension){
   float r0,r1,localSpringConstant0,localSpringConstant1;
   vec d0 = vec(2,fill::zeros);
   vec d1 = vec(2,fill::zeros);
@@ -27,13 +27,13 @@ void AdjacentForces(vector<element>& Elements,const float& re,const int& Nb,cons
     element& n1 = Elements[elementii.n1];
     // Access the labels of the neighbours for element ii and extract the corresponding element positions.
     // Use these to find the separation of ii from its neighbours in the x and y directions.
-    d0 = elementii.pos-n0.pos;
-    d1 = elementii.pos-n1.pos;
+    d0 = n0.pos-elementii.pos;
+    d1 = n1.pos-elementii.pos;
     // Find separation distances from x and y values.
     r0=sqrt(dot(d0,d0));
     r1=sqrt(dot(d1,d1));
     localSpringConstant0 = tension*(n0.accumulatedEffector+elementii.accumulatedEffector)/2.0;
     localSpringConstant1 = tension*(n1.accumulatedEffector+elementii.accumulatedEffector)/2.0;
-    elementii.fb = localSpringConstant0*(r0-re)*d0/r0+localSpringConstant1*(r1-re)*d1/r1;
+    elementii.fb = localSpringConstant0*(r0-re*hg)*d0/r0+localSpringConstant1*(r1-re*hg)*d1/r1;
   }
 }

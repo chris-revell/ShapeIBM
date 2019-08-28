@@ -51,7 +51,6 @@ void Initialise(vector<ofstream>& files,vector<element>& Elements,int& Nb,int& N
       xg(ii,jj,1)=xmin+jj*hg+hg/2;
     }
   }
-  }
 
   InitialDiffusion(AccumGrid,conc,D,tdif_max,len,h,zeta,Ng,hg);
 

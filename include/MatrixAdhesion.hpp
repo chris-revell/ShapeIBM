@@ -14,7 +14,7 @@
 #include <math.h>
 #include "element.hpp"
 
-void MatrixAdhesion(std::vector<element>& Elements,const int& Nb,const float& adhesion,const float& hg);
+void MatrixAdhesion(std::vector<element>& Elements,const int& Nb,const float& adhesion,const float& hg, const float& re);
 
 
 #endif /* MatrixAdhesion_hpp */

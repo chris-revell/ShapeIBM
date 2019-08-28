@@ -73,9 +73,9 @@ int main() {
   cout << "Initialising shape evolution" << endl;
   while (t<t_max) {
     // Calculate tension forces
-    AdjacentForces(Elements,re,Nb,tension);
+    AdjacentForces(Elements,hg,re,Nb,tension);
     // Calculate adhesion forces
-    MatrixAdhesion(Elements,Nb,adhesion,hg);
+    MatrixAdhesion(Elements,Nb,adhesion,hg,re);
     // Convert from local data to global arrays
     LocalToGlobal(Elements,xbglobal,fbglobal,ubglobal,Nb);
     // Calculate contributions of fluid sources
