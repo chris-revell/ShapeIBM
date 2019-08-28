@@ -41,6 +41,7 @@ float re       ;
 float t     = 0;         // Run time in seconds
 int   nloop = 0;         // Just counts how many time steps there have been so far
 int   realtimeplot;      // Flag for real time plotting
+int   plotfluid;
 vector<ofstream> files;  // Set of output files
 cube  xg       ;
 mat   sg       ;
@@ -64,7 +65,9 @@ int main() {
   // Set up data output files
   OpenCloseFiles(outputfolder,files,realtimeplot,0);
 
-  Initialise(files,Elements,Nb,Ng,rho,mu,re,tension,adhesion,dt,t_max,t_output,realtimeplot,xmin,xmax,hg,xg,sg,fg,vg,ug,xbglobal,ubglobal,fbglobal);
+  Initialise(files,Elements,Nb,Ng,rho,mu,re,tension,adhesion,dt,t_max,t_output,realtimeplot,plotfluid,xmin,xmax,hg,xg,sg,fg,vg,ug,xbglobal,ubglobal,fbglobal);
+
+  OutputData(outputfolder,files,Elements,xbglobal,xg,fg,Nb,Ng,nloop,realtimeplot,1,plotfluid,xmin,xmax);
 
   // Iterate system over time
   cout << "Initialising shape evolution" << endl;
@@ -87,22 +90,16 @@ int main() {
     xbglobal = xbglobal + dt*ubglobal;
     // Convert global arrays back to local data
     GlobalToLocal(Elements,xbglobal,Nb);
-    // Write data to file at every output interval
-    if (fmod(t,t_output)<dt){
-      OutputData(outputfolder,files,Elements,xbglobal,xg,fg,t,Nb,Ng,nloop,realtimeplot,static_cast<int>(t+1-dt),xmin,xmax);
-      //system("clear");
-      //printf("IBM progress: %f/%f\n",t,t_max);
-    }
-    system("clear");
-    printf("IBM progress: %f/%f\n",t,t_max);
     // Increment time
     t = t+dt;
+    // Write data to file at every output interval
+    if (fmod(t,t_output)<dt){
+      OutputData(outputfolder,files,Elements,xbglobal,xg,fg,Nb,Ng,nloop,realtimeplot,0,plotfluid,xmin,xmax);
+      system("clear");
+      printf("IBM progress: %f/%f\n",t,t_max);
+    }
   }
 
-  // Write data to file at final system state
-  OutputData(outputfolder,files,Elements,xbglobal,xg,fg,t,Nb,Ng,nloop,realtimeplot,-1,xmin,xmax);
-  system("clear");
-  printf("IBM progress: %f/%f\n",t,t_max);
   // Close data files
   OpenCloseFiles(outputfolder,files,realtimeplot,1);
   return 0;

@@ -36,10 +36,10 @@ void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& realtimeplo
     names.push_back((string(buffer)+"/initialconditions.txt").c_str());
     names.push_back((string(buffer)+"/boundarypositions.txt").c_str());
     names.push_back((string(buffer)+"/nbounds.txt").c_str());
-    names.push_back((string(buffer)+"/fluidvelocities0.txt").c_str());
-    names.push_back((string(buffer)+"/fluidvelocities1.txt").c_str());
     names.push_back((string(buffer)+"/gridpositions0.txt").c_str());
     names.push_back((string(buffer)+"/gridpositions1.txt").c_str());
+    names.push_back((string(buffer)+"/fluidvelocities0.txt").c_str());
+    names.push_back((string(buffer)+"/fluidvelocities1.txt").c_str());
     files.resize(names.size());
     for (int ii=0;ii<names.size();ii++){
       files[ii].open(names[ii],fstream::out);

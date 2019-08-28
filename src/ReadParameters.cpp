@@ -14,7 +14,7 @@
 
 using namespace std;
 
-void ReadParameters(ofstream& file,int& Ng,float& rho,float& mu,float& len,float& h,float& zeta,float& re,float& tension,float& adhesion,float& D,float& conc,float& tdif_max,float& dt,float& t_max,float& t_output,int& realtimeplot){
+void ReadParameters(ofstream& file,int& Ng,float& rho,float& mu,float& len,float& h,float& zeta,float& re,float& tension,float& adhesion,float& D,float& conc,float& tdif_max,float& dt,float& t_max,float& t_output,int& realtimeplot,int& plotfluid){
 	static const std::streamsize max = std::numeric_limits<std::streamsize>::max();
 	std::vector<float> values;
 	string input;
@@ -43,21 +43,24 @@ void ReadParameters(ofstream& file,int& Ng,float& rho,float& mu,float& len,float
   t_max         = values[13];
 	t_output      = values[14];
 	realtimeplot  = values[15];
+	plotfluid     = values[16];
 
-	cout << "Ng                 " << Ng              << endl;
-  cout << "rho                " << rho             << endl;
-  cout << "mu                 " << mu              << endl;
-  cout << "len                " << len             << endl;
-  cout << "h                  " << h               << endl;
-	cout << "zeta               " << zeta            << endl;
-  cout << "re                 " << re              << endl;
-  cout << "tension            " << tension         << endl;
-  cout << "adhesion           " << adhesion        << endl;
-  cout << "D                  " << D               << endl;
-  cout << "tdif_max           " << tdif_max        << endl;
-  cout << "dt                 " << dt              << endl;
-  cout << "t_max              " << t_max           << endl;
-  cout << "t_output           " << t_output        << endl;
-  cout << "realtimeplot       " << realtimeplot    << endl;
+	file << "Ng                 " << Ng              << endl;
+  file << "rho                " << rho             << endl;
+  file << "mu                 " << mu              << endl;
+  file << "len                " << len             << endl;
+  file << "h                  " << h               << endl;
+	file << "zeta               " << zeta            << endl;
+  file << "re                 " << re              << endl;
+  file << "tension            " << tension         << endl;
+  file << "adhesion           " << adhesion        << endl;
+  file << "D                  " << D               << endl;
+  file << "tdif_max           " << tdif_max        << endl;
+  file << "dt                 " << dt              << endl;
+  file << "t_max              " << t_max           << endl;
+  file << "t_output           " << t_output        << endl;
+  file << "realtimeplot       " << realtimeplot    << endl;
+	file << "plotfluid          " << plotfluid       << endl;
+	file.flush();
 
 }

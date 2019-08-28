@@ -35,11 +35,12 @@ void MatrixAdhesion(vector<element>& Elements,const int& Nb,const float& adhesio
     normalisationfactor = (r0+r1)/2.0;
     dvec = Elements[ii].initialpos-Elements[ii].pos;
     dr = sqrt(dot(dvec,dvec));
-    if (dr < 0.000000001 || dr > 2*hg){
+    //if (dr < 0.000000001 || dr > 2*hg){
+    if (dr > 2*hg){  
       Fmag=0;
     }else{
       Fmag = normalisationfactor*adhesion;
     }
-    elementii.fb = elementii.fb + Fmag*dvec/dr;
+    elementii.fb = elementii.fb + Fmag*dvec;
   }
 }
