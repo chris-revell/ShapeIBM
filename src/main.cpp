@@ -60,12 +60,12 @@ vector<element> Elements;
 float hg;
 char outputfolder[26];
 
-int main() {
+int main(int argc,char *argv[]) {
 
   // Set up data output files
   OpenCloseFiles(outputfolder,files,realtimeplot,0);
 
-  Initialise(files,Elements,Nb,Ng,rho,mu,re,tension,adhesion,dt,t_max,t_output,realtimeplot,plotfluid,xmin,xmax,hg,xg,sg,fg,vg,ug,xbglobal,ubglobal,fbglobal);
+  Initialise(argc,argv,files,Elements,Nb,Ng,rho,mu,re,tension,adhesion,dt,t_max,t_output,realtimeplot,plotfluid,xmin,xmax,hg,xg,sg,fg,vg,ug,xbglobal,ubglobal,fbglobal);
 
   OutputData(outputfolder,files,Elements,xbglobal,xg,fg,Nb,Ng,nloop,realtimeplot,1,plotfluid,xmin,xmax);
 

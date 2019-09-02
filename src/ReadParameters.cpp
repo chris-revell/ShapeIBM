@@ -14,36 +14,40 @@
 
 using namespace std;
 
-void ReadParameters(ofstream& file,int& Ng,float& rho,float& mu,float& len,float& h,float& zeta,float& re,float& tension,float& adhesion,float& D,float& conc,float& tdif_max,float& dt,float& t_max,float& t_output,int& realtimeplot,int& plotfluid){
-	static const std::streamsize max = std::numeric_limits<std::streamsize>::max();
-	std::vector<float> values;
-	string input;
-	float value;
+void ReadParameters(int argc,char *argv[],ofstream& file,int& Ng,float& rho,float& mu,float& len,float& h,float& zeta,float& re,float& tension,float& adhesion,float& D,float& conc,float& tdif_max,float& dt,float& t_max,float& t_output,int& realtimeplot,int& plotfluid){
+	//static const std::streamsize max = std::numeric_limits<std::streamsize>::max();
+//	std::vector<float> values;
+//	string input;
+//	float value;
+//
+//	ifstream infile("input/parameters.txt");
+//
+//	while(infile.ignore(max,' ') >> input >> value)
+//	{
+//		values.push_back(value);
+//	}
+//
+  Ng            = atoi(argv[1]);
+  rho           = atof(argv[2]);
+  mu            = atof(argv[3]);
+  len           = atof(argv[4]);
+  h             = atof(argv[5]);
+	zeta					= atof(argv[6]);
+  re            = atof(argv[7]);
+  tension       = atof(argv[8]);
+  adhesion      = atof(argv[9]);
+  D             = atof(argv[10]);
+	conc 					= atof(argv[11]);
+  tdif_max      = atof(argv[12]);
+  dt            = atof(argv[13]);
+  t_max         = atof(argv[14]);
+	t_output      = atof(argv[15]);
+	realtimeplot  = atoi(argv[16]);
+	plotfluid     = atoi(argv[17]);
 
-	ifstream infile("input/parameters.txt");
-
-	while(infile.ignore(max,' ') >> input >> value)
-	{
-		values.push_back(value);
-	}
-
-  Ng            = values[0];
-  rho           = values[1];
-  mu            = values[2];
-  len           = values[3];
-  h             = values[4];
-	zeta					= values[5];
-  re            = values[6];
-  tension       = values[7];
-  adhesion      = values[8];
-  D             = values[9];
-	conc 					= values[10];
-  tdif_max      = values[11];
-  dt            = values[12];
-  t_max         = values[13];
-	t_output      = values[14];
-	realtimeplot  = values[15];
-	plotfluid     = values[16];
+//	for (int ii=0; ii<argc;ii++){
+	//	values[ii] = atof(argv[ii]);
+	//}
 
 	file << "Ng                 " << Ng              << endl;
   file << "rho                " << rho             << endl;
