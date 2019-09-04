@@ -15,9 +15,8 @@
 using namespace std;
 using namespace arma;
 
-void MatrixAdhesion(vector<element>& Elements,const int& Nb,const float& adhesion,const float& hg, const float& re){
+void MatrixAdhesion(vector<element>& Elements,const int& Nb,const float& adhesion,const float& hg, const float& re,const int& shapeflag,const float& len,const float& h){
 
-  //int xindex,yindex;
   float dr,Fmag,r0,r1,normalisationfactor;
   vec dvec = vec(2,fill::zeros);
   vec d0 = vec(2,fill::zeros);
@@ -36,7 +35,10 @@ void MatrixAdhesion(vector<element>& Elements,const int& Nb,const float& adhesio
     dvec = Elements[ii].initialpos-Elements[ii].pos;
     dr = sqrt(dot(dvec,dvec));
     //if (dr < 0.000000001 || dr > 2*hg){
-    if (dr > 2*re*hg){
+    if (shapeflag==1 && elementii.pos(0) < (hg-len) && elementii.pos(0) > (-hg-len) && elementii.pos(1) < 0.25*h && elementii.pos(1) > -0.26*h){
+      Fmag = 10*normalisationfactor*adhesion;
+    }
+    else if (dr > 2*re*hg){
       Fmag=0;
     }else{
       Fmag = normalisationfactor*adhesion;

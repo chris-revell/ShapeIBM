@@ -25,33 +25,36 @@ using namespace std;
 using namespace arma;
 
 // System parameters
-int   Ng       ;         // Fluid grid size
-int   Nb       ;         // Number of boundary points
-float dims=1   ;         // Fluid grid dimensions
-float cen =0   ;         // Fluid centre point
-float Src =0   ;         // Source strength (= cell growth rate)
-float rho      ;         // Fluid density
-float mu       ;         // Fluid viscosity
-float dt       ;         // Time step in seconds
-float t_max    ;         // Max run time in seconds
-float t_output ;         // Output interval in seconds
-float tension  ;         // Cell cortical tension
-float adhesion ;
-float re       ;
-float t     = 0;         // Run time in seconds
-int   nloop = 0;         // Just counts how many time steps there have been so far
-int   realtimeplot;      // Flag for real time plotting
-int   plotfluid;
-vector<ofstream> files;  // Set of output files
-cube  xg       ;
-mat   sg       ;
-cube  fg       ;
-cube  vg       ;
-cube  ug       ;
-mat   xbglobal ;
-mat   ubglobal ;
-mat   fbglobal ;
-int   Nbs      = 4;
+int   Ng              ;   // Fluid grid size
+int   Nb              ;   // Number of boundary points
+float dims=1          ;   // Fluid grid dimensions
+float cen =0          ;   // Fluid centre point
+float Src =0          ;   // Source strength (= cell growth rate)
+float rho             ;   // Fluid density
+float mu              ;   // Fluid viscosity
+float dt              ;   // Time step in seconds
+float t_max           ;   // Max run time in seconds
+float t_output        ;   // Output interval in seconds
+float tension         ;   // Cell cortical tension
+float adhesion        ;
+float re              ;
+float len             ;
+float h               ;
+float t     = 0       ;   // Run time in seconds
+int   nloop = 0       ;   // Just counts how many time steps there have been so far
+int   realtimeplot    ;   // Flag for real time plotting
+int   plotfluid       ;
+int   shapeflag       ;
+vector<ofstream> files;   // Set of output files
+cube  xg              ;
+mat   sg              ;
+cube  fg              ;
+cube  vg              ;
+cube  ug              ;
+mat   xbglobal        ;
+mat   ubglobal        ;
+mat   fbglobal        ;
+int   Nbs          = 4;
 float xmin;
 float xmax;
 mat sb       = mat(2,Nbs,fill::zeros);
@@ -65,7 +68,7 @@ int main(int argc,char *argv[]) {
   // Set up data output files
   OpenCloseFiles(outputfolder,files,realtimeplot,0);
 
-  Initialise(argc,argv,files,Elements,Nb,Ng,rho,mu,re,tension,adhesion,dt,t_max,t_output,realtimeplot,plotfluid,xmin,xmax,hg,xg,sg,fg,vg,ug,xbglobal,ubglobal,fbglobal);
+  Initialise(argc,argv,files,Elements,Nb,Ng,rho,mu,re,tension,adhesion,dt,t_max,t_output,realtimeplot,plotfluid,xmin,xmax,hg,xg,sg,fg,vg,ug,xbglobal,ubglobal,fbglobal,shapeflag,len,h);
 
   OutputData(outputfolder,files,Elements,xbglobal,xg,fg,Nb,Ng,nloop,realtimeplot,1,plotfluid,xmin,xmax);
 
@@ -75,7 +78,7 @@ int main(int argc,char *argv[]) {
     // Calculate tension forces
     AdjacentForces(Elements,hg,re,Nb,tension);
     // Calculate adhesion forces
-    MatrixAdhesion(Elements,Nb,adhesion,hg,re);
+    MatrixAdhesion(Elements,Nb,adhesion,hg,re,shapeflag,len,h);
     // Convert from local data to global arrays
     LocalToGlobal(Elements,xbglobal,fbglobal,ubglobal,Nb);
     // Calculate contributions of fluid sources

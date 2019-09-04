@@ -14,7 +14,7 @@
 
 using namespace std;
 
-void ReadParameters(int argc,char *argv[],ofstream& file,int& Ng,float& rho,float& mu,float& len,float& h,float& zeta,float& re,float& tension,float& adhesion,float& D,float& conc,float& tdif_max,float& dt,float& t_max,float& t_output,int& realtimeplot,int& plotfluid){
+void ReadParameters(int argc,char *argv[],ofstream& file,int& Ng,float& rho,float& mu,float& len,float& h,float& zeta,float& re,float& tension,float& adhesion,float& D,float& conc,float& tdif_max,float& dt,float& t_max,float& t_output,int& realtimeplot,int& plotfluid,int& shapeflag){
 	//static const std::streamsize max = std::numeric_limits<std::streamsize>::max();
 //	std::vector<float> values;
 //	string input;
@@ -44,6 +44,7 @@ void ReadParameters(int argc,char *argv[],ofstream& file,int& Ng,float& rho,floa
 	t_output      = atof(argv[15]);
 	realtimeplot  = atoi(argv[16]);
 	plotfluid     = atoi(argv[17]);
+  shapeflag     = atoi(argv[18]);
 
 //	for (int ii=0; ii<argc;ii++){
 	//	values[ii] = atof(argv[ii]);
@@ -65,6 +66,7 @@ void ReadParameters(int argc,char *argv[],ofstream& file,int& Ng,float& rho,floa
   file << "t_output           " << t_output        << endl;
   file << "realtimeplot       " << realtimeplot    << endl;
 	file << "plotfluid          " << plotfluid       << endl;
+  file << "shapeflag          " << shapeflag       << endl;
 	file.flush();
 
 }

@@ -13,7 +13,7 @@
 using namespace std;
 using namespace arma;
 
-void InitialDiffusion(mat& AccumGrid,const float& conc,const float& D,const float& tdif_max,const float& len,const float& h,const float& zeta,const int& Ng,const float& hg){
+void InitialDiffusion(mat& AccumGrid,const float& conc,const float& D,const float& tdif_max,const float& len,const float& h,const float& zeta,const int& Ng,const float& hg,const int& shapeflag){
 
   mat ConcentrationGrid = mat(Ng,Ng,fill::zeros);
   mat InitialGrid       = mat(Ng,Ng,fill::zeros);
@@ -28,7 +28,7 @@ void InitialDiffusion(mat& AccumGrid,const float& conc,const float& D,const floa
   // Create initial diffusion concentration with InitialShape function.
   for (int i = 0; i < Ng; i++) {
     for (int j = 0; j < Ng; j++) {
-      if (InitialShape(i,j,len,h,zeta,Ng,hg)){
+      if (InitialShape(i,j,len,h,zeta,Ng,hg,shapeflag)){
         InitialGrid(i,j) = conc;
       }else{
         InitialGrid(i,j) = 0;

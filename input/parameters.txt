@@ -15,3 +15,4 @@ t_max         = 2000
 t_output      = 10
 realtimeplot  = 1
 plotfluid     = 0
+shapeflag     = 1

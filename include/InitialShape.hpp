@@ -11,7 +11,7 @@
 
 #include <armadillo>
 
-bool InitialShape(const int& i,const int& j,const float& len, const float& h, const float& zeta,const int& Ng,const float& hg);
+bool InitialShape(const int& i,const int& j,const float& len, const float& h, const float& zeta,const int& Ng,const float& hg,const int& shapeflag);
 
 
 #endif /* InitialShape_hpp */
