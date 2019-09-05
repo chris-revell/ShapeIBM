@@ -31,8 +31,23 @@ fig,ax=plt.subplots()
 #    ax.quiver(grid0[::arraystep,::arraystep],grid1[::arraystep,::arraystep],data0[::arraystep,::arraystep],data1[::arraystep,::arraystep],pivot='mid')
 ax.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
 ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-#ax.plot(np.append(data[:,0],data[0,0]),np.append(data[:,1],data[0,1]))
-ax.scatter(data[:,0],data[:,1],c=data[:,2],s=5,cmap='gray_r',vmin=0,vmax=np.max(data[:,2]),edgecolors='none')
+
+ordered = np.zeros((nbounds,2))
+i=0
+currentelement = 0
+previouselement = 0
+while i<nbounds:
+    neighbour = int(data[currentelement,-2])
+    if neighbour == previouselement:
+        neighbour = int(data[currentelement,-1])
+    ordered[i,:] = data[neighbour,:2]
+    i=i+1
+    previouselement=currentelement
+    currentelement = neighbour
+
+
+ax.plot(np.append(ordered[:,0],ordered[0,0]),np.append(ordered[:,1],ordered[0,1]),c="black")
+#ax.scatter(data[:,0],data[:,1],c=data[:,2],s=5,cmap='gray_r',vmin=0,vmax=np.max(data[:,2]),edgecolors='none')
 ax.set_xlim([xmin,xmax])
 ax.set_ylim([xmin,xmax])
 ax.set_aspect('equal')
