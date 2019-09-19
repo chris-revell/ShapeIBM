@@ -16,7 +16,7 @@
 #include <chrono>
 #include <ctime>
 
-void OpenCloseFiles(char* buffer,std::vector<std::ofstream>& files,const int& realtimeplot,const int& endflag);
+void OpenCloseFiles(char* buffer,std::vector<std::ofstream>& files,const int& endflag);
 
 
 #endif

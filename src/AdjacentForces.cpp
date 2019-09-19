@@ -34,6 +34,6 @@ void AdjacentForces(vector<element>& Elements,const float& hg,const float& re,co
     r1=sqrt(dot(d1,d1));
     localSpringConstant0 = tension*(n0.accumulatedEffector+elementii.accumulatedEffector)/2.0;
     localSpringConstant1 = tension*(n1.accumulatedEffector+elementii.accumulatedEffector)/2.0;
-    elementii.fb = localSpringConstant0*(r0-re*hg)*d0/r0+localSpringConstant1*(r1-re*hg)*d1/r1;
+    elementii.fb = localSpringConstant0*(r0-elementii.re0)*d0/r0+localSpringConstant1*(r1-elementii.re1)*d1/r1;
   }
 }

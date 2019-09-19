@@ -16,7 +16,7 @@
 
 using namespace std;
 
-void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& realtimeplot,const int& endflag){
+void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& endflag){
 
   vector<string> names;
   std::time_t result = std::time(nullptr);
@@ -27,9 +27,7 @@ void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& realtimeplo
     for (int ii=0;ii<files.size();ii++){
       files[ii].close();
     }
-    if (realtimeplot==1){
-      system(("convert -delay 10 -loop 0 "+string(buffer)+"/plot*.png "+string(buffer)+"/plotanimated.gif").c_str());
-    }
+    system(("convert -delay 10 -loop 0 "+string(buffer)+"/plot*.png "+string(buffer)+"/plotanimated.gif").c_str());
   }else{
     strftime (buffer,26, "output/%F-%H-%M-%S",timeinfo);
     system(("mkdir "+string(buffer)).c_str());

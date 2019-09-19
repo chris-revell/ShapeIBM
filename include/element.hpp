@@ -15,14 +15,16 @@
 class element {
 private:
 public:
-    element(const int& Label, const float& initialx, const float& initialy, const float& accum);
+    element(const int& Label, const float& initialx, const float& initialy, const float& accum, const float& r0, const float& r1);
     void SetAdhesion(void);
     arma::vec pos        = arma::vec(2,arma::fill::zeros);       // Element position
     arma::vec initialpos = arma::vec(2,arma::fill::zeros);       // Initial element position
     arma::vec fb         = arma::vec(2,arma::fill::zeros);       // Forces on element
     int n0;
     int n1;
-    float accumulatedEffector;    
+    int re0;
+    int re1;
+    float accumulatedEffector;
     ~element();
 protected:
 

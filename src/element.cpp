@@ -13,13 +13,15 @@
 using namespace std;
 using namespace arma;
 
-element::element(const int& Label, const float& initialx, const float& initialy, const float& accum){
+element::element(const int& Label, const float& initialx, const float& initialy, const float& accum, const float& r0, const float& r1){
   pos(0)              = initialx;
   pos(1)              = initialy;
   fb.zeros();
   accumulatedEffector = accum;
   initialpos(0)       = initialx;
-  initialpos(1)       = initialy;  
+  initialpos(1)       = initialy;
+  re0                 = r0;
+  re1                 = r1;
 }
 
 element::~element() {}

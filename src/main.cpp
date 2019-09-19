@@ -66,7 +66,7 @@ char outputfolder[26];
 int main(int argc,char *argv[]) {
 
   // Set up data output files
-  OpenCloseFiles(outputfolder,files,realtimeplot,0);
+  OpenCloseFiles(outputfolder,files,0);
 
   Initialise(argc,argv,files,Elements,Nb,Ng,rho,mu,re,tension,adhesion,dt,t_max,t_output,realtimeplot,plotfluid,xmin,xmax,hg,xg,sg,fg,vg,ug,xbglobal,ubglobal,fbglobal,shapeflag,len,h);
 
@@ -104,6 +104,6 @@ int main(int argc,char *argv[]) {
   }
 
   // Close data files
-  OpenCloseFiles(outputfolder,files,realtimeplot,1);
+  OpenCloseFiles(outputfolder,files,1);
   return 0;
 }

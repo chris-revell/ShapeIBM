@@ -58,7 +58,7 @@ void Initialise(int argc,char *argv[],vector<ofstream>& files,vector<element>& E
   for (int ii=0; ii<Ng; ii++){
     for (int jj=0; jj<Ng; jj++){
       if (AccumGrid(ii,jj) > 0){
-        Elements.push_back(element(elementCount,xg(ii,jj,0)+0.00001,xg(ii,jj,1)+0.00001,AccumGrid(ii,jj)));
+        Elements.push_back(element(elementCount,xg(ii,jj,0)+0.00001,xg(ii,jj,1)+0.00001,AccumGrid(ii,jj),1,1));
         elementCount++;
       }
     }
@@ -66,13 +66,13 @@ void Initialise(int argc,char *argv[],vector<ofstream>& files,vector<element>& E
 
   // Set boundary arrays according to new element count
   Nb = elementCount;
+  // Resize global boundary arrays accordingly
+  xbglobal.resize(2,Nb);
+  ubglobal.resize(2,Nb);
+  fbglobal.resize(2,Nb);
 
-  xbglobal.resize(2,elementCount);
-  ubglobal.resize(2,elementCount);
-  fbglobal.resize(2,elementCount);
 
-
-  // Find neighbouring elements
+  // Find neighbouring elements and set equilibrium radii
   for (int ii=0; ii<elementCount; ii++){
     vec distances = vec(elementCount,fill::zeros);
     for (int jj=0; jj<elementCount; jj++){
@@ -85,6 +85,8 @@ void Initialise(int argc,char *argv[],vector<ofstream>& files,vector<element>& E
       uvec indices = sort_index(distances);
       Elements[ii].n0 = indices[0];
       Elements[ii].n1 = indices[1];
+      Elements[ii].re0 = distances[re*Elements[ii].n0];
+      Elements[ii].re1 = distances[re*Elements[ii].n1];      
     }
   }
 
