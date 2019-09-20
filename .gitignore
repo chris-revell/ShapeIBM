@@ -5,4 +5,4 @@ build/*
 *.gch
 *.tmp
 old/
-shapeIBM
+./shapeIBM
