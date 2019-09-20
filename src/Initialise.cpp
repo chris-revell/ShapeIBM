@@ -85,8 +85,8 @@ void Initialise(int argc,char *argv[],vector<ofstream>& files,vector<element>& E
       uvec indices = sort_index(distances);
       Elements[ii].n0 = indices[0];
       Elements[ii].n1 = indices[1];
-      Elements[ii].re0 = distances[re*Elements[ii].n0];
-      Elements[ii].re1 = distances[re*Elements[ii].n1];      
+      Elements[ii].re0 = re*distances[indices[0]];
+      Elements[ii].re1 = re*distances[indices[1]];
     }
   }
 

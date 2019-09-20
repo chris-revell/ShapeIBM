@@ -46,9 +46,6 @@ void ReadParameters(int argc,char *argv[],ofstream& file,int& Ng,float& rho,floa
 	plotfluid     = atoi(argv[17]);
   shapeflag     = atoi(argv[18]);
 
-//	for (int ii=0; ii<argc;ii++){
-	//	values[ii] = atof(argv[ii]);
-	//}
 
 	file << "Ng                 " << Ng              << endl;
   file << "rho                " << rho             << endl;
