@@ -1,8 +1,25 @@
-.DS_store
-output/*
-bin/*
-build/*
-*.gch
-*.tmp
-old/
-./shapeIBM
+# Ignore all
+*
+
+*.DS_Store
+
+# Ignore `bin` dir
+bin/
+# or
+*/bin/*
+
+# Ignore `bin` dir
+output/
+# or
+*/output/*
+
+# Ignore `bin` dir
+build/
+# or
+*/build/*
+
+!*/scripts/*.py
+
+!*/src/*.cpp
+
+!*/include/*.hpp
