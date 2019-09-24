@@ -57,6 +57,7 @@ void ReadParameters(int argc,char *argv[],ofstream& file,int& Ng,float& rho,floa
   file << "tension            " << tension         << endl;
   file << "adhesion           " << adhesion        << endl;
   file << "D                  " << D               << endl;
+  file << "conc               " << conc             << endl;
   file << "tdif_max           " << tdif_max        << endl;
   file << "dt                 " << dt              << endl;
   file << "t_max              " << t_max           << endl;
