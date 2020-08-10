@@ -7,6 +7,7 @@
 //
 
 #include "ReadParameters.hpp"
+#include "OpenCloseFiles.hpp"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -14,7 +15,7 @@
 
 using namespace std;
 
-void ReadParameters(int argc,char *argv[],ofstream& file,int& Ng,float& rho,float& mu,float& len,float& h,float& zeta,float& re,float& tension,float& adhesion,float& D,float& conc,float& tdif_max,float& dt,float& t_max,float& t_output,int& realtimeplot,int& plotfluid,int& shapeflag){
+void ReadParameters(int argc,char *argv[],char* outputfolder,vector<ofstream>& files,int& Ng,float& rho,float& mu,float& len,float& h,float& zeta,float& re,float& tension,float& adhesion,float& D,float& conc,float& tdif_max,float& dt,float& t_max,float& t_output,int& realtimeplot,int& plotfluid,int& shapeflag){
 	//static const std::streamsize max = std::numeric_limits<std::streamsize>::max();
 //	std::vector<float> values;
 //	string input;
@@ -46,25 +47,27 @@ void ReadParameters(int argc,char *argv[],ofstream& file,int& Ng,float& rho,floa
 	plotfluid     = atoi(argv[17]);
   shapeflag     = atoi(argv[18]);
 
+  OpenCloseFiles(outputfolder,files,0,zeta,adhesion,conc);
 
-	file << "Ng                 " << Ng              << endl;
-  file << "rho                " << rho             << endl;
-  file << "mu                 " << mu              << endl;
-  file << "len                " << len             << endl;
-  file << "h                  " << h               << endl;
-	file << "zeta               " << zeta            << endl;
-  file << "re                 " << re              << endl;
-  file << "tension            " << tension         << endl;
-  file << "adhesion           " << adhesion        << endl;
-  file << "D                  " << D               << endl;
-  file << "conc               " << conc             << endl;
-  file << "tdif_max           " << tdif_max        << endl;
-  file << "dt                 " << dt              << endl;
-  file << "t_max              " << t_max           << endl;
-  file << "t_output           " << t_output        << endl;
-  file << "realtimeplot       " << realtimeplot    << endl;
-	file << "plotfluid          " << plotfluid       << endl;
-  file << "shapeflag          " << shapeflag       << endl;
-	file.flush();
+
+	files[0] << "Ng                 " << Ng              << endl;
+  files[0] << "rho                " << rho             << endl;
+  files[0] << "mu                 " << mu              << endl;
+  files[0] << "len                " << len             << endl;
+  files[0] << "h                  " << h               << endl;
+	files[0] << "zeta               " << zeta            << endl;
+  files[0] << "re                 " << re              << endl;
+  files[0] << "tension            " << tension         << endl;
+  files[0] << "adhesion           " << adhesion        << endl;
+  files[0] << "D                  " << D               << endl;
+  files[0] << "conc               " << conc             << endl;
+  files[0] << "tdif_max           " << tdif_max        << endl;
+  files[0] << "dt                 " << dt              << endl;
+  files[0] << "t_max              " << t_max           << endl;
+  files[0] << "t_output           " << t_output        << endl;
+  files[0] << "realtimeplot       " << realtimeplot    << endl;
+	files[0] << "plotfluid          " << plotfluid       << endl;
+  files[0] << "shapeflag          " << shapeflag       << endl;
+	files[0].flush();
 
 }

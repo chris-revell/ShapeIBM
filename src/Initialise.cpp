@@ -17,7 +17,7 @@
 using namespace std;
 using namespace arma;
 
-void Initialise(int argc,char *argv[],vector<ofstream>& files,vector<element>& Elements,int& Nb,int& Ng,float& rho,float& mu,float& re,float& tension,float& adhesion,float& dt,float& t_max,float& t_output,int& realtimeplot,int& plotfluid,float& xmin,float& xmax,float& hg,arma::cube& xg,arma::mat& sg,arma::cube& fg,arma::cube& vg,arma::cube& ug,arma::mat& xbglobal,arma::mat& ubglobal,arma::mat& fbglobal,int& shapeflag,float& len,float& h){
+void Initialise(int argc,char *argv[],char* buffer2,vector<ofstream>& files,vector<element>& Elements,int& Nb,int& Ng,float& rho,float& mu,float& re,float& tension,float& adhesion,float& dt,float& t_max,float& t_output,int& realtimeplot,int& plotfluid,float& xmin,float& xmax,float& hg,arma::cube& xg,arma::mat& sg,arma::cube& fg,arma::cube& vg,arma::cube& ug,arma::mat& xbglobal,arma::mat& ubglobal,arma::mat& fbglobal,int& shapeflag,float& len,float& h){
   // System parameters
   int elementCount = 0;
   float dxjj_sq,D,tdif_max,zeta,conc;
@@ -29,7 +29,7 @@ void Initialise(int argc,char *argv[],vector<ofstream>& files,vector<element>& E
   vec dxn0 = vec(2,fill::zeros);
   vec dxn1 = vec(2,fill::zeros);
 
-  ReadParameters(argc,argv,files[0],Ng,rho,mu,len,h,zeta,re,tension,adhesion,D,conc,tdif_max,dt,t_max,t_output,realtimeplot,plotfluid,shapeflag);
+  ReadParameters(argc,argv,buffer2,files,Ng,rho,mu,len,h,zeta,re,tension,adhesion,D,conc,tdif_max,dt,t_max,t_output,realtimeplot,plotfluid,shapeflag);
 
   xg           = cube(Ng+1,Ng+1,2,fill::zeros);
   sg           = mat(Ng+1,Ng+1,fill::zeros);
