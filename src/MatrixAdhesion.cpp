@@ -36,7 +36,7 @@ void MatrixAdhesion(vector<element>& Elements,const int& Nb,const float& adhesio
     dr = sqrt(dot(dvec,dvec));
     //if (dr < 0.000000001 || dr > 2*hg){
     if (shapeflag==1 && elementii.pos(0) < (hg-len) && elementii.pos(0) > (-hg-len) && elementii.pos(1) < 0.25*h && elementii.pos(1) > -0.26*h){
-      Fmag = 10*normalisationfactor*adhesion;
+      Fmag = 20.0*normalisationfactor*adhesion;
     }
     else if (dr > 2*re*hg){
       Fmag=0;

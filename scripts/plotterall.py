@@ -44,7 +44,8 @@ for nplot,floatnbounds in enumerate(nbounddata):
     ax.set_ylim([xmin,xmax])
     ax.set_aspect('equal')
     nboundspassed = nboundspassed+nbounds
-    fig.savefig(argv[2]+"/plot{:04d}.png".format(nplot),bbox_inches='tight',padding_inches=0,dpi=200)
+    fig.savefig(argv[2]+"/plot{:04d}.png".format(nplot),bbox_inches='tight',dpi=200)
     plt.close()
 
 #os.system("convert "+argv[2]+"/plot*.png -shave 268x143 "+argv[2]+"/plot*.png")
+os.system("convert -delay 20 -loop 0 "+argv[2]+"/plot*.png "+argv[2]+"/animated.gif")

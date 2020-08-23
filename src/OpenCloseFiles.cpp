@@ -25,13 +25,6 @@ void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& endflag,con
   timeinfo = localtime (&result);
 
 
-
-
-
-
-
-
-
     sprintf (buffer, "output/%04d-%04d-%04d",static_cast<int>(zeta*1000),static_cast<int>(adhesion*1000),static_cast<int>(conc*1000));
     system(("mkdir "+string(buffer)).c_str());
     names.push_back((string(buffer)+"/initialconditions.txt").c_str());
