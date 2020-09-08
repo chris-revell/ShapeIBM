@@ -13,13 +13,20 @@ xmax = 1 #float(argv[4])
 
 grid0 = np.genfromtxt(argv[2]+"/gridpositions0.txt")
 grid1 = np.genfromtxt(argv[2]+"/gridpositions1.txt")
-nbounddata = np.genfromtxt(argv[2]+"/nbounds.txt")
+#nbounddata = np.genfromtxt(argv[2]+"/nbounds.txt",dtype='i8',delimiter="\n")
 data = np.genfromtxt(argv[2]+"/boundarypositions.txt",delimiter=", ")
 
+conditions = {}
+with open("{}/initialconditions.txt".format(argv[2])) as f:
+    for line in f:
+       (key, val) = line.split()
+       conditions[key] = float(val)
+
+nbounds = int(conditions["Nb"])
 nboundspassed = 0
 
-for nplot,floatnbounds in enumerate(nbounddata):
-    nbounds = int(floatnbounds)
+for nplot in range(int(conditions["Intervals"])):
+
     fig,ax=plt.subplots()
     ax.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
     ax.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)

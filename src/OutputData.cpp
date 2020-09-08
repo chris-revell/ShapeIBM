@@ -28,9 +28,9 @@ void OutputData(const char* buffer2,vector<ofstream>& files,const vector<element
     files[1] << Elements[ii].n0 << ", ";
     files[1] << Elements[ii].n1 << endl;
   }
-  files[2] << Nb << endl;
+  //files[2] << Nb << endl;
   files[1].flush();
-  files[2].flush();
+  //files[2].flush();
 
   if (startflag==1){
     // Write grid positions to file

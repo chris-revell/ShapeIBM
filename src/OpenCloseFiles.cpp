@@ -17,7 +17,7 @@
 
 using namespace std;
 
-void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& endflag,const float& zeta,const float& adhesion,const float& conc){
+void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& endflag,const float& zeta,const float& adhesion,const float& conc,const float& len){
 
   vector<string> names;
   std::time_t result = std::time(nullptr);
@@ -25,7 +25,7 @@ void OpenCloseFiles(char*  buffer,vector<ofstream>& files,const int& endflag,con
   timeinfo = localtime (&result);
 
 
-    sprintf (buffer, "output/%04d-%04d-%04d",static_cast<int>(zeta*1000),static_cast<int>(adhesion*1000),static_cast<int>(conc*1000));
+    sprintf (buffer, "output/%04d-%04d-%04d-%04d",static_cast<int>(zeta*1000),static_cast<int>(adhesion*1000),static_cast<int>(conc*1000),static_cast<int>(len*2000));
     system(("mkdir "+string(buffer)).c_str());
     names.push_back((string(buffer)+"/initialconditions.txt").c_str());
     names.push_back((string(buffer)+"/boundarypositions.txt").c_str());

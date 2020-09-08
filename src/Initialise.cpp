@@ -40,8 +40,8 @@ void Initialise(int argc,char *argv[],char* buffer2,vector<ofstream>& files,vect
   ubglobal     = mat(2,0,fill::zeros);
   fbglobal     = mat(2,0,fill::zeros);
   AccumGrid    = mat(Ng,Ng,fill::zeros);
-  xmin         =cen-static_cast<float>(dimensions);
-  xmax         =cen+static_cast<float>(dimensions);
+  xmin         = cen-static_cast<float>(dimensions);
+  xmax         = cen+static_cast<float>(dimensions);
   hg           = (xmax-xmin)/float(Ng);
 
   //-- define fluid grid --//
@@ -66,6 +66,8 @@ void Initialise(int argc,char *argv[],char* buffer2,vector<ofstream>& files,vect
 
   // Set boundary arrays according to new element count
   Nb = elementCount;
+  files[0] << "Nb                 " << Nb << endl;
+  files[0] << "Intervals          " << static_cast<int>(t_max/t_output)+1 << endl;
   // Resize global boundary arrays accordingly
   xbglobal.resize(2,Nb);
   ubglobal.resize(2,Nb);

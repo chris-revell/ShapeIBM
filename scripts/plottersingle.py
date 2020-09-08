@@ -74,6 +74,6 @@ fig.colorbar(line, ax=ax)
 ax.set_xlim([xmin,xmax])
 ax.set_ylim([xmin,xmax])
 ax.set_aspect('equal')
-fig.savefig(argv[7]+"/plot{:04d}.png".format(nplot),bbox_inches='tight',padding_inches=0,dpi=200)
+fig.savefig(argv[7]+"/plot{:04d}.png".format(nplot),bbox_inches='tight',dpi=200)
 
 #os.system("convert output/plot{:04d}.png -shave 268x143 output/plot{:04d}.png".format(nplot,nplot))

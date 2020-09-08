@@ -47,7 +47,7 @@ void ReadParameters(int argc,char *argv[],char* outputfolder,vector<ofstream>& f
 	plotfluid     = atoi(argv[17]);
   shapeflag     = atoi(argv[18]);
 
-  OpenCloseFiles(outputfolder,files,0,zeta,adhesion,conc);
+  OpenCloseFiles(outputfolder,files,0,zeta,adhesion,conc,len);
 
 
 	files[0] << "Ng                 " << Ng              << endl;
@@ -60,7 +60,7 @@ void ReadParameters(int argc,char *argv[],char* outputfolder,vector<ofstream>& f
   files[0] << "tension            " << tension         << endl;
   files[0] << "adhesion           " << adhesion        << endl;
   files[0] << "D                  " << D               << endl;
-  files[0] << "conc               " << conc             << endl;
+  files[0] << "conc               " << conc            << endl;
   files[0] << "tdif_max           " << tdif_max        << endl;
   files[0] << "dt                 " << dt              << endl;
   files[0] << "t_max              " << t_max           << endl;
