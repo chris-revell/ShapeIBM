@@ -19,7 +19,7 @@ bool InitialShape(const int& i,const int& j,const float& len, const float& h, co
   float y_1,y_0;
 
   if (shapeflag==0){
-
+    // Diamond
     if (x < zeta*2.0*len-len){
       y_1 = x*h/(zeta*2.0*len) + h/(2.0*zeta);
       y_0 = -y_1;
@@ -41,6 +41,7 @@ bool InitialShape(const int& i,const int& j,const float& len, const float& h, co
     }
   }
   else if (shapeflag==1){
+    // Trapezium
     y_1 = h*(zeta-1)*x/(2.0*len) +h/2.0;
     y_0 = -y_1;
     if (x>(-len) && x<(len) && y<y_1 && y>y_0){
@@ -51,10 +52,11 @@ bool InitialShape(const int& i,const int& j,const float& len, const float& h, co
     }
   }
   else {
-    float A = 1.0*0.2;
-    y_1 = A/(2.0*len) - 2.0*A*x/(4.0*len*len);
-    y_0 = -(A/(2.0*len) - 2.0*A*x/(4.0*len*len));
-    if (y<y_1 && y>y_0){
+    // Triangle
+    float A = len*h;
+    y_1 = A/(2.0*zeta*len) - 2.0*A*x/(4.0*zeta*len*zeta*len);
+    y_0 = -(A/(2.0*zeta*len) - 2.0*A*x/(4.0*zeta*len*zeta*len));
+    if (x>(-zeta*len) && x<(zeta*len) && y<y_1 && y>y_0){
       return true;
     }
     else{
