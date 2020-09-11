@@ -42,8 +42,8 @@ bool InitialShape(const int& i,const int& j,const float& len, const float& h, co
   }
   else if (shapeflag==1){
     y_1 = h*(zeta-1)*x/(2.0*len) +h/2.0;
-    y_0 = -(h*(zeta-1)*x/(2.0*len) +h/2.0);
-    if (y<y_1 && y>y_0){
+    y_0 = -y_1;
+    if (x>(-len) && x<(len) && y<y_1 && y>y_0){
       return true;
     }
     else{
