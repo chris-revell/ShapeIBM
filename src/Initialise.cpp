@@ -17,10 +17,10 @@
 using namespace std;
 using namespace arma;
 
-void Initialise(int argc,char *argv[],char* buffer2,vector<ofstream>& files,vector<element>& Elements,int& Nb,int& Ng,float& rho,float& mu,float& re,float& tension,float& adhesion,float& dt,float& t_max,float& t_output,int& realtimeplot,int& plotfluid,float& xmin,float& xmax,float& hg,arma::cube& xg,arma::mat& sg,arma::cube& fg,arma::cube& vg,arma::cube& ug,arma::mat& xbglobal,arma::mat& ubglobal,arma::mat& fbglobal,int& shapeflag,float& len,float& h){
+void Initialise(int argc,char *argv[],char* buffer2,vector<ofstream>& files,vector<element>& Elements,int& Nb,int& Ng,float& rho,float& mu,float& re,float& tension,float& adhesion,float& dt,float& t_max,float& t_output,int& realtimeplot,int& plotfluid,float& xmin,float& xmax,float& hg,arma::cube& xg,arma::mat& sg,arma::cube& fg,arma::cube& vg,arma::cube& ug,arma::mat& xbglobal,arma::mat& ubglobal,arma::mat& fbglobal,int& shapeflag,float& len,float& h,float& zeta){
   // System parameters
   int elementCount = 0;
-  float dxjj_sq,D,tdif_max,zeta,conc;
+  float dxjj_sq,D,tdif_max,conc;
   float cen=0;
   float dimensions=1;
 

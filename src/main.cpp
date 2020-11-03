@@ -40,6 +40,7 @@ float adhesion        ;
 float re              ;
 float len             ;
 float h               ;
+float zeta            ;
 float t     = 0       ;   // Run time in seconds
 int   nloop = 0       ;   // Just counts how many time steps there have been so far
 int   realtimeplot    ;   // Flag for real time plotting
@@ -68,7 +69,7 @@ int main(int argc,char *argv[]) {
   // Set up data output files
   //OpenCloseFiles(outputfolder,files,0);
 
-  Initialise(argc,argv,outputfolder,files,Elements,Nb,Ng,rho,mu,re,tension,adhesion,dt,t_max,t_output,realtimeplot,plotfluid,xmin,xmax,hg,xg,sg,fg,vg,ug,xbglobal,ubglobal,fbglobal,shapeflag,len,h);
+  Initialise(argc,argv,outputfolder,files,Elements,Nb,Ng,rho,mu,re,tension,adhesion,dt,t_max,t_output,realtimeplot,plotfluid,xmin,xmax,hg,xg,sg,fg,vg,ug,xbglobal,ubglobal,fbglobal,shapeflag,len,h,zeta);
 
   OutputData(outputfolder,files,Elements,xbglobal,xg,fg,Nb,Ng,nloop,realtimeplot,1,plotfluid,xmin,xmax);
 
@@ -78,7 +79,7 @@ int main(int argc,char *argv[]) {
     // Calculate tension forces
     AdjacentForces(Elements,hg,re,Nb,tension);
     // Calculate adhesion forces
-    MatrixAdhesion(Elements,Nb,adhesion,hg,re,shapeflag,len,h);
+    MatrixAdhesion(Elements,Nb,adhesion,hg,re,shapeflag,len,h,zeta);
     // Convert from local data to global arrays
     LocalToGlobal(Elements,xbglobal,fbglobal,ubglobal,Nb);
     // Calculate contributions of fluid sources

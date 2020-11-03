@@ -15,7 +15,7 @@
 using namespace std;
 using namespace arma;
 
-void MatrixAdhesion(vector<element>& Elements,const int& Nb,const float& adhesion,const float& hg, const float& re,const int& shapeflag,const float& len,const float& h){
+void MatrixAdhesion(vector<element>& Elements,const int& Nb,const float& adhesion,const float& hg, const float& re,const int& shapeflag,const float& len,const float& h,const float& zeta){
 
   float dr,Fmag,r0,r1,normalisationfactor;
   vec dvec = vec(2,fill::zeros);
@@ -34,9 +34,13 @@ void MatrixAdhesion(vector<element>& Elements,const int& Nb,const float& adhesio
     normalisationfactor = (r0+r1)/(re*hg*2.0);
     dvec = Elements[ii].initialpos-Elements[ii].pos;
     dr = sqrt(dot(dvec,dvec));
-    //if (dr < 0.000000001 || dr > 2*hg){
-    if (elementii.pos(0) < (hg-len) && elementii.pos(0) > (-hg-len)){// && elementii.pos(1) < 0.25*h && elementii.pos(1) > -0.26*h){
+
+
+    if (shapeflag != 2 && elementii.pos(0) < (hg-len) && elementii.pos(0) > (-hg-len)){// && elementii.pos(1) < 0.25*h && elementii.pos(1) > -0.26*h){
       Fmag = 30.0*normalisationfactor*adhesion;
+    }
+    else if (shapeflag == 2 && elementii.pos(0) < (hg-zeta*len) && elementii.pos(0) > (-hg-zeta*len)){
+      Fmag = 10.0*normalisationfactor*adhesion;
     }
     else if (dr > 2*re*hg){
       Fmag=0;
